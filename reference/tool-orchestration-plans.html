@@ -1,0 +1,80 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Tool Orchestration Plans Reference</title>
+  <link rel="stylesheet" href="../assets/course.css">
+</head>
+<body>
+  <main>
+    <header>
+      <p class="kicker">Reference 0006</p>
+      <h1 id="tool-orchestration-plans">Tool Orchestration Plans</h1>
+      <p class="summary">Use this sheet to decide which tool calls run now, which wait, which require approval, and how results are synthesized.</p>
+    </header>
+
+    <section>
+      <h2 id="the-decision">The Decision</h2>
+      <p class="compact">A tool orchestration plan is the controller-owned execution map for a multi-tool workflow. It marks known inputs, dependencies, parallel groups, gates, failure paths, and the final evidence bundle returned to the model.</p>
+    </section>
+
+    <section>
+      <h2 id="plan-template">Plan Template</h2>
+      <ul>
+        <li><strong>Goal:</strong> user-visible outcome and stop condition.</li>
+        <li><strong>Known inputs:</strong> identifiers, permissions, task state, constraints, and missing facts.</li>
+        <li><strong>Parallel group:</strong> independent read or retrieval calls that can run together.</li>
+        <li><strong>Dependencies:</strong> calls that need outputs from earlier calls.</li>
+        <li><strong>Gates:</strong> policy, verifier, confidence, budget, safety, or human approval checks.</li>
+        <li><strong>Failure paths:</strong> retry limits, partial-result behavior, fallback, escalation, and audit notes.</li>
+        <li><strong>Synthesis:</strong> final response shape, evidence list, omitted raw data, and correlation ID.</li>
+      </ul>
+    </section>
+
+    <section>
+      <h2 id="execution-rules">Execution Rules</h2>
+      <div class="grid">
+        <article class="card">
+          <span class="tag">Parallel</span>
+          <h3 id="independent-reads">Independent reads</h3>
+          <p>Run together when calls have all required inputs, do not depend on each other, and do not mutate shared state.</p>
+        </article>
+        <article class="card">
+          <span class="tag">Serial</span>
+          <h3 id="data-dependency">Data dependency</h3>
+          <p>Run after when a call needs an ID, fact, permission, or decision produced by a prior step.</p>
+        </article>
+        <article class="card">
+          <span class="tag">Gate</span>
+          <h3 id="sensitive-effect">Sensitive effect</h3>
+          <p>Require explicit policy or human approval for irreversible, unsafe, expensive, externally visible, or low-confidence actions.</p>
+        </article>
+        <article class="card">
+          <span class="tag">Synthesize</span>
+          <h3 id="evidence-bundle">Evidence bundle</h3>
+          <p>Send the model a compact, provenance-rich summary rather than every raw tool payload.</p>
+        </article>
+      </div>
+    </section>
+
+    <section class="callout">
+      <h2 id="anti-patterns">Anti-Patterns</h2>
+      <ul>
+        <li>Parallelizing calls that compete for the same mutable record.</li>
+        <li>Letting a prompt reminder act as the only approval gate for a sensitive tool.</li>
+        <li>Returning a final answer as if a failed parallel branch had succeeded.</li>
+        <li>Using a general DAG compiler for a two-step workflow where fixed sequencing is clearer.</li>
+        <li>Passing bulky raw tool outputs into context instead of a narrow evidence bundle.</li>
+      </ul>
+    </section>
+
+    <section>
+      <h2 id="review-question">Review Question</h2>
+      <p class="compact">Before adding another model call, ask: is this actually a reasoning problem, or is it an execution-shape problem the controller can solve with dependencies, gates, retries, and synthesis?</p>
+    </section>
+
+    <p class="footer-note">Related lesson: <a href="../lessons/0007-tool-orchestration-plans.html">0007 - Tool Orchestration Plans</a>.</p>
+  </main>
+</body>
+</html>
