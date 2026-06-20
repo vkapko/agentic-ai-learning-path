@@ -1,0 +1,116 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Agentic AI Learning Path</title>
+  <link rel="stylesheet" href="assets/course.css">
+</head>
+<body>
+  <main>
+    <header>
+      <p class="kicker">Learning Path</p>
+      <h1 id="agentic-ai-learning-path">Agentic AI System Design</h1>
+      <p class="summary">A sequence of focused lessons on designing autonomous AI systems — control loops, agent types, tools, memory, coordination, and the trade-offs behind each choice. Work through them in order or jump to what you need.</p>
+    </header>
+
+    <section>
+      <h2 id="lessons">Lessons</h2>
+      <ol class="grid">
+        <li class="card">
+          <span class="tag">Lesson 0001</span>
+          <h3><a href="lessons/0001-agentic-ai-control-loop.html">Agentic AI Is a Control Loop</a></h3>
+          <p>Classify a system as predictive, generative, or agentic, then map one agentic workflow into perceive, interpret, reason, act, observe, and update steps.</p>
+        </li>
+        <li class="card">
+          <span class="tag">Lesson 0002</span>
+          <h3><a href="lessons/0002-agent-types-and-autonomy.html">Pick the Simplest Agent That Fits</a></h3>
+          <p>Classify a system as simple reflex, model-based reflex, goal-based, or utility-based, justify the smallest type that fits, and name the guardrails each step up the autonomy ladder demands.</p>
+        </li>
+        <li class="card">
+          <span class="tag">Lesson 0003</span>
+          <h3><a href="lessons/0003-python-agent-implementations.html">Implement the Loop in Python</a></h3>
+          <p>Choose when to use the Claude Python SDK directly and when to use LangGraph, then identify where the agentic control loop lives in each example.</p>
+        </li>
+        <li class="card">
+          <span class="tag">Lesson 0004</span>
+          <h3><a href="lessons/0004-system-architecture-choices.html">Decide When More Agents Are Worth It</a></h3>
+          <p>Choose between single-agent, centralized multi-agent, decentralized, and hybrid designs, then name the new failure modes introduced by coordination.</p>
+        </li>
+        <li class="card">
+          <span class="tag">Lesson 0005</span>
+          <h3><a href="lessons/0005-reasoning-behavior-patterns.html">Choose the Smallest Reasoning Pattern</a></h3>
+          <p>Select one-shot generation, decomposition, ReAct, reflection, or episode memory based on the pressure in the workflow.</p>
+        </li>
+        <li class="card">
+          <span class="tag">Lesson 0006</span>
+          <h3><a href="lessons/0006-tool-interface-contracts.html">Design Tools As Control Boundaries</a></h3>
+          <p>Turn a vague agent capability into a tool contract with purpose, schema, permissions, side effects, error states, and observability.</p>
+        </li>
+        <li class="card">
+          <span class="tag">Lesson 0007</span>
+          <h3><a href="lessons/0007-tool-orchestration-plans.html">Draw the Tool Orchestration Plan</a></h3>
+          <p>Turn a workflow into a small execution plan that marks dependencies, parallel calls, approval gates, failure paths, and the final synthesis step.</p>
+        </li>
+        <li class="card">
+          <span class="tag">Lesson 0008</span>
+          <h3><a href="lessons/0008-runtime-monitoring-and-recovery.html">Design the Runtime Safety Net</a></h3>
+          <p>Define what an agent run must log, what signals trigger intervention, and how the system recovers from partial failure without hiding uncertainty.</p>
+        </li>
+        <li class="card">
+          <span class="tag">Lesson 0009</span>
+          <h3><a href="lessons/0009-structured-output-reliable-extraction.html">Design the Extraction Contract</a></h3>
+          <p>Turn a vague extraction request into a schema, validation rule, and retry policy that reduces syntax errors without pretending semantics are solved.</p>
+        </li>
+        <li class="card">
+          <span class="tag">Lesson 0010</span>
+          <h3><a href="lessons/0010-context-escalation-provenance.html">Preserve the Case File</a></h3>
+          <p>Design a context packet that keeps exact facts, escalation reasons, and claim-source links intact as an agent workflow gets longer.</p>
+        </li>
+        <li class="card">
+          <span class="tag">Lesson 0011</span>
+          <h3><a href="lessons/0011-multi-agent-coordination.html">Divide the Work, Keep One Truth</a></h3>
+          <p>Pick a coordination shape for a multi-agent task, assign worker roles and tool boundaries, and design the shared-state contract that keeps every agent reading the same truth.</p>
+        </li>
+        <li class="card">
+          <span class="tag">Lesson 0012</span>
+          <h3><a href="lessons/0012-search-verification-self-correction.html">When One Pass Is Not Enough</a></h3>
+          <p>Choose between exploring action paths (LATS), generating a reasoning strategy first (Self-Discover), and an independent verifier — and judge what actually makes a second pass add reliability instead of just cost.</p>
+        </li>
+        <li class="card">
+          <span class="tag">Lesson 0013</span>
+          <h3><a href="lessons/0013-memory-as-data-infrastructure.html">Memory Is Data Infrastructure</a></h3>
+          <p>After an agent finishes a task, decide what to write to long-term memory, classify each record, attach governable metadata, and write a retrieval rule that ranks by authority and recency — not similarity alone.</p>
+        </li>
+        <li class="card">
+          <span class="tag">Lesson 0014</span>
+          <h3><a href="lessons/0014-human-in-the-loop-approval-boundaries.html">Human-in-the-Loop and Approval Boundaries</a></h3>
+          <p>Place a human gate only where it earns its cost, pick the right interrupt (approve-before, review-after, or escalate-on-trigger), write explicit escalation criteria, and say what feedback changes — memory, policy, or weights.</p>
+        </li>
+        <li class="card">
+          <span class="tag">Lesson 0015</span>
+          <h3><a href="lessons/0015-design-spine-end-to-end-sketch.html">The Design Spine: An End-to-End Agent Sketch</a></h3>
+          <p>One repeatable template that turns "design an agent" into eight ordered passes — frame, fit, loop, tools, memory, gates, monitoring, failure modes — and produce one full architecture sketch with it.</p>
+        </li>
+        <li class="card">
+          <span class="tag">Lesson 0016</span>
+          <h3><a href="lessons/0016-claude-code-configuration-and-ci.html">Claude Code Configuration and CI/CD Workflows</a></h3>
+          <p>Place a convention at the right Claude Code surface and sharing level, choose plan mode vs direct execution by scope, and wire a CI review so its findings are trustworthy.</p>
+        </li>
+      </ol>
+    </section>
+
+    <section>
+      <h2 id="reference-library">Reference Library</h2>
+      <p>The condensed source documents the lessons draw from:</p>
+      <ul>
+        <li><a href="agentic-ai-architecture-foundations-designing-autonomous-ai-systems.html">Architecture Foundations</a> — agent types, module breakdown, monitoring, single vs. multi-agent systems.</li>
+        <li><a href="agentic-ai-planning-and-reasoning-design.html">Planning and Reasoning Design</a> — Plan-and-Execute, ReWOO, LATS, Self-Discover, verification, and memory patterns.</li>
+        <li><a href="agentic-ai-solution-design-patterns.html">Solution Design Patterns</a> — ReAct, Reflection, Reflexion, multi-agent coordination, and collective memory.</li>
+      </ul>
+    </section>
+
+    <p class="footer-note">A personal learning path and reference library for agentic AI system design.</p>
+  </main>
+</body>
+</html>
