@@ -1,0 +1,247 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Lesson 0013: Memory Is Data Infrastructure</title>
+  <link rel="stylesheet" href="../assets/course.css">
+  <script src="../assets/quiz.js" defer></script>
+  <script src="../assets/reveal.js" defer></script>
+</head>
+<body>
+  <main>
+    <header>
+      <p class="kicker">Lesson 0013</p>
+      <h1 id="memory-is-data-infrastructure">Memory Is Data Infrastructure</h1>
+      <p class="summary">Tangible win: after an agent finishes a task, decide what to write to long-term memory, classify each record, attach the metadata that makes it governable, and write a retrieval rule that ranks by authority and recency — not similarity alone.</p>
+    </header>
+
+    <section>
+      <h2 id="the-one-idea">The One Idea</h2>
+      <p>Earlier lessons kept touching memory without designing it: lesson <a href="./0005-reasoning-behavior-patterns.html#remember-feedback">0005</a> listed episode memory as a reasoning option, lesson <a href="./0010-context-escalation-provenance.html">0010</a> attached provenance to facts inside one run, and lesson <a href="./0011-multi-agent-coordination.html">0011</a> gave agents a shared-state contract. This lesson designs the store those all depend on. The local notes are blunt about the frame: <a href="../agentic-ai-solution-design-patterns.html#practical-design-checklist">treat memory as data infrastructure</a> — provenance, permissions, expiry, conflict handling, and observability. Memory is not the chat transcript and it is not learning; it is a governed data store the agent reads from and writes to on purpose.</p>
+      <p>Keep the compact version open: <a href="../reference/memory-as-data-infrastructure.html">Memory as Data Infrastructure Reference</a>.</p>
+    </section>
+
+    <section class="callout">
+      <h2 id="minimum-rule">Minimum Rule</h2>
+      <p>Every long-term memory record carries provenance, owner, timestamp, confidence, and expiry — and retrieval ranks records by authority and recency, not by similarity alone. A store without those is a transcript, not memory.</p>
+    </section>
+
+    <section>
+      <h2 id="two-kinds">Two Kinds of Durable Memory</h2>
+      <p>The planning notes split <a href="../agentic-ai-planning-and-reasoning-design.html#episodic-and-procedural-memory">durable memory</a> from the short-lived scratchpad that holds the current task's state. The scratchpad is thrown away when the task ends; durable memory survives across sessions and comes in two flavors.</p>
+      <div class="grid">
+        <article class="card">
+          <span class="tag">Episodic</span>
+          <h3 id="episodic">What happened</h3>
+          <p>Specific past interactions: requests, responses, feedback, user preferences, history. <em>"User A always books the Innovation Suite and requests vegetarian catering."</em> Answers <strong>who wanted what, when</strong>.</p>
+        </article>
+        <article class="card">
+          <span class="tag">Procedural</span>
+          <h3 id="procedural">What worked</h3>
+          <p>Action sequences and tool outcomes: which toolchain succeeded, parameters, latency, success rate. <em>"Venue search needs 3 retries; internal booking succeeds first try."</em> Answers <strong>how to do it well next time</strong>.</p>
+        </article>
+        <article class="card">
+          <span class="tag">Scratchpad</span>
+          <h3 id="scratchpad">Right now (not durable)</h3>
+          <p>Current task goals, intermediate results, observations. Lives for one run, then discarded. Promoting scratchpad to durable memory without filtering is how stores fill with noise.</p>
+        </article>
+      </div>
+    </section>
+
+    <section>
+      <h2 id="three-updates-trap">The Three-Updates Trap</h2>
+      <p>The costly confusion is treating every "the agent got better" the same way. Three different things can change, and they live in three different systems:</p>
+      <ul>
+        <li><strong>Memory update</strong> — write a record to the store. Cheap, instant, reversible, scoped to whoever retrieves it. <em>"Remember this user prefers vegetarian."</em></li>
+        <li><strong>Policy / threshold update</strong> — change a rule, prompt, escalation trigger, or evaluator. Affects every run, needs review and rollout. <em>"Always require approval above $500."</em></li>
+        <li><strong>Model-weight update</strong> — fine-tune or retrain. Slow, expensive, hard to reverse, changes the model itself. <em>Not</em> what happens when an agent "learns from feedback" via memory.</li>
+      </ul>
+      <p>Reflexion and in-context learning improve behavior by <a href="../agentic-ai-solution-design-patterns.html#reflexion-style-episode-learning">writing memory and re-injecting it into the prompt — not by touching weights</a>. Conflating the three leads to real mistakes: putting a security rule in episodic memory where one user's record can override it, or reaching for fine-tuning when a memory write would do. Match the change to the system that should own it.</p>
+    </section>
+
+    <section>
+      <h2 id="retrieval-is-the-hard-part">Retrieval Is the Hard Part</h2>
+      <p>Writing is easy; retrieving the <em>right</em> record under a token budget is where memory fails. A pure similarity search "optimizes similarity but ignores authority or recency" — it will happily surface a stale, low-confidence, or out-of-scope memory because it reads like the query. Good retrieval scores on more than one axis. The Generative Agents memory stream is the canonical example: it ranks by <strong>recency, importance, and relevance</strong> together. Add <strong>authority</strong> (a policy record outranks a user anecdote) and <strong>permission</strong> (never retrieve a memory the current caller is not allowed to see), and only then inject the top few into the prompt — because, as lesson <a href="./0010-context-escalation-provenance.html">0010</a> noted, a long context window does not read everything uniformly.</p>
+    </section>
+
+    <section>
+      <h2 id="classify-the-record">Classify the Record</h2>
+      <p>For each item an agent might store, name what kind of record it is and which system should own the change.</p>
+
+      <course-quiz>
+        <script type="application/json">
+          {
+            "questions": [
+              {
+                "prompt": "An agent learns that a given user always wants invoices sent as PDF, not as a link.",
+                "answer": 0,
+                "choices": [
+                  {
+                    "label": "Episodic memory",
+                    "feedback": "A user preference from a past interaction is episodic — scoped to that user, retrieved when acting on their behalf."
+                  },
+                  {
+                    "label": "Procedural memory",
+                    "feedback": "Procedural memory records which tool sequence worked, not a per-user preference."
+                  },
+                  {
+                    "label": "Policy update rule",
+                    "feedback": "One user's preference is not a system-wide rule; storing it as policy would over-apply it."
+                  },
+                  {
+                    "label": "Model-weight change",
+                    "feedback": "A preference never needs retraining; a memory write captures it instantly and reversibly."
+                  }
+                ]
+              },
+              {
+                "prompt": "Across many runs, the search tool reliably needs three retries before it returns, while the booking tool succeeds first try.",
+                "answer": 1,
+                "choices": [
+                  {
+                    "label": "Episodic memory",
+                    "feedback": "This is about tool behavior over time, not a specific user interaction."
+                  },
+                  {
+                    "label": "Procedural memory",
+                    "feedback": "Tool outcomes, latency, and success rates are procedural — reusable knowledge about how to act well."
+                  },
+                  {
+                    "label": "Scratchpad only",
+                    "feedback": "A pattern that holds across runs belongs in durable memory, not the discarded scratchpad."
+                  },
+                  {
+                    "label": "Model-weight change",
+                    "feedback": "Tool reliability is operational data; retraining the model would not capture it."
+                  }
+                ]
+              },
+              {
+                "prompt": "The team decides every refund above five hundred dollars must now get human approval.",
+                "answer": 2,
+                "choices": [
+                  {
+                    "label": "Episodic memory",
+                    "feedback": "A rule that binds every run is not a per-interaction record; storing it as episodic lets one record drift."
+                  },
+                  {
+                    "label": "Procedural memory",
+                    "feedback": "This is a constraint on what is allowed, not a record of what worked before."
+                  },
+                  {
+                    "label": "Policy update rule",
+                    "feedback": "A system-wide constraint is a policy/threshold change that needs review and applies to all runs."
+                  },
+                  {
+                    "label": "Model-weight change",
+                    "feedback": "An approval threshold is a rule to enforce, not behavior to retrain into the model."
+                  }
+                ]
+              },
+              {
+                "prompt": "Two stored memories about the same account disagree. Which one should retrieval prefer?",
+                "answer": 1,
+                "choices": [
+                  {
+                    "label": "Most similar text",
+                    "feedback": "Picking by similarity alone is exactly the failure mode — it ignores which record is authoritative or current."
+                  },
+                  {
+                    "label": "Higher authority, recent",
+                    "feedback": "Rank by authority and recency: a current, higher-trust record should beat a stale or lower-confidence one."
+                  },
+                  {
+                    "label": "Longer record text",
+                    "feedback": "Length is not evidence of correctness or currency."
+                  },
+                  {
+                    "label": "Whichever loads fast",
+                    "feedback": "Retrieval speed says nothing about which record is true."
+                  }
+                ]
+              }
+            ]
+          }
+        </script>
+      </course-quiz>
+    </section>
+
+    <section class="exercise">
+      <h2 id="recall-check">Recall Check</h2>
+      <p>From memory: name the five pieces of metadata every durable record should carry, and the two ranking axes retrieval must add beyond similarity.</p>
+      <textarea aria-label="Recall metadata fields and ranking axes" placeholder="Metadata fields (5):&#10;Ranking axes beyond similarity (2):"></textarea>
+      <p><button type="button" class="secondary" data-reveal="#recall-answer">Show example</button></p>
+      <div class="answer" id="recall-answer">
+        <p>Metadata: provenance (source), owner, timestamp, confidence, expiry. Retrieval must add at least authority (how trusted/binding the record is) and recency (how current it is) on top of relevance — and filter by permission before anything is injected.</p>
+      </div>
+    </section>
+
+    <section class="exercise">
+      <h2 id="design-drill-writeback">Design Drill: Design the Write-Back</h2>
+      <p>A scheduling agent just booked a team offsite for a returning client. The run produced: the client's request, the venue it chose, a note that the catering tool failed twice then succeeded, the client's emailed thanks, and the human approver's sign-off on the spend. Decide what to write to durable memory, what to drop, and the type plus metadata for each kept record.</p>
+      <textarea aria-label="Design the write-back after a task" placeholder="Keep / drop for each item:&#10;Type (episodic / procedural / policy):&#10;Metadata to attach:"></textarea>
+      <p><button type="button" class="secondary" data-reveal="#example-answer">Show example</button></p>
+      <div class="answer" id="example-answer">
+        <pre><code>[
+  { "record": "client prefers this venue + offsite format",
+    "type": "episodic", "keep": true,
+    "meta": { "owner": "clientId", "source": "this run", "confidence": "med",
+              "timestamp": "2026-06-20", "expiry": "review in 12mo" } },
+  { "record": "catering tool: 2 failures then success; budget retries",
+    "type": "procedural", "keep": true,
+    "meta": { "owner": "ops", "source": "tool logs", "confidence": "high",
+              "timestamp": "2026-06-20", "expiry": "supersede on tool change" } },
+  { "record": "approver signed off on the spend",
+    "type": "episodic/approval", "keep": true,
+    "meta": { "owner": "audit", "source": "human approval", "confidence": "high",
+              "expiry": "retain per policy" } },
+  { "record": "client's thank-you email",
+    "keep": false, "why": "no future decision depends on it; scratchpad only" }
+]</code></pre>
+        <p>Note: the spend rule itself ("offsites need approval") is a <em>policy</em>, not a memory write — it should already live as a rule, not be re-learned per run.</p>
+      </div>
+    </section>
+
+    <section class="exercise">
+      <h2 id="design-drill-retrieval">Design Drill: Write the Retrieval Rule</h2>
+      <p>The same agent starts a new task for a different client. Its memory store holds thousands of records. Write the rule that decides which memories get injected into the prompt — and make it resistant to surfacing the wrong account's data or a stale preference.</p>
+      <textarea aria-label="Write a retrieval ranking and filtering rule" placeholder="Hard filters (before ranking):&#10;Ranking axes and rough weights:&#10;How many records injected:&#10;Tie-break on conflict:"></textarea>
+      <p><button type="button" class="secondary" data-reveal="#example-answer-2">Show example</button></p>
+      <div class="answer" id="example-answer-2">
+        <p><strong>Hard filters first:</strong> drop any record the current caller lacks permission to see, any past its expiry, and any not scoped to this client (no cross-account leakage). <strong>Then rank</strong> the survivors on relevance × recency × authority (policy and approval records outrank user anecdotes), with a small confidence weight. <strong>Inject only the top 3–5</strong> to respect the token budget and avoid burying the binding facts. <strong>On conflict</strong>, prefer higher authority, then more recent; if a high-stakes conflict remains unresolved, escalate rather than guess.</p>
+      </div>
+    </section>
+
+    <section class="exercise">
+      <h2 id="design-drill-poison">Design Drill: Defend Against Poisoned Memory</h2>
+      <p>A teammate wants the agent to auto-write every user message verbatim into long-term episodic memory "so it never forgets context." In two sentences, name the failure this invites and the cheapest guardrail.</p>
+      <textarea aria-label="Argue against unfiltered verbatim memory writes" placeholder="What can go wrong:&#10;Cheapest guardrail:"></textarea>
+      <p><button type="button" class="secondary" data-reveal="#example-answer-3">Show example</button></p>
+      <div class="answer" id="example-answer-3">
+        <p>Verbatim auto-write lets a bad, malicious, or injected message become a durable record that later retrieval treats as truth — bad memories poison future behavior, and stored text becomes a prompt-injection vector. The cheapest guardrail is to write only filtered, summarized records with provenance and confidence, low-confidence/unverified entries expiring fast, and authority ranking so a stray user anecdote can never outrank a policy record.</p>
+      </div>
+    </section>
+
+    <section>
+      <h2 id="architecture-check">Architecture Check</h2>
+      <ul>
+        <li>Is this a memory write, a policy change, or a weight update — and is it going to the system that should own it?</li>
+        <li>Does every durable record carry provenance, owner, timestamp, confidence, and expiry?</li>
+        <li>Is the scratchpad kept separate from durable memory, with a deliberate filter between them?</li>
+        <li>Does retrieval rank on authority and recency, not similarity alone — and filter by permission first?</li>
+        <li>What happens when two records conflict? Who wins, and when does the agent escalate instead?</li>
+        <li>Can a stored user message act as a prompt-injection vector when it is retrieved later?</li>
+        <li>Is there an expiry and retention rule, so the store does not grow stale or violate privacy?</li>
+      </ul>
+    </section>
+
+    <section class="callout">
+      <h2 id="primary-source">Primary Source</h2>
+      <p>Read the local <a href="../agentic-ai-planning-and-reasoning-design.html#chapter-3-memory-skill-and-adaptive-action-design-patterns">Memory, Skill, and Adaptive Action</a> chapter for the episodic/procedural split and in-context learning, plus <a href="../agentic-ai-solution-design-patterns.html#reflexion-style-episode-learning">Reflexion-Style Episode Learning</a> on improving via memory rather than weights. For retrieval scored by recency, importance, and relevance, see <a href="https://arxiv.org/abs/2304.03442">Generative Agents</a>; for why a long context window does not retrieve uniformly, see <a href="https://arxiv.org/abs/2307.03172">Lost in the Middle</a>.</p>
+    </section>
+
+    <p class="footer-note">Previous lesson: <a href="./0012-search-verification-self-correction.html">0012 - Search, Verification, and Self-Correction</a>. Ask the agent follow-up questions: hand it a finished task from your own work and ask it to design the write-back and retrieval rule, then challenge whether each "learning" is really a memory write or a policy change in disguise.</p>
+  </main>
+</body>
+</html>

@@ -1,0 +1,94 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Memory as Data Infrastructure Reference</title>
+  <link rel="stylesheet" href="../assets/course.css">
+</head>
+<body>
+  <main>
+    <header>
+      <p class="kicker">Reference 0013</p>
+      <h1 id="memory-as-data-infrastructure">Memory as Data Infrastructure</h1>
+      <p class="summary">Use this sheet to decide what to write to an agent's long-term memory, classify each record, attach governance metadata, and retrieve the right record under a token budget.</p>
+    </header>
+
+    <section>
+      <h2 id="the-rule">The Rule</h2>
+      <p class="compact">Every durable record carries provenance, owner, timestamp, confidence, and expiry. Retrieval ranks by authority and recency, not similarity alone, and filters by permission first. A store missing those is a transcript, not memory.</p>
+    </section>
+
+    <section>
+      <h2 id="memory-kinds">Three Stores</h2>
+      <div class="grid">
+        <article class="card">
+          <span class="tag">Episodic</span>
+          <h3 id="episodic">What happened</h3>
+          <p>Past interactions, preferences, history. Scoped to a user or account. <em>Who wanted what, when.</em></p>
+        </article>
+        <article class="card">
+          <span class="tag">Procedural</span>
+          <h3 id="procedural">What worked</h3>
+          <p>Tool sequences, parameters, latency, success rates. Reusable skill knowledge. <em>How to act well next time.</em></p>
+        </article>
+        <article class="card">
+          <span class="tag">Scratchpad</span>
+          <h3 id="scratchpad">Right now</h3>
+          <p>Current task state and intermediate results. Discarded at task end. Filter before promoting any of it to durable memory.</p>
+        </article>
+      </div>
+    </section>
+
+    <section>
+      <h2 id="three-updates">Three Different Updates</h2>
+      <ul>
+        <li><strong>Memory update</strong> — write a record. Cheap, instant, reversible, scoped to who retrieves it.</li>
+        <li><strong>Policy / threshold update</strong> — change a rule, prompt, trigger, or evaluator. Applies to every run; needs review and rollout.</li>
+        <li><strong>Model-weight update</strong> — fine-tune or retrain. Slow, expensive, hard to reverse. <em>Not</em> what "learning from feedback" via memory does.</li>
+      </ul>
+      <p class="compact">Reflexion and in-context learning improve behavior by writing memory and re-injecting it — never by touching weights. Match each change to the system that should own it.</p>
+    </section>
+
+    <section>
+      <h2 id="record-anatomy">Record Anatomy</h2>
+      <ul>
+        <li><strong>Provenance</strong> — where it came from (this run, tool logs, human, external source).</li>
+        <li><strong>Owner / scope</strong> — whose record it is; who may retrieve it.</li>
+        <li><strong>Timestamp</strong> — when written, for recency ranking.</li>
+        <li><strong>Confidence</strong> — how trusted; low-confidence entries should expire fast.</li>
+        <li><strong>Expiry / retention</strong> — when it goes stale or must be purged (privacy, policy).</li>
+      </ul>
+    </section>
+
+    <section>
+      <h2 id="retrieval">Retrieval Order</h2>
+      <ul>
+        <li><strong>1. Hard filters</strong> — drop records the caller lacks permission for, past expiry, or out of scope (no cross-account leakage).</li>
+        <li><strong>2. Rank survivors</strong> — relevance × recency × authority (policy/approval outrank anecdotes), small confidence weight. The Generative Agents stream scores recency + importance + relevance.</li>
+        <li><strong>3. Inject the top 3–5</strong> — respect the token budget; a long window does not read everything uniformly (Lost in the Middle).</li>
+        <li><strong>4. On conflict</strong> — higher authority, then more recent; escalate if a high-stakes conflict is unresolved.</li>
+      </ul>
+    </section>
+
+    <section class="callout">
+      <h2 id="anti-patterns">Anti-Patterns</h2>
+      <ul>
+        <li>Auto-writing every user message verbatim — poisoned memory and a prompt-injection vector.</li>
+        <li>Storing a system-wide rule as one user's episodic record, where it can drift or over-apply.</li>
+        <li>Reaching for fine-tuning when a memory write would capture the change instantly.</li>
+        <li>Retrieval by similarity alone, surfacing stale, low-confidence, or out-of-scope records.</li>
+        <li>No expiry, so the store grows stale and risks privacy/retention violations.</li>
+        <li>Promoting the scratchpad to durable memory unfiltered, filling the store with noise.</li>
+      </ul>
+    </section>
+
+    <section>
+      <h2 id="review-question">Review Question</h2>
+      <p class="compact">Before storing a "learning," ask: is this a memory write, a policy change, or a weight update — and once stored, can retrieval rank it by authority and recency, or only by how similar it reads?</p>
+    </section>
+
+    <p class="footer-note">Related lesson: <a href="../lessons/0013-memory-as-data-infrastructure.html">0013 - Memory Is Data Infrastructure</a>.</p>
+  </main>
+</body>
+</html>
