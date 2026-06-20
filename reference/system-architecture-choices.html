@@ -1,0 +1,73 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>System Architecture Choices Reference</title>
+  <link rel="stylesheet" href="../assets/course.css">
+</head>
+<body>
+  <main>
+    <header>
+      <p class="kicker">Reference 0003</p>
+      <h1>System Architecture Choices</h1>
+      <p class="summary">Use this sheet to decide when a single agent is enough, when coordination is worth it, and which decisions must stay centralized.</p>
+    </header>
+
+    <section>
+      <h2>The Decision</h2>
+      <p class="compact">Start with one agent unless the workflow has a real coordination pressure: specialized roles, parallelizable work, local autonomy, independent actors, or context isolation. The local architecture notes warn that multi-agent systems require communication, delegation, shared state, conflict resolution, and monitoring.</p>
+    </section>
+
+    <section>
+      <h2>Architecture Options</h2>
+      <div class="grid">
+        <article class="card">
+          <span class="tag">Single agent</span>
+          <h3>One owner</h3>
+          <p>Use for narrow workflows with one clear decision owner. Risk: one prompt or controller accumulates too many responsibilities.</p>
+        </article>
+        <article class="card">
+          <span class="tag">Centralized</span>
+          <h3>Coordinator controls</h3>
+          <p>Use when governance, observability, or high-level routing must be consistent. Risk: bottleneck, central failure, and heavy coordination traffic.</p>
+        </article>
+        <article class="card">
+          <span class="tag">Decentralized</span>
+          <h3>Agents decide locally</h3>
+          <p>Use when local responsiveness, fault isolation, or intermittent connectivity matters. Risk: conflicting decisions and harder governance.</p>
+        </article>
+        <article class="card">
+          <span class="tag">Hybrid</span>
+          <h3>Central plus local</h3>
+          <p>Use when central policy owns goals and escalation, while local agents handle bounded decisions. This is common in real deployments.</p>
+        </article>
+      </div>
+    </section>
+
+    <section>
+      <h2>Coordinator-Subagent Rule</h2>
+      <p>A coordinator should own task decomposition, delegation, result aggregation, error routing, and final arbitration. Subagents should receive explicit context, role-specific tools, and a structured output contract. Do not assume subagents inherit the coordinator's conversation, memory, or source context automatically.</p>
+    </section>
+
+    <section>
+      <h2>Failure Modes Added by More Agents</h2>
+      <ul>
+        <li><strong>Coverage gap:</strong> the coordinator decomposes the task too narrowly, so every subagent succeeds but the result misses part of the problem.</li>
+        <li><strong>State split:</strong> agents act from different versions of facts, policy, or task status.</li>
+        <li><strong>Duplicate work:</strong> agents investigate the same area because scopes are unclear.</li>
+        <li><strong>Conflict:</strong> two agents recommend incompatible actions or optimize different goals.</li>
+        <li><strong>Hidden failure:</strong> a timeout or access failure is reported as an empty result instead of structured error context.</li>
+        <li><strong>Lost provenance:</strong> synthesis drops source URLs, document names, page numbers, dates, or confidence notes.</li>
+      </ul>
+    </section>
+
+    <section class="callout">
+      <h2>Sketch Template</h2>
+      <p><strong>Coordinator owns:</strong> goal, decomposition, routing, shared state, arbitration, approval, final answer. <strong>Subagents own:</strong> bounded task, allowed tools, local retries, structured findings. <strong>Shared contract:</strong> input context, output schema, source metadata, error schema, stop condition.</p>
+    </section>
+
+    <p class="footer-note">Related lesson: <a href="../lessons/0004-system-architecture-choices.html">0004 - System Architecture Choices</a>.</p>
+  </main>
+</body>
+</html>

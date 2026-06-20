@@ -1,0 +1,214 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Lesson 0004: System Architecture Choices</title>
+  <link rel="stylesheet" href="../assets/course.css">
+  <script src="../assets/quiz.js" defer></script>
+  <script src="../assets/reveal.js" defer></script>
+</head>
+<body>
+  <main>
+    <header>
+      <p class="kicker">Lesson 0004</p>
+      <h1>Decide When More Agents Are Worth It</h1>
+      <p class="summary">Tangible win: choose between single-agent, centralized multi-agent, decentralized, and hybrid designs, then name the new failure modes introduced by coordination.</p>
+    </header>
+
+    <section>
+      <h2>The One Idea</h2>
+      <p>Multi-agent architecture is not an upgrade by default. It is a trade: you buy specialization, parallelism, context isolation, local autonomy, or resilience, and you pay with communication overhead, inconsistent state, conflicting goals, harder debugging, and harder auditability. The local architecture notes define a multi-agent system as two or more agents that coordinate, collaborate, compete, or divide work, which means the design now needs protocols for delegation, shared state, conflict resolution, and monitoring <a href="../agentic-ai-architecture-foundations-designing-autonomous-ai-systems.md#multi-agent-system">[local architecture notes]</a>.</p>
+      <p>Keep the compact version open: <a href="../reference/system-architecture-choices.html">System Architecture Choices Reference</a>.</p>
+    </section>
+
+    <section class="callout">
+      <h2>The Minimum Test</h2>
+      <p>Add more agents only when one of these pressures is real: the work needs specialized roles, can run safely in parallel, benefits from isolated context, requires local autonomy, or must continue when one worker fails. If none of those are true, start with one agent and make the control loop observable.</p>
+    </section>
+
+    <section>
+      <h2>Four Shapes</h2>
+      <div class="grid">
+        <article class="card">
+          <span class="tag">Single agent</span>
+          <h3>One decision owner</h3>
+          <p>Best for narrow workflows and one clear owner. Watch for the prompt or controller absorbing too many unrelated responsibilities.</p>
+        </article>
+        <article class="card">
+          <span class="tag">Centralized</span>
+          <h3>Coordinator routes</h3>
+          <p>A central controller assigns tasks and enforces policy. Easier to audit, but it can become a bottleneck or single point of failure.</p>
+        </article>
+        <article class="card">
+          <span class="tag">Decentralized</span>
+          <h3>Agents decide locally</h3>
+          <p>Agents plan and act locally. Useful for distributed environments, but governance and conflict resolution become harder.</p>
+        </article>
+        <article class="card">
+          <span class="tag">Hybrid</span>
+          <h3>Central plus local</h3>
+          <p>Central coordination owns goals, policy, and escalation; local agents handle bounded action. The local notes call this common in real-world agentic systems.</p>
+        </article>
+      </div>
+    </section>
+
+    <section>
+      <h2>Coordinator-Subagent Pattern</h2>
+      <p>Claude's architecture reference describes a hub-and-spoke coordinator-subagent pattern: the coordinator manages inter-subagent communication, error handling, information routing, task decomposition, delegation, result aggregation, and which subagents to invoke <a href="../Claude%20Certified%20Architect%20%E2%80%93%20Foundations.md#task-statement-12-orchestrate-multi-agent-systems-with-coordinator-subagent-patterns">[Claude architecture reference]</a>. A key constraint is context: subagents do not automatically inherit the coordinator's conversation history, so the coordinator must pass the facts, source metadata, quality criteria, and task boundaries they need <a href="../Claude%20Certified%20Architect%20%E2%80%93%20Foundations.md#task-statement-13-configure-subagent-invocation-context-passing-and-spawning">[context passing]</a>.</p>
+      <p>That makes the coordinator the place to defend coverage, provenance, arbitration, approvals, and recovery. Subagents should be narrow, tool-scoped, and structured in their outputs.</p>
+    </section>
+
+    <section>
+      <h2>Choose the Shape</h2>
+      <p>Pick the smallest architecture that fits the described pressure.</p>
+
+      <course-quiz>
+        <script type="application/json">
+          {
+            "questions": [
+              {
+                "prompt": "A refund assistant checks policy and recommends approve or deny. A human still issues money.",
+                "answer": 0,
+                "choices": [
+                  {
+                    "label": "Single agent",
+                    "feedback": "One narrow workflow and one decision owner are enough."
+                  },
+                  {
+                    "label": "Central team",
+                    "feedback": "Coordination adds little because the task is not split."
+                  },
+                  {
+                    "label": "Local team",
+                    "feedback": "There is no distributed local action pressure."
+                  },
+                  {
+                    "label": "Hybrid team",
+                    "feedback": "No bounded local autonomy is described."
+                  }
+                ]
+              },
+              {
+                "prompt": "A research system searches the web, analyzes PDFs, verifies claims, and synthesizes a cited report in parallel.",
+                "answer": 1,
+                "choices": [
+                  {
+                    "label": "Single agent",
+                    "feedback": "Parallel specialized roles are a real coordination pressure."
+                  },
+                  {
+                    "label": "Central team",
+                    "feedback": "A coordinator can partition work, collect findings, preserve provenance, and route gaps."
+                  },
+                  {
+                    "label": "Local team",
+                    "feedback": "There is no need for independent local authority."
+                  },
+                  {
+                    "label": "Hybrid team",
+                    "feedback": "Useful later, but central routing is the first clean fit."
+                  }
+                ]
+              },
+              {
+                "prompt": "Warehouse robots must make fast local path decisions when network connectivity is intermittent.",
+                "answer": 2,
+                "choices": [
+                  {
+                    "label": "Single agent",
+                    "feedback": "One remote decision owner would be fragile under intermittent connectivity."
+                  },
+                  {
+                    "label": "Central team",
+                    "feedback": "Central control may be too slow or unavailable for local path decisions."
+                  },
+                  {
+                    "label": "Local team",
+                    "feedback": "Decentralized local autonomy fits distributed fast action."
+                  },
+                  {
+                    "label": "Hybrid team",
+                    "feedback": "A central policy layer may exist, but the stated pressure is local autonomy."
+                  }
+                ]
+              },
+              {
+                "prompt": "A support platform centrally enforces refund policy, while regional agents resolve low-risk cases within local limits.",
+                "answer": 3,
+                "choices": [
+                  {
+                    "label": "Single agent",
+                    "feedback": "There are central and regional responsibilities."
+                  },
+                  {
+                    "label": "Central team",
+                    "feedback": "Pure central control ignores the local bounded decisions."
+                  },
+                  {
+                    "label": "Local team",
+                    "feedback": "Pure decentralization loses the central policy boundary."
+                  },
+                  {
+                    "label": "Hybrid team",
+                    "feedback": "Central policy plus bounded local autonomy is the hybrid pattern."
+                  }
+                ]
+              }
+            ]
+          }
+        </script>
+      </course-quiz>
+    </section>
+
+    <section class="exercise">
+      <h2>Recall Check</h2>
+      <p>From memory: name two things multi-agent designs can improve, and two things they make harder.</p>
+      <textarea aria-label="Recall benefits and costs of multi-agent designs" placeholder="Improves:&#10;Makes harder:"></textarea>
+      <p><button type="button" class="secondary" data-reveal="#recall-answer">Show example</button></p>
+      <div class="answer" id="recall-answer">
+        <p><strong>Improves:</strong> specialization and parallelism; also context isolation, local autonomy, or resilience when those are real pressures. <strong>Makes harder:</strong> shared state, communication, conflict resolution, debugging, auditing, provenance, and error recovery.</p>
+      </div>
+    </section>
+
+    <section class="exercise">
+      <h2>Design Drill: Research Coordinator</h2>
+      <p>You are designing a multi-agent research system for "AI impact on creative industries." The coordinator assigns only these subtasks: digital art, graphic design, and photography. Every subagent succeeds, but the final report misses music, writing, and film.</p>
+      <textarea aria-label="Diagnose coordinator decomposition failure" placeholder="Root cause:&#10;Fix:&#10;Monitor:"></textarea>
+      <p><button type="button" class="secondary" data-reveal="#example-answer">Show example</button></p>
+      <div class="answer" id="example-answer">
+        <p><strong>Root cause:</strong> coordinator decomposition was too narrow. The subagents executed correctly inside bad task boundaries. <strong>Fix:</strong> require the coordinator to first map coverage dimensions, assign non-overlapping scopes, and ask synthesis to report coverage gaps before final output. <strong>Monitor:</strong> log original topic, decomposition, assigned scopes, returned findings, omitted areas, and any re-delegation.</p>
+      </div>
+    </section>
+
+    <section class="exercise">
+      <h2>Design Drill: Error Propagation</h2>
+      <p>A web-search subagent times out. Which response should it return to help the coordinator recover?</p>
+      <textarea aria-label="Design structured error propagation" placeholder="Return fields:&#10;Coordinator response:"></textarea>
+      <p><button type="button" class="secondary" data-reveal="#example-answer-2">Show example</button></p>
+      <div class="answer" id="example-answer-2">
+        <p><strong>Return fields:</strong> failure type, attempted query, source type, retry count, partial results, suspected cause, alternative query or source, and whether the result is incomplete or empty. <strong>Coordinator response:</strong> retry with a narrower query, route to another source, proceed with a coverage note, or escalate. Do not mark a timeout as a successful empty result.</p>
+      </div>
+    </section>
+
+    <section>
+      <h2>Architecture Check</h2>
+      <ul>
+        <li>What pressure justifies more than one agent?</li>
+        <li>Which decisions are centralized, delegated, local, or human-approved?</li>
+        <li>What exact context must each subagent receive?</li>
+        <li>What structured output must each subagent return?</li>
+        <li>How do agents report partial failure without hiding gaps?</li>
+        <li>Where are shared state, provenance, arbitration, and final stop conditions owned?</li>
+      </ul>
+    </section>
+
+    <section class="callout">
+      <h2>Primary Source</h2>
+      <p>Read the local <a href="../agentic-ai-architecture-foundations-designing-autonomous-ai-systems.md#system-architectures">System Architectures</a> section first. Then read the Claude architecture notes on <a href="../Claude%20Certified%20Architect%20%E2%80%93%20Foundations.md#task-statement-12-orchestrate-multi-agent-systems-with-coordinator-subagent-patterns">coordinator-subagent orchestration</a>, <a href="../Claude%20Certified%20Architect%20%E2%80%93%20Foundations.md#task-statement-13-configure-subagent-invocation-context-passing-and-spawning">context passing</a>, and <a href="../Claude%20Certified%20Architect%20%E2%80%93%20Foundations.md#task-statement-53-implement-error-propagation-strategies-across-multi-agent-systems">structured error propagation</a>.</p>
+    </section>
+
+    <p class="footer-note">Previous lesson: <a href="./0003-python-agent-implementations.html">0003 - Python Agent Implementations</a>. Ask the agent follow-up questions about where a coordinator should own policy, provenance, coverage, and recovery in one of your own agent designs.</p>
+  </main>
+</body>
+</html>
