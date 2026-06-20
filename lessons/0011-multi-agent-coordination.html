@@ -1,0 +1,238 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Lesson 0011: Multi-Agent Coordination</title>
+  <link rel="stylesheet" href="../assets/course.css">
+  <script src="../assets/quiz.js" defer></script>
+  <script src="../assets/reveal.js" defer></script>
+</head>
+<body>
+  <main>
+    <header>
+      <p class="kicker">Lesson 0011</p>
+      <h1 id="divide-the-work-keep-one-truth">Divide The Work, Keep One Truth</h1>
+      <p class="summary">Tangible win: pick a coordination shape for a multi-agent task, assign worker roles and tool boundaries, and design the shared-state contract that keeps every agent reading the same truth.</p>
+    </header>
+
+    <section>
+      <h2 id="the-one-idea">The One Idea</h2>
+      <p>Lesson <a href="./0004-system-architecture-choices.html">0004</a> answered <em>whether</em> to add agents. This lesson answers <em>how they coordinate</em>. A coordination pattern is three decisions: who decomposes the goal, who does the work, and where the single source of truth lives. The local patterns notes describe three coordination shapes — <a href="../agentic-ai-solution-design-patterns.html#orchestrator-worker">orchestrator-worker</a>, <a href="../agentic-ai-solution-design-patterns.html#specialized-expert-team">specialized expert team</a>, and <a href="../agentic-ai-solution-design-patterns.html#hierarchical-multi-agent-system">hierarchical systems</a> — and one cross-cutting requirement: <a href="../agentic-ai-solution-design-patterns.html#coherent-state-and-collective-memory">coherent state and collective memory</a>.</p>
+      <p>Keep the compact version open: <a href="../reference/multi-agent-coordination.html">Multi-Agent Coordination Reference</a>.</p>
+    </section>
+
+    <section class="callout">
+      <h2 id="minimum-rule">Minimum Rule</h2>
+      <p>Pick the lightest coordination shape that matches the task's dependency structure, give every worker a narrow role and a narrow tool set, and give the whole system one consistent place to read and write shared state with provenance, ownership, and conflict rules.</p>
+    </section>
+
+    <section>
+      <h2 id="three-coordination-shapes">Three Coordination Shapes</h2>
+      <div class="grid">
+        <article class="card">
+          <span class="tag">Fan out</span>
+          <h3 id="orchestrator-worker">Orchestrator-worker</h3>
+          <p>One orchestrator decomposes work and delegates units to workers, then merges results. Best for parallelizable subtasks and narrow-tool workers needing centralized tracking. Risks: orchestrator bottleneck, inconsistent worker results, distributed retries.</p>
+        </article>
+        <article class="card">
+          <span class="tag">Deliberate</span>
+          <h3 id="specialized-expert-team">Specialized expert team</h3>
+          <p>Several domain agents collaborate on one decision and expose a single interface. Best when a subtask needs multiple forms of domain reasoning. Needs protocols for disagreement, source ranking, and final authority. Risks: cost, latency, groupthink.</p>
+        </article>
+        <article class="card">
+          <span class="tag">Nest</span>
+          <h3 id="hierarchical">Hierarchical</h3>
+          <p>Top orchestrators, sub-orchestrators, workers, and teams manage very large or naturally nested workflows. Scales coordination but is not automatically more reliable. Risks: communication overhead, state drift between layers, slow failure diagnosis.</p>
+        </article>
+      </div>
+    </section>
+
+    <section>
+      <h2 id="the-shared-state-trap">The Shared-State Trap</h2>
+      <p>The hard part of multi-agent systems is rarely the decomposition; it is keeping a coherent view of task state, observations, decisions, and shared knowledge. A central shared memory can be the source of truth, but it can also become a bottleneck or single point of failure <a href="../agentic-ai-solution-design-patterns.html#coherent-state-and-collective-memory">[coherent state notes]</a>. Treat memory as data infrastructure, not a chat log: every record carries provenance, timestamp, owner, confidence, and expiry, and the store enforces access control and conflict resolution. Beware retrieval that optimizes similarity but ignores authority or recency, and beware prompt injection through stored content.</p>
+    </section>
+
+    <section>
+      <h2 id="choose-the-coordination-move">Choose The Coordination Move</h2>
+      <p>Pick the move that matches the task's dependency structure and keeps shared state trustworthy.</p>
+
+      <course-quiz>
+        <script type="application/json">
+          {
+            "questions": [
+              {
+                "prompt": "Five independent source lookups must run in parallel, each with a narrow tool, under one progress tracker.",
+                "answer": 0,
+                "choices": [
+                  {
+                    "label": "Fan workers",
+                    "feedback": "Orchestrator-worker fits parallelizable subtasks with narrow-tool workers and centralized tracking."
+                  },
+                  {
+                    "label": "Stack layers",
+                    "feedback": "A hierarchy adds coordination overhead the task does not yet need."
+                  },
+                  {
+                    "label": "Open debate",
+                    "feedback": "Debate suits domain disagreement, not independent parallel lookups."
+                  },
+                  {
+                    "label": "Solo agent",
+                    "feedback": "One agent serializes work that could safely run in parallel."
+                  }
+                ]
+              },
+              {
+                "prompt": "A single compliance decision needs legal, security, and finance reasoning, each likely to catch what the others miss.",
+                "answer": 1,
+                "choices": [
+                  {
+                    "label": "Fan workers",
+                    "feedback": "Independent fan-out misses the cross-domain reasoning the decision requires."
+                  },
+                  {
+                    "label": "Expert team",
+                    "feedback": "A specialized expert team collaborates when one subtask needs multiple domains of reasoning."
+                  },
+                  {
+                    "label": "Stack layers",
+                    "feedback": "A hierarchy organizes scale, not multi-domain reasoning on one decision."
+                  },
+                  {
+                    "label": "Solo agent",
+                    "feedback": "One general agent is likely to miss domain-specific constraints."
+                  }
+                ]
+              },
+              {
+                "prompt": "A workflow grew so large that one orchestrator can no longer track all its subtasks efficiently.",
+                "answer": 2,
+                "choices": [
+                  {
+                    "label": "Add tools",
+                    "feedback": "More tools do not relieve a single orchestrator's coordination load."
+                  },
+                  {
+                    "label": "Open debate",
+                    "feedback": "Debate addresses disagreement, not tracking scale."
+                  },
+                  {
+                    "label": "Stack layers",
+                    "feedback": "A hierarchy of sub-orchestrators distributes tracking when one cannot scale."
+                  },
+                  {
+                    "label": "Drop steps",
+                    "feedback": "Cutting steps changes the task instead of coordinating it."
+                  }
+                ]
+              },
+              {
+                "prompt": "Two workers wrote conflicting order-status values to shared memory within the same task.",
+                "answer": 3,
+                "choices": [
+                  {
+                    "label": "Pick newer",
+                    "feedback": "Recency alone can override a more authoritative or correct write."
+                  },
+                  {
+                    "label": "Keep both",
+                    "feedback": "Silently keeping both leaves downstream agents reading contradictory truth."
+                  },
+                  {
+                    "label": "Drop value",
+                    "feedback": "Deleting the field loses state other agents depend on."
+                  },
+                  {
+                    "label": "Run rules",
+                    "feedback": "Apply explicit conflict resolution using ownership, provenance, and versioning."
+                  }
+                ]
+              }
+            ]
+          }
+        </script>
+      </course-quiz>
+    </section>
+
+    <section class="exercise">
+      <h2 id="recall-check">Recall Check</h2>
+      <p>From memory: name the three coordination shapes and the one requirement that cuts across all of them.</p>
+      <textarea aria-label="Recall coordination shapes and shared requirement" placeholder="Shape 1:&#10;Shape 2:&#10;Shape 3:&#10;Cross-cutting requirement:"></textarea>
+      <p><button type="button" class="secondary" data-reveal="#recall-answer">Show example</button></p>
+      <div class="answer" id="recall-answer">
+        <p>Orchestrator-worker, specialized expert team, and hierarchical — all requiring coherent state and collective memory.</p>
+      </div>
+    </section>
+
+    <section class="exercise">
+      <h2 id="design-drill-decomposition">Design Drill: Orchestrator-Worker Decomposition</h2>
+      <p>A research assistant must produce a competitor brief: gather pricing, gather feature lists, gather recent news, then synthesize. Design the orchestrator-worker decomposition.</p>
+      <textarea aria-label="Design orchestrator worker decomposition" placeholder="Orchestrator owns:&#10;Worker roles and tools:&#10;What runs in parallel:&#10;Result-merge protocol:&#10;Failure handling:"></textarea>
+      <p><button type="button" class="secondary" data-reveal="#example-answer">Show example</button></p>
+      <div class="answer" id="example-answer">
+        <pre><code>{
+  "orchestratorOwns": ["goal", "task plan", "progress", "final synthesis", "escalation"],
+  "workers": [
+    { "role": "pricing", "tools": ["pricing_api"], "returns": "structured price records" },
+    { "role": "features", "tools": ["web_fetch"], "returns": "feature list with sources" },
+    { "role": "news", "tools": ["news_search"], "returns": "dated headlines with links" }
+  ],
+  "parallel": ["pricing", "features", "news"],
+  "mergeProtocol": "validate each worker result schema, attach source IDs, reject unparseable returns",
+  "failureHandling": "retry a failed worker once; on second failure mark coverage gap and proceed partial"
+}</code></pre>
+      </div>
+    </section>
+
+    <section class="exercise">
+      <h2 id="design-drill-memory-record">Design Drill: Collective Memory Record</h2>
+      <p>The news worker found a price-cut headline that the pricing worker's API has not yet reflected. Write the shared-memory record so a later agent can resolve the conflict.</p>
+      <textarea aria-label="Design collective memory record" placeholder="Key:&#10;Value:&#10;Owner:&#10;Provenance:&#10;Timestamp:&#10;Confidence:&#10;Expiry:&#10;Conflict note:"></textarea>
+      <p><button type="button" class="secondary" data-reveal="#example-answer-2">Show example</button></p>
+      <div class="answer" id="example-answer-2">
+        <pre><code>{
+  "key": "competitor.acme.flagship_price",
+  "value": "39.00 USD (announced cut, not yet in API)",
+  "owner": "news_worker",
+  "provenance": "news_search:article_5521",
+  "timestamp": "2026-06-19T14:02:00Z",
+  "confidence": 0.6,
+  "expiry": "2026-06-26",
+  "conflictNote": "pricing_api still reports 49.00 USD as of 2026-06-18; reconcile before publishing"
+}</code></pre>
+      </div>
+    </section>
+
+    <section class="exercise">
+      <h2 id="design-drill-downgrade">Design Drill: Defend The Downgrade</h2>
+      <p>A teammate proposes a three-layer hierarchy for a task with four independent lookups and one synthesis step. In two sentences, argue for a simpler shape.</p>
+      <textarea aria-label="Argue for a simpler coordination shape" placeholder="Simpler shape:&#10;Why it fits:&#10;What the hierarchy would cost:"></textarea>
+      <p><button type="button" class="secondary" data-reveal="#example-answer-3">Show example</button></p>
+      <div class="answer" id="example-answer-3">
+        <p>The dependency structure is a flat fan-out — four independent lookups feeding one merge — so a single orchestrator with four workers covers it. A hierarchy would add sub-orchestrator layers that bring communication overhead, state drift between layers, and slower failure diagnosis without any extra parallelism or domain reasoning to justify them.</p>
+      </div>
+    </section>
+
+    <section>
+      <h2 id="architecture-check">Architecture Check</h2>
+      <ul>
+        <li>Is the task a flat fan-out, a multi-domain decision, or a deeply nested workflow?</li>
+        <li>What is the narrowest role and tool set each worker needs?</li>
+        <li>Which subtasks can run in parallel, and which have real dependencies?</li>
+        <li>How are worker results validated and merged, and what happens on partial failure?</li>
+        <li>Where is the single source of truth, and is it a bottleneck or single point of failure?</li>
+        <li>Do shared-memory records carry provenance, owner, confidence, and expiry?</li>
+        <li>What rule resolves conflicting writes — and does it weigh authority, not just recency?</li>
+      </ul>
+    </section>
+
+    <section class="callout">
+      <h2 id="primary-source">Primary Source</h2>
+      <p>Read the local <a href="../agentic-ai-solution-design-patterns.html#multi-agent-architecture">Multi-Agent Architecture</a> section for the three coordination shapes and the <a href="../agentic-ai-solution-design-patterns.html#coherent-state-and-collective-memory">coherent state and collective memory</a> requirement. For practical graph-based coordination and stop conditions, see the <a href="https://docs.langchain.com/oss/python/langgraph/workflows-agents">LangGraph workflows and agents</a> guide.</p>
+    </section>
+
+    <p class="footer-note">Previous lesson: <a href="./0010-context-escalation-provenance.html">0010 - Context, Escalation, and Provenance</a>. Ask the agent follow-up questions by giving it one multi-agent workflow and asking it to choose a coordination shape, define worker roles and tool boundaries, and design the shared-state contract with conflict resolution.</p>
+  </main>
+</body>
+</html>

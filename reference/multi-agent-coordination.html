@@ -1,0 +1,99 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Multi-Agent Coordination Reference</title>
+  <link rel="stylesheet" href="../assets/course.css">
+</head>
+<body>
+  <main>
+    <header>
+      <p class="kicker">Reference 0011</p>
+      <h1 id="multi-agent-coordination">Multi-Agent Coordination</h1>
+      <p class="summary">Use this sheet to pick a coordination shape, scope worker roles and tools, and design the shared state that keeps every agent reading one truth.</p>
+    </header>
+
+    <section>
+      <h2 id="the-decision">The Decision</h2>
+      <p class="compact">A coordination pattern answers three questions: who decomposes the goal, who does the work, and where the single source of truth lives. Pick the lightest shape that matches the task's dependency structure.</p>
+    </section>
+
+    <section>
+      <h2 id="three-shapes">Three Shapes</h2>
+      <div class="grid">
+        <article class="card">
+          <span class="tag">Fan out</span>
+          <h3 id="orchestrator-worker">Orchestrator-worker</h3>
+          <p>One orchestrator decomposes, delegates to narrow-tool workers, and merges results. For parallelizable subtasks with centralized tracking. Risks: orchestrator bottleneck, inconsistent results, distributed retries.</p>
+        </article>
+        <article class="card">
+          <span class="tag">Deliberate</span>
+          <h3 id="expert-team">Expert team</h3>
+          <p>Domain agents collaborate on one decision behind a single interface. For tasks needing multiple forms of domain reasoning. Needs disagreement, source-ranking, and final-authority protocols. Risks: cost, latency, groupthink.</p>
+        </article>
+        <article class="card">
+          <span class="tag">Nest</span>
+          <h3 id="hierarchical">Hierarchical</h3>
+          <p>Orchestrators over sub-orchestrators over workers and teams. For very large or nested workflows. Scales coordination, not reliability by itself. Risks: overhead, state drift, slow diagnosis.</p>
+        </article>
+      </div>
+    </section>
+
+    <section>
+      <h2 id="selection-test">Selection Test</h2>
+      <ul>
+        <li>Flat fan-out of independent subtasks → orchestrator-worker.</li>
+        <li>One decision needing several domains of reasoning → expert team.</li>
+        <li>Too large for one orchestrator to track → hierarchical.</li>
+        <li>None of these pressures → stay single-agent (see lesson 0004).</li>
+        <li>Reliability comes from observability, retries, idempotency, and failure isolation — not from adding layers.</li>
+      </ul>
+    </section>
+
+    <section>
+      <h2 id="worker-contract">Worker Contract</h2>
+      <ul>
+        <li><strong>Role:</strong> one narrow responsibility per worker.</li>
+        <li><strong>Tools:</strong> least-privilege tool set for that role.</li>
+        <li><strong>Returns:</strong> structured result, error packet, or status — never free-text only.</li>
+        <li><strong>Merge:</strong> orchestrator validates schema, attaches sources, rejects unparseable returns.</li>
+        <li><strong>Failure:</strong> bounded retry, then coverage gap and partial proceed or escalation.</li>
+      </ul>
+    </section>
+
+    <section>
+      <h2 id="collective-memory-record">Collective Memory Record</h2>
+      <pre><code>{
+  "key": "",
+  "value": "",
+  "owner": "",
+  "provenance": "",
+  "timestamp": "",
+  "confidence": 0.0,
+  "expiry": "",
+  "conflictNote": ""
+}</code></pre>
+    </section>
+
+    <section>
+      <h2 id="shared-state-rules">Shared-State Rules</h2>
+      <ul>
+        <li>Treat memory as data infrastructure, not a chat log.</li>
+        <li>Every record carries provenance, owner, timestamp, confidence, and expiry.</li>
+        <li>Enforce access control, retention, and explicit conflict resolution.</li>
+        <li>Resolve conflicts by ownership and authority, not recency alone.</li>
+        <li>A central store can be a source of truth — and a bottleneck or single point of failure.</li>
+        <li>Guard against prompt injection through stored content.</li>
+      </ul>
+    </section>
+
+    <section class="callout">
+      <h2 id="review-question">Review Question</h2>
+      <p class="compact">Before adding agents or layers, ask: does the dependency structure require this shape, and where does the one source of truth live?</p>
+    </section>
+
+    <p class="footer-note">Related lesson: <a href="../lessons/0011-multi-agent-coordination.html">0011 - Multi-Agent Coordination</a>.</p>
+  </main>
+</body>
+</html>
