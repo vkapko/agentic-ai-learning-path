@@ -1,0 +1,228 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Lesson 0008: Runtime Monitoring and Recovery</title>
+  <link rel="stylesheet" href="../assets/course.css">
+  <script src="../assets/quiz.js" defer></script>
+  <script src="../assets/reveal.js" defer></script>
+</head>
+<body>
+  <main>
+    <header>
+      <p class="kicker">Lesson 0008</p>
+      <h1 id="design-the-runtime-safety-net">Design The Runtime Safety Net</h1>
+      <p class="summary">Tangible win: define what an agent run must log, what signals trigger intervention, and how the system recovers from partial failure without hiding uncertainty.</p>
+    </header>
+
+    <section>
+      <h2 id="the-one-idea">The One Idea</h2>
+      <p>An agent architecture is incomplete until it says how execution is observed and recovered. The local architecture notes warn that agentic systems still need state management, permissions, logging, testing, rollout, recovery, and monitoring, and that every important action needs a feedback path <a href="../agentic-ai-architecture-foundations-designing-autonomous-ai-systems.html#agentic-ai-system">[local architecture notes]</a> <a href="../agentic-ai-architecture-foundations-designing-autonomous-ai-systems.html#practical-design-checklist">[design checklist]</a>.</p>
+      <p>Keep the compact version open: <a href="../reference/runtime-monitoring-and-recovery.html">Runtime Monitoring and Recovery Reference</a>.</p>
+    </section>
+
+    <section class="callout">
+      <h2 id="minimum-rule">Minimum Rule</h2>
+      <p>Monitor the run at the same boundary where the controller grants authority: model decision, tool call, policy check, state update, human approval, final answer, and recovery path. If a failure changes coverage or confidence, surface it in the final result.</p>
+    </section>
+
+    <section>
+      <h2 id="five-signals">Five Signals</h2>
+      <div class="grid">
+        <article class="card">
+          <span class="tag">Trace</span>
+          <h3 id="what-happened">What happened</h3>
+          <p>Record task ID, model calls, tool calls, inputs after validation, outputs, approvals, retries, and final state.</p>
+        </article>
+        <article class="card">
+          <span class="tag">Outcome</span>
+          <h3 id="did-it-work">Did it work</h3>
+          <p>Track success criteria, user-visible completion, blocked reasons, partial results, and unresolved assumptions.</p>
+        </article>
+        <article class="card">
+          <span class="tag">Risk</span>
+          <h3 id="should-it-stop">Should it stop</h3>
+          <p>Watch for unsafe actions, policy conflicts, low confidence, stale state, sensitive data, and approval thresholds.</p>
+        </article>
+        <article class="card">
+          <span class="tag">Resource</span>
+          <h3 id="cost-and-time">Cost and time</h3>
+          <p>Measure latency, token use, tool cost, retry count, queue time, and budget exhaustion.</p>
+        </article>
+        <article class="card">
+          <span class="tag">Recovery</span>
+          <h3 id="what-next">What next</h3>
+          <p>Choose retry, replan, fallback, human escalation, partial answer, rollback, or stop with an explicit explanation.</p>
+        </article>
+      </div>
+    </section>
+
+    <section>
+      <h2 id="failure-is-data">Failure Is Data</h2>
+      <p>A valid empty result is different from a failed lookup. The Claude architecture reference emphasizes structured error context: failure type, attempted query, partial results, and possible alternatives, so a coordinator can retry, change approach, proceed with coverage gaps, or escalate <a href="../Claude%20Certified%20Architect%20%E2%80%93%20Foundations.html#task-statement-5-3-implement-error-propagation-strategies-across-multi-agent-systems">[Claude error propagation notes]</a>.</p>
+      <p>The local solution-pattern notes make the broader reliability point: production reliability depends on observability, retry semantics, memory consistency, authorization, idempotency, and failure isolation <a href="../agentic-ai-solution-design-patterns.html#hierarchical-multi-agent-system">[local solution notes]</a>.</p>
+    </section>
+
+    <section>
+      <h2 id="choose-the-recovery-move">Choose The Recovery Move</h2>
+      <p>Pick the smallest recovery action that preserves correctness and control.</p>
+
+      <course-quiz>
+        <script type="application/json">
+          {
+            "questions": [
+              {
+                "prompt": "A read-only shipping lookup times out once, and the tool marks the error as transient and retryable.",
+                "answer": 0,
+                "choices": [
+                  {
+                    "label": "Retry once",
+                    "feedback": "A bounded retry is appropriate for a retryable transient read failure."
+                  },
+                  {
+                    "label": "Issue refund",
+                    "feedback": "Missing shipping evidence should not trigger a sensitive action."
+                  },
+                  {
+                    "label": "Hide error",
+                    "feedback": "Suppressing the timeout creates false confidence."
+                  },
+                  {
+                    "label": "Store memory",
+                    "feedback": "Memory does not repair the current missing observation."
+                  }
+                ]
+              },
+              {
+                "prompt": "A policy check says the requested action is outside the agent's authority.",
+                "answer": 1,
+                "choices": [
+                  {
+                    "label": "Retry once",
+                    "feedback": "Repeating a policy denial does not change authority."
+                  },
+                  {
+                    "label": "Escalate now",
+                    "feedback": "A human or higher-authority workflow is the right path."
+                  },
+                  {
+                    "label": "Ignore gate",
+                    "feedback": "The gate exists to enforce control outside the model."
+                  },
+                  {
+                    "label": "Shorten answer",
+                    "feedback": "Response length does not resolve authorization."
+                  }
+                ]
+              },
+              {
+                "prompt": "Three parallel evidence calls finish, but one source corpus is unavailable after retry.",
+                "answer": 2,
+                "choices": [
+                  {
+                    "label": "Claim complete",
+                    "feedback": "That hides a coverage gap from the user."
+                  },
+                  {
+                    "label": "Retry forever",
+                    "feedback": "Unbounded retries waste budget and delay recovery."
+                  },
+                  {
+                    "label": "Answer partially",
+                    "feedback": "Use available evidence, disclose the missing corpus, and mark confidence or coverage limits."
+                  },
+                  {
+                    "label": "Delete traces",
+                    "feedback": "Trace data is needed for audit and diagnosis."
+                  }
+                ]
+              },
+              {
+                "prompt": "The agent completed the task, but logs show repeated wrong tool selection before success.",
+                "answer": 3,
+                "choices": [
+                  {
+                    "label": "Do nothing",
+                    "feedback": "The run succeeded, but the trace shows a recurring design defect."
+                  },
+                  {
+                    "label": "Block user",
+                    "feedback": "The issue is system behavior, not the user."
+                  },
+                  {
+                    "label": "Remove tools",
+                    "feedback": "The likely fix is narrower than removing capability."
+                  },
+                  {
+                    "label": "Improve contract",
+                    "feedback": "Wrong selection usually points to descriptions, schemas, examples, or controller validation."
+                  }
+                ]
+              }
+            ]
+          }
+        </script>
+      </course-quiz>
+    </section>
+
+    <section class="exercise">
+      <h2 id="recall-check">Recall Check</h2>
+      <p>From memory: name the five runtime signals to monitor.</p>
+      <textarea aria-label="Recall five runtime monitoring signals" placeholder="1.&#10;2.&#10;3.&#10;4.&#10;5."></textarea>
+      <p><button type="button" class="secondary" data-reveal="#recall-answer">Show example</button></p>
+      <div class="answer" id="recall-answer">
+        <p>Trace, outcome, risk, resource use, and recovery path.</p>
+      </div>
+    </section>
+
+    <section class="exercise">
+      <h2 id="design-drill-support-agent">Design Drill: Support Agent Run</h2>
+      <p>A support agent can read customer records, inspect orders, check policy, draft responses, escalate tickets, and process refunds under $100. Design the runtime safety net for one refund request.</p>
+      <textarea aria-label="Design runtime monitoring and recovery for support agent" placeholder="Trace fields:&#10;Stop conditions:&#10;Retry rules:&#10;Escalation triggers:&#10;Final disclosure:"></textarea>
+      <p><button type="button" class="secondary" data-reveal="#example-answer">Show example</button></p>
+      <div class="answer" id="example-answer">
+        <p><strong>Trace fields:</strong> request ID, customer ID, order ID, validated tool inputs, policy result, refund amount, approvals, tool errors, retry count, and final status. <strong>Stop conditions:</strong> identity mismatch, missing order, policy denial, amount over $100, high fraud risk, or repeated tool failure. <strong>Retry rules:</strong> retry transient read failures once, never retry validation or permission failures as if they were transient. <strong>Escalation triggers:</strong> customer asks for human help, policy gap, high-risk refund, unavailable required evidence, or no meaningful progress. <strong>Final disclosure:</strong> cite evidence used, say what was unavailable, and state whether the refund was processed, blocked, or escalated.</p>
+      </div>
+    </section>
+
+    <section class="exercise">
+      <h2 id="design-drill-log-line">Design Drill: One Log Line</h2>
+      <p>Write a compact structured log event for a failed order lookup. Include enough information for recovery, but do not include unnecessary raw customer data.</p>
+      <textarea aria-label="Write structured error log event" placeholder="{&#10;  event:&#10;  taskId:&#10;  tool:&#10;  errorCategory:&#10;  isRetryable:&#10;  attemptedInput:&#10;  partialResult:&#10;  recoveryHint:&#10;}"></textarea>
+      <p><button type="button" class="secondary" data-reveal="#example-answer-2">Show example</button></p>
+      <div class="answer" id="example-answer-2">
+        <pre><code>{
+  "event": "tool_error",
+  "taskId": "refund-1842",
+  "tool": "lookup_order",
+  "errorCategory": "transient",
+  "isRetryable": true,
+  "attemptedInput": { "orderId": "ord_123" },
+  "partialResult": null,
+  "recoveryHint": "retry once, then escalate with missing order-status evidence"
+}</code></pre>
+      </div>
+    </section>
+
+    <section>
+      <h2 id="architecture-check">Architecture Check</h2>
+      <ul>
+        <li>What does success mean for this run, and who can verify it?</li>
+        <li>Which events are logged before and after every tool call?</li>
+        <li>Which failures are transient, validation, permission, policy, or business-rule failures?</li>
+        <li>Which recovery moves are automatic, and which require human review?</li>
+        <li>How does the final response disclose missing evidence or partial completion?</li>
+        <li>Which repeated failures should become design work rather than more retries?</li>
+      </ul>
+    </section>
+
+    <section class="callout">
+      <h2 id="primary-source">Primary Source</h2>
+      <p>Read the local <a href="../agentic-ai-architecture-foundations-designing-autonomous-ai-systems.html#monitoring">Monitoring</a> section first. Then read the Claude architecture notes on <a href="../Claude%20Certified%20Architect%20%E2%80%93%20Foundations.html#task-statement-5-3-implement-error-propagation-strategies-across-multi-agent-systems">structured error propagation</a> and <a href="../Claude%20Certified%20Architect%20%E2%80%93%20Foundations.html#task-statement-5-5-design-human-review-workflows-and-confidence-calibration">human review workflows</a>.</p>
+    </section>
+
+    <p class="footer-note">Previous lesson: <a href="./0007-tool-orchestration-plans.html">0007 - Tool Orchestration Plans</a>. Ask the agent follow-up questions by giving it one workflow and asking it to define traces, stop conditions, retry rules, escalation triggers, and final disclosure.</p>
+  </main>
+</body>
+</html>

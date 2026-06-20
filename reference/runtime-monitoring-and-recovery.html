@@ -1,0 +1,88 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Runtime Monitoring and Recovery Reference</title>
+  <link rel="stylesheet" href="../assets/course.css">
+</head>
+<body>
+  <main>
+    <header>
+      <p class="kicker">Reference 0008</p>
+      <h1 id="runtime-monitoring-and-recovery">Runtime Monitoring and Recovery</h1>
+      <p class="summary">Use this sheet to decide what to observe during an agent run, when to intervene, and how to recover without hiding uncertainty.</p>
+    </header>
+
+    <section>
+      <h2 id="the-decision">The Decision</h2>
+      <p class="compact">A runtime safety net is the controller-owned monitoring and recovery design for an agent run. It records what happened, checks whether the run is still allowed and useful, and chooses a bounded recovery path when execution degrades.</p>
+    </section>
+
+    <section>
+      <h2 id="five-signals">Five Signals</h2>
+      <ul>
+        <li><strong>Trace:</strong> model calls, tool calls, validated inputs, outputs, approvals, retries, and final state.</li>
+        <li><strong>Outcome:</strong> success criteria, partial results, blocked reasons, and unresolved assumptions.</li>
+        <li><strong>Risk:</strong> policy conflict, low confidence, unsafe action, stale state, sensitive data, or approval threshold.</li>
+        <li><strong>Resource:</strong> latency, token use, tool cost, retry count, queue time, and budget exhaustion.</li>
+        <li><strong>Recovery:</strong> retry, replan, fallback, escalate, answer partially, rollback, or stop.</li>
+      </ul>
+    </section>
+
+    <section>
+      <h2 id="error-categories">Error Categories</h2>
+      <div class="grid">
+        <article class="card">
+          <span class="tag">Transient</span>
+          <h3 id="try-again">Try again</h3>
+          <p>Timeout, rate limit, temporary service error, or unavailable dependency. Use bounded retries.</p>
+        </article>
+        <article class="card">
+          <span class="tag">Validation</span>
+          <h3 id="fix-input">Fix input</h3>
+          <p>Missing ID, malformed argument, invalid enum, or schema mismatch. Repair inputs or ask for data.</p>
+        </article>
+        <article class="card">
+          <span class="tag">Permission</span>
+          <h3 id="no-authority">No authority</h3>
+          <p>Caller lacks access or approval. Route to the right authority rather than retrying blindly.</p>
+        </article>
+        <article class="card">
+          <span class="tag">Business</span>
+          <h3 id="valid-denial">Valid denial</h3>
+          <p>Policy says no, order is ineligible, or no matching record exists. Explain or escalate if policy is ambiguous.</p>
+        </article>
+      </div>
+    </section>
+
+    <section>
+      <h2 id="recovery-rules">Recovery Rules</h2>
+      <ul>
+        <li>Retry only when the error is retryable, and cap the retry count.</li>
+        <li>Do not convert failed reads into empty successful results.</li>
+        <li>Escalate when policy, authority, safety, customer request, or progress limits require it.</li>
+        <li>Disclose missing evidence when answering from partial results.</li>
+        <li>Turn repeated near-misses into design work: tool contracts, routing, prompts, tests, or policy gates.</li>
+      </ul>
+    </section>
+
+    <section class="callout">
+      <h2 id="minimum-log-event">Minimum Log Event</h2>
+      <ul>
+        <li><strong>Identity:</strong> task ID, user/session boundary, agent version, model version, and correlation ID.</li>
+        <li><strong>Decision:</strong> selected action, reason code, policy result, confidence or verifier result.</li>
+        <li><strong>Tool:</strong> tool name, validated input summary, output summary, latency, cost, and error category.</li>
+        <li><strong>Recovery:</strong> retry count, fallback chosen, escalation target, partial evidence, and final disclosure.</li>
+      </ul>
+    </section>
+
+    <section>
+      <h2 id="review-question">Review Question</h2>
+      <p class="compact">Before shipping an agent workflow, ask: if this run fails halfway through, will the controller know what happened, what is still safe to do, and what must be disclosed to the user?</p>
+    </section>
+
+    <p class="footer-note">Related lesson: <a href="../lessons/0008-runtime-monitoring-and-recovery.html">0008 - Runtime Monitoring and Recovery</a>.</p>
+  </main>
+</body>
+</html>
