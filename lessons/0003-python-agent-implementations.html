@@ -1,0 +1,190 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Lesson 0003: Python Agent Implementations</title>
+  <link rel="stylesheet" href="../assets/course.css">
+  <script src="../assets/reveal.js" defer></script>
+</head>
+<body>
+  <main>
+    <header>
+      <p class="kicker">Lesson 0003</p>
+      <h1>Implement the Loop in Python</h1>
+      <p class="summary">Tangible win: choose when to use the Claude Python SDK directly and when to use LangGraph, then identify where the agentic control loop lives in each example.</p>
+    </header>
+
+    <section>
+      <h2>The One Idea</h2>
+      <p>The Claude Python SDK is the direct client for Anthropic's Messages API. The official docs show sync and async clients, streaming, retries, error handling, token counting, and tool helpers for Python 3.9+ <a href="https://platform.claude.com/docs/en/cli-sdks-libraries/sdks/python">[Anthropic Python SDK]</a>. Use it when your application code owns orchestration: policy checks, tool execution, persistence, approvals, and stop conditions.</p>
+      <p>LangGraph is different. It is a graph runtime for making agent control flow explicit. The official quickstart builds a calculator agent with a model node, tool node, conditional edge, and return edge back to the model until the graph stops <a href="https://docs.langchain.com/oss/python/langgraph/quickstart">[LangGraph quickstart]</a>. Use it when the loop itself is the architecture you want to inspect, test, checkpoint, and evolve.</p>
+      <p>Keep the compact version open: <a href="../reference/python-agent-examples.html">Python Agent Examples Reference</a>.</p>
+    </section>
+
+    <section>
+      <h2>Decision Rule</h2>
+      <div class="grid">
+        <article class="card">
+          <span class="tag">Claude SDK</span>
+          <h3>Application-owned loop</h3>
+          <p>Best for a narrow service where you already know the workflow and want direct API control. The SDK call is a component; your code supplies state, tool permissions, retries, monitors, and approvals.</p>
+        </article>
+        <article class="card">
+          <span class="tag">LangGraph</span>
+          <h3>Graph-owned loop</h3>
+          <p>Best when you need visible nodes and transitions: model call, tool execution, conditional routing, retry, approval, memory, checkpointing, or subgraphs.</p>
+        </article>
+      </div>
+    </section>
+
+    <section>
+      <h2>Claude SDK: Direct Call</h2>
+      <p>This is useful, but it is not automatically agentic. It produces an answer and stops unless your application wraps it in a loop.</p>
+      <pre><code class="language-python">from anthropic import Anthropic
+
+client = Anthropic()
+
+message = client.messages.create(
+    model="claude-opus-4-8",
+    max_tokens=300,
+    messages=[
+        {
+            "role": "user",
+            "content": "Classify this system as predictive, generative, or agentic: a model drafts a support reply.",
+        }
+    ],
+)
+
+print(message.content[0].text)</code></pre>
+    </section>
+
+    <section>
+      <h2>Claude SDK: Tool Helper</h2>
+      <p>The SDK also provides a tool runner helper. It can call a Python function and feed the result back to Claude on the next iteration. That is closer to a reason-act-observe loop, but the risky boundaries still belong outside the model.</p>
+      <pre><code class="language-python">import json
+from anthropic import Anthropic, beta_tool
+
+client = Anthropic()
+
+@beta_tool
+def lookup_refund_policy(order_total: int) -> str:
+    """Look up refund policy for an order total.
+    Args:
+        order_total: Order value in whole dollars.
+    """
+    return json.dumps({"auto_refund_limit": 100, "order_total": order_total})
+
+runner = client.beta.messages.tool_runner(
+    model="claude-opus-4-8",
+    max_tokens=500,
+    tools=[lookup_refund_policy],
+    messages=[
+        {
+            "role": "user",
+            "content": "Can this $80 refund be handled automatically?",
+        }
+    ],
+)
+
+for message in runner:
+    print(message)</code></pre>
+      <p class="compact">Production design question: where would you enforce the refund cap? Correct answer: outside the model, before any money-moving API call.</p>
+    </section>
+
+    <section>
+      <h2>LangGraph: Explicit Agent Loop</h2>
+      <p>In LangGraph, the loop is visible in the graph: model node, tool node, conditional edge, and return edge. That makes it easier to reason about state, stop conditions, retries, and observability.</p>
+      <pre><code class="language-python">import operator
+from typing import Annotated, Literal
+from typing_extensions import TypedDict
+
+from langchain.chat_models import init_chat_model
+from langchain.messages import AnyMessage, HumanMessage, SystemMessage, ToolMessage
+from langchain.tools import tool
+from langgraph.graph import END, START, StateGraph
+
+model = init_chat_model("claude-sonnet-4-6", temperature=0)
+
+@tool
+def add(a: int, b: int) -> int:
+    """Add two integers."""
+    return a + b
+
+tools = [add]
+tools_by_name = {tool.name: tool for tool in tools}
+model_with_tools = model.bind_tools(tools)
+
+class MessagesState(TypedDict):
+    messages: Annotated[list[AnyMessage], operator.add]
+
+def llm_call(state: MessagesState):
+    response = model_with_tools.invoke(
+        [SystemMessage(content="Use tools for arithmetic.")] + state["messages"]
+    )
+    return {"messages": [response]}
+
+def tool_node(state: MessagesState):
+    outputs = []
+    for tool_call in state["messages"][-1].tool_calls:
+        tool_result = tools_by_name[tool_call["name"]].invoke(tool_call["args"])
+        outputs.append(ToolMessage(content=str(tool_result), tool_call_id=tool_call["id"]))
+    return {"messages": outputs}
+
+def should_continue(state: MessagesState) -> Literal["tool_node", END]:
+    if state["messages"][-1].tool_calls:
+        return "tool_node"
+    return END
+
+builder = StateGraph(MessagesState)
+builder.add_node("llm_call", llm_call)
+builder.add_node("tool_node", tool_node)
+builder.add_edge(START, "llm_call")
+builder.add_conditional_edges("llm_call", should_continue, ["tool_node", END])
+builder.add_edge("tool_node", "llm_call")
+
+agent = builder.compile()
+result = agent.invoke({"messages": [HumanMessage(content="Add 3 and 4.")]})
+print(result["messages"][-1].content)</code></pre>
+    </section>
+
+    <section class="exercise">
+      <h2>Recall Check</h2>
+      <p>From memory: in one sentence, explain the difference between using the Claude SDK directly and using LangGraph for an agent.</p>
+      <textarea aria-label="Explain Claude SDK versus LangGraph" placeholder="Claude SDK is... LangGraph is..."></textarea>
+      <p><button type="button" class="secondary" data-reveal="#recall-answer">Show example</button></p>
+      <div class="answer" id="recall-answer">
+        <p>The Claude SDK gives direct model and tool-call access, while LangGraph makes the control loop explicit as stateful nodes and edges with a visible stop condition.</p>
+      </div>
+    </section>
+
+    <section class="exercise">
+      <h2>Design Drill</h2>
+      <p>You are building a refund assistant. It may inspect order history and policy, but issuing money requires a hard cap and audit log. Which implementation surface would you start with, and where would the approval boundary live?</p>
+      <textarea aria-label="Choose implementation surface and approval boundary" placeholder="Surface:&#10;Approval boundary:&#10;Why:"></textarea>
+      <p><button type="button" class="secondary" data-reveal="#example-answer">Show example</button></p>
+      <div class="answer" id="example-answer">
+        <p><strong>Surface:</strong> either can work, but LangGraph is a strong default once inspection, approval, action, observation, and recovery become separate states. <strong>Approval boundary:</strong> outside the model, before the payment/refund API call. <strong>Why:</strong> the LLM can recommend or prepare the action, but the controller must enforce caps, log the decision, and stop or escalate.</p>
+      </div>
+    </section>
+
+    <section>
+      <h2>Architecture Check</h2>
+      <ul>
+        <li>Does this code show the environment being observed, or only a prompt being answered?</li>
+        <li>Which function can change external state?</li>
+        <li>Where are tool arguments validated before execution?</li>
+        <li>Where is the stop condition expressed?</li>
+        <li>Can you log every model call, tool call, approval, and final state?</li>
+      </ul>
+    </section>
+
+    <section class="callout">
+      <h2>Primary Source</h2>
+      <p>Read the <a href="https://platform.claude.com/docs/en/cli-sdks-libraries/sdks/python">Anthropic Python SDK docs</a> for current client, streaming, error, and tool-helper usage. Then read the <a href="https://docs.langchain.com/oss/python/langgraph/quickstart">LangGraph Python quickstart</a> to see the model node, tool node, conditional edge, and compiled graph in one example.</p>
+    </section>
+
+    <p class="footer-note">Previous lesson: <a href="./0002-agent-types-and-autonomy.html">0002 &mdash; Agent Types and Autonomy Levels</a>. Ask the agent follow-up questions about which part of your code is the controller, which part is the model call, and which part is the environment-changing action.</p>
+  </main>
+</body>
+</html>

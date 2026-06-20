@@ -23,6 +23,11 @@
       <p>Keep the compact version open: <a href="../reference/agentic-control-loop.html">Agentic Control Loop Reference</a>.</p>
     </section>
 
+    <section class="callout">
+      <h2>The Minimum Test</h2>
+      <p>A system is agentic only when all three are explicit: <strong>an environment it can observe</strong>, <strong>an action surface that can change that environment</strong>, and <strong>a feedback path that decides whether to continue, recover, escalate, or stop</strong>. If any one is missing, you probably have a model call, workflow, or tool-backed response rather than an agent architecture.</p>
+    </section>
+
     <section class="loop" aria-label="agentic control loop">
       <span>Perceive<small>What changed?</small></span>
       <span>Interpret<small>What does it mean?</small></span>
@@ -30,6 +35,22 @@
       <span>Act<small>What can change state?</small></span>
       <span>Observe<small>What happened?</small></span>
       <span>Update<small>Continue, recover, or stop.</small></span>
+    </section>
+
+    <section>
+      <h2>Single Call or Loop?</h2>
+      <div class="grid">
+        <article class="card">
+          <span class="tag">Not yet agentic</span>
+          <h3>One-shot tool use</h3>
+          <p>User asks for the weather. A model calls a weather API, summarizes the result, and ends. There is tool use, but no ongoing control of an environment.</p>
+        </article>
+        <article class="card">
+          <span class="tag">Agentic</span>
+          <h3>Controlled feedback loop</h3>
+          <p>A travel assistant watches a trip plan, checks weather before departure, rebooks only within policy after approval, observes confirmation, then stops or escalates.</p>
+        </article>
+      </div>
     </section>
 
     <section>
@@ -95,12 +116,12 @@
                 ]
               },
               {
-                "prompt": "A chatbot calls a weather API one time, prints the forecast, and ends the turn.",
+                "prompt": "A chatbot calls a weather API once, summarizes the forecast, and ends the turn.",
                 "answer": 1,
                 "choices": [
                   {
                     "label": "Predictive",
-                    "feedback": "It returns content, not a score or forecast model."
+                    "feedback": "The forecast comes from a tool; the chatbot's output is not a score."
                   },
                   {
                     "label": "Generative",
@@ -156,11 +177,11 @@
 
     <section class="exercise">
       <h2>Recall Check</h2>
-      <p>From memory, in one sentence: what is the minimum that makes a system agentic rather than generative?</p>
+      <p>Hide the text above and answer from memory in one sentence: what is the minimum that makes a system agentic rather than generative?</p>
       <textarea aria-label="State the minimum that makes a system agentic" placeholder="In one sentence..."></textarea>
       <p><button type="button" class="secondary" data-reveal="#recall-answer">Show example</button></p>
       <div class="answer" id="recall-answer">
-        <p>It runs a closed loop that acts on an environment against a goal or rule, observes the result, and continues or stops &mdash; generation alone produces an artifact and then ends.</p>
+        <p>It runs a closed loop that observes an environment, acts through a controlled interface against a goal or rule, observes the result, and continues, recovers, escalates, or stops &mdash; generation alone produces an artifact and then ends.</p>
       </div>
     </section>
 
@@ -172,6 +193,7 @@
       <p><button type="button" class="secondary" data-reveal="#example-answer">Show example</button></p>
       <div class="answer" id="example-answer">
         <p><strong>Perceive:</strong> meeting request, attendees, calendar state. <strong>Interpret:</strong> required duration, constraints, conflicts. <strong>Reason:</strong> choose candidate slots within policy. <strong>Act:</strong> propose times, then book only after approval. <strong>Observe:</strong> booking success, declines, new conflicts. <strong>Update or stop:</strong> record task state, retry proposals, escalate, or stop when confirmed.</p>
+        <p><strong>Self-check:</strong> the environment is the calendar system plus attendee responses; the environment-changing action is booking; approval gates the externally visible action; the stop condition is a confirmed meeting or escalation.</p>
       </div>
     </section>
 
@@ -183,6 +205,7 @@
       <p><button type="button" class="secondary" data-reveal="#example-answer-2">Show example</button></p>
       <div class="answer" id="example-answer-2">
         <p><strong>Perceive:</strong> alerts, metrics, deploy events, node health. <strong>Interpret:</strong> which service is degraded and whether alerts share a root cause. <strong>Reason:</strong> pick the smallest safe remediation within runbook policy. <strong>Act:</strong> drain the bad node &mdash; an irreversible, externally visible action that needs approval. <strong>Observe:</strong> error rate, latency, downstream effects. <strong>Update or stop:</strong> confirm recovery and stop, retry on another node, roll back, or escalate to a human.</p>
+        <p><strong>Self-check:</strong> the risky action is not "reasoning about the alert"; it is changing production traffic. That boundary is where policy, approval, rollback, and audit belong.</p>
       </div>
     </section>
 
@@ -194,6 +217,7 @@
       <p><button type="button" class="secondary" data-reveal="#example-answer-3">Show example</button></p>
       <div class="answer" id="example-answer-3">
         <p><strong>Observes:</strong> the refund request, order and payment history, return status, fraud signals, and refund policy. <strong>Environment-changing actions:</strong> issuing the refund to the payment processor &mdash; irreversible and externally visible &mdash; plus notifying the customer and updating the case. <strong>Limits &amp; approvals:</strong> auto-refund only within a dollar cap and policy window; anything above the cap, outside policy, or flagged for fraud routes to a human. <strong>Stop condition:</strong> refund confirmed and case closed, escalation handed off, or request denied with reason recorded. Notice that "automatically" hid an irreversible money-moving action that needs an enforced cap and an approval path.</p>
+        <p><strong>Self-check:</strong> if your rewrite does not name the money-moving interface, the approval boundary, and the stop condition, the autonomy is still underspecified.</p>
       </div>
     </section>
 

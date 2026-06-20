@@ -44,6 +44,10 @@
   Use for: retrieved examples, memories, and prompt context without model-weight updates.
 - [LangGraph documentation: Workflows and agents](https://docs.langchain.com/oss/python/langgraph/workflows-agents)
   Use for: practical workflow/agent distinctions and implementation framing.
+- [Anthropic Python SDK documentation](https://platform.claude.com/docs/en/cli-sdks-libraries/sdks/python)
+  Use for: current Python client setup, sync and async Messages API calls, streaming, retries, errors, token counting, and tool helpers.
+- [LangGraph Python quickstart](https://docs.langchain.com/oss/python/langgraph/quickstart)
+  Use for: current Python examples of explicit graph-based agent loops with model nodes, tool nodes, conditional edges, and stop conditions.
 
 ## Wisdom (Communities)
 

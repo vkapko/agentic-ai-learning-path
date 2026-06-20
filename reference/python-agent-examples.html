@@ -1,0 +1,145 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Python Agent Examples Reference</title>
+  <link rel="stylesheet" href="../assets/course.css">
+</head>
+<body>
+  <main>
+    <header>
+      <p class="kicker">Reference 0002</p>
+      <h1>Python Agent Examples</h1>
+      <p class="summary">Use this sheet to choose between a direct Claude SDK call and a LangGraph control loop.</p>
+    </header>
+
+    <section>
+      <h2>Choose the Surface</h2>
+      <div class="grid">
+        <article class="card">
+          <span class="tag">Claude SDK</span>
+          <h3>Call Claude directly</h3>
+          <p>Use when your application owns the loop, policy checks, persistence, approvals, and tool execution. The Anthropic Python SDK exposes sync and async Messages API clients, streaming, retries, error handling, and tool helpers.</p>
+        </article>
+        <article class="card">
+          <span class="tag">LangGraph</span>
+          <h3>Make the loop explicit</h3>
+          <p>Use when you want state, nodes, edges, conditional routing, checkpointing, and a graph-shaped agent loop. LangGraph's quickstart builds a tool-calling agent with a model node, tool node, and stop condition.</p>
+        </article>
+      </div>
+    </section>
+
+    <section>
+      <h2>Claude SDK: One Model Call</h2>
+      <pre><code class="language-python">from anthropic import Anthropic
+
+client = Anthropic()
+
+message = client.messages.create(
+    model="claude-opus-4-8",
+    max_tokens=300,
+    messages=[
+        {
+            "role": "user",
+            "content": "In one sentence, define an agentic control loop.",
+        }
+    ],
+)
+
+print(message.content[0].text)</code></pre>
+    </section>
+
+    <section>
+      <h2>Claude SDK: Tool Loop Helper</h2>
+      <pre><code class="language-python">import json
+from anthropic import Anthropic, beta_tool
+
+client = Anthropic()
+
+@beta_tool
+def lookup_order(order_id: str) -> str:
+    """Look up an order by ID.
+    Args:
+        order_id: Internal order identifier.
+    """
+    return json.dumps({"order_id": order_id, "status": "delivered"})
+
+runner = client.beta.messages.tool_runner(
+    model="claude-opus-4-8",
+    max_tokens=500,
+    tools=[lookup_order],
+    messages=[
+        {"role": "user", "content": "Check order A123 and summarize its status."}
+    ],
+)
+
+for message in runner:
+    print(message)</code></pre>
+      <p class="compact">The helper can iterate over Claude tool requests and tool results, but your application still owns permission checks, irreversible side effects, auditing, and stop conditions.</p>
+    </section>
+
+    <section>
+      <h2>LangGraph: Explicit Loop</h2>
+      <pre><code class="language-python">import operator
+from typing import Annotated, Literal
+from typing_extensions import TypedDict
+
+from langchain.chat_models import init_chat_model
+from langchain.messages import AnyMessage, HumanMessage, SystemMessage, ToolMessage
+from langchain.tools import tool
+from langgraph.graph import END, START, StateGraph
+
+model = init_chat_model("claude-sonnet-4-6", temperature=0)
+
+@tool
+def add(a: int, b: int) -> int:
+    """Add two integers."""
+    return a + b
+
+tools = [add]
+tools_by_name = {tool.name: tool for tool in tools}
+model_with_tools = model.bind_tools(tools)
+
+class MessagesState(TypedDict):
+    messages: Annotated[list[AnyMessage], operator.add]
+
+def llm_call(state: MessagesState):
+    response = model_with_tools.invoke(
+        [SystemMessage(content="Use tools for arithmetic.")] + state["messages"]
+    )
+    return {"messages": [response]}
+
+def tool_node(state: MessagesState):
+    outputs = []
+    for tool_call in state["messages"][-1].tool_calls:
+        tool_result = tools_by_name[tool_call["name"]].invoke(tool_call["args"])
+        outputs.append(ToolMessage(content=str(tool_result), tool_call_id=tool_call["id"]))
+    return {"messages": outputs}
+
+def should_continue(state: MessagesState) -> Literal["tool_node", END]:
+    if state["messages"][-1].tool_calls:
+        return "tool_node"
+    return END
+
+builder = StateGraph(MessagesState)
+builder.add_node("llm_call", llm_call)
+builder.add_node("tool_node", tool_node)
+builder.add_edge(START, "llm_call")
+builder.add_conditional_edges("llm_call", should_continue, ["tool_node", END])
+builder.add_edge("tool_node", "llm_call")
+
+agent = builder.compile()
+result = agent.invoke({"messages": [HumanMessage(content="Add 3 and 4.")]})
+print(result["messages"][-1].content)</code></pre>
+    </section>
+
+    <section class="callout">
+      <h2>Architecture Reminder</h2>
+      <p>SDK choice does not make a system agentic. Agency comes from the loop: observable environment, controlled action surface, feedback path, state update, and stop condition.</p>
+    </section>
+
+    <p class="footer-note">Related lesson: <a href="../lessons/0003-python-agent-implementations.html">0003 - Python Agent Implementations</a>.</p>
+  </main>
+</body>
+</html>
