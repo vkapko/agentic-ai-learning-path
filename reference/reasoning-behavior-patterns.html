@@ -1,0 +1,73 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Reasoning Behavior Patterns Reference</title>
+  <link rel="stylesheet" href="../assets/course.css">
+</head>
+<body>
+  <main>
+    <header>
+      <p class="kicker">Reference 0004</p>
+      <h1 id="reasoning-behavior-patterns">Reasoning Behavior Patterns</h1>
+      <p class="summary">Use this sheet to choose the smallest reasoning pattern that fits the workflow pressure.</p>
+    </header>
+
+    <section>
+      <h2 id="the-decision">The Decision</h2>
+      <p class="compact">Do not add a reasoning pattern because it sounds more agentic. Add it because the workflow has a specific pressure: multi-step decomposition, live observation, pre-release review, failure recovery, or reusable feedback from prior attempts.</p>
+    </section>
+
+    <section>
+      <h2 id="pattern-picker">Pattern Picker</h2>
+      <div class="grid">
+        <article class="card">
+          <span class="tag">One-shot</span>
+          <h3 id="bounded-generation">Bounded generation</h3>
+          <p>Use for low-risk answers or artifacts where no external state is needed. Validate output before delivery.</p>
+        </article>
+        <article class="card">
+          <span class="tag">Decomposition</span>
+          <h3 id="multi-step-thinking">Multi-step thinking</h3>
+          <p>Use when breaking the task into steps improves reliability. Prefer hidden reasoning or concise summaries over raw reasoning traces.</p>
+        </article>
+        <article class="card">
+          <span class="tag">ReAct</span>
+          <h3 id="reason-act-observe">Reason, act, observe</h3>
+          <p>Use when tool results or environment observations affect the next step. The controller owns tool execution and loop termination.</p>
+        </article>
+        <article class="card">
+          <span class="tag">Reflection</span>
+          <h3 id="critique-and-revise">Critique and revise</h3>
+          <p>Use when a draft, decision, or failed action needs a review pass. It is a quality aid, not a correctness proof.</p>
+        </article>
+        <article class="card">
+          <span class="tag">Episode memory</span>
+          <h3 id="reuse-feedback">Reuse feedback</h3>
+          <p>Use when human or environment feedback should shape later attempts. Store scope, source, date, confidence, and expiry.</p>
+        </article>
+      </div>
+    </section>
+
+    <section>
+      <h2 id="controller-responsibilities">Controller Responsibilities</h2>
+      <ul>
+        <li>Expose only the tools allowed for the current role and task.</li>
+        <li>Validate tool names, arguments, permissions, and side effects before execution.</li>
+        <li>Represent tool errors as structured observations, not silent empty results.</li>
+        <li>Track task state separately from long-term memory.</li>
+        <li>Log model calls, tool calls, observations, approvals, revisions, and final outcomes.</li>
+        <li>Stop on success, escalation, refusal, max turns, max cost, unsafe action, or unrecoverable error.</li>
+      </ul>
+    </section>
+
+    <section class="callout">
+      <h2 id="warning">Warning</h2>
+      <p>A visible reasoning trace is not evidence that the answer is correct. For auditability, preserve structured inputs, outputs, tool calls, observations, verifier results, and source provenance.</p>
+    </section>
+
+    <p class="footer-note">Related lesson: <a href="../lessons/0005-reasoning-behavior-patterns.html">0005 - Reasoning Behavior Patterns</a>.</p>
+  </main>
+</body>
+</html>

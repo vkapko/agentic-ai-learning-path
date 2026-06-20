@@ -1,0 +1,225 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Lesson 0005: Reasoning Behavior Patterns</title>
+  <link rel="stylesheet" href="../assets/course.css">
+  <script src="../assets/quiz.js" defer></script>
+  <script src="../assets/reveal.js" defer></script>
+</head>
+<body>
+  <main>
+    <header>
+      <p class="kicker">Lesson 0005</p>
+      <h1 id="choose-the-smallest-reasoning-pattern">Choose the Smallest Reasoning Pattern</h1>
+      <p class="summary">Tangible win: select one-shot generation, decomposition, ReAct, reflection, or episode memory based on the pressure in the workflow.</p>
+    </header>
+
+    <section>
+      <h2 id="the-one-idea">The One Idea</h2>
+      <p>Reasoning patterns are not maturity levels. They are tools for different pressures. Use a more involved pattern only when the task needs decomposition, live observations, quality review, or learning from repeated attempts. The local solution-pattern notes warn that visible reasoning can be plausible but unfaithful, so production systems should log structured decisions, tool calls, observations, and verifier results instead of treating a reasoning trace as proof <a href="../agentic-ai-solution-design-patterns.html#internal-monologue">[local solution notes]</a>.</p>
+      <p>Keep the compact version open: <a href="../reference/reasoning-behavior-patterns.html">Reasoning Behavior Patterns Reference</a>.</p>
+    </section>
+
+    <section class="callout">
+      <h2 id="minimum-rule">Minimum Rule</h2>
+      <p>Start with the simplest pattern that exposes the needed control boundary. Add ReAct only when observations change the next action. Add reflection only when a separate critique can improve a draft, action, or failure recovery. Add episode memory only when future attempts should use prior feedback.</p>
+    </section>
+
+    <section>
+      <h2 id="five-patterns">Five Patterns</h2>
+      <div class="grid">
+        <article class="card">
+          <span class="tag">One-shot</span>
+          <h3 id="single-pass">Single pass</h3>
+          <p>Use when the task is low-risk, bounded, and does not require external state. The controller still owns validation and final delivery.</p>
+        </article>
+        <article class="card">
+          <span class="tag">Decomposition</span>
+          <h3 id="think-then-answer">Think then answer</h3>
+          <p>Use when a task benefits from being broken into steps. Prefer hidden reasoning or concise summaries over raw chain-of-thought.</p>
+        </article>
+        <article class="card">
+          <span class="tag">ReAct</span>
+          <h3 id="act-then-observe">Act then observe</h3>
+          <p>Use when the next decision depends on tool results or environment feedback. The controller mediates tools, permissions, and stop conditions.</p>
+        </article>
+        <article class="card">
+          <span class="tag">Reflection</span>
+          <h3 id="critique-then-revise">Critique then revise</h3>
+          <p>Use when a draft, action, or failure needs a review pass. Reflection improves odds; it does not guarantee correctness.</p>
+        </article>
+        <article class="card">
+          <span class="tag">Episode memory</span>
+          <h3 id="remember-feedback">Remember feedback</h3>
+          <p>Use for repeated tasks where prior corrections should influence later attempts. Store provenance, expiry, and confidence with memories.</p>
+        </article>
+      </div>
+    </section>
+
+    <section>
+      <h2 id="react-is-a-loop">ReAct Is A Loop</h2>
+      <p>The ReAct paper describes interleaving reasoning and acting so the model can use observations from an environment to guide later steps <a href="https://arxiv.org/abs/2210.03629">[ReAct paper]</a>. In architecture terms, the important part is not the visible reasoning text. It is the controlled cycle: decide, call a tool, observe, update state, and either continue or stop.</p>
+      <p>Claude's architecture notes make the stop condition concrete: continue when <code>stop_reason</code> is <code>"tool_use"</code>, execute the requested tool through the controller, send the result back, and stop on final-turn conditions such as <code>"end_turn"</code> <a href="../Claude%20Certified%20Architect%20%E2%80%93%20Foundations.html#task-statement-1-1-design-and-implement-agentic-loops-for-autonomous-task-execution">[Claude architecture notes]</a>.</p>
+    </section>
+
+    <section>
+      <h2 id="choose-the-pattern">Choose the Pattern</h2>
+      <p>Pick the smallest pattern that fits the described pressure.</p>
+
+      <course-quiz>
+        <script type="application/json">
+          {
+            "questions": [
+              {
+                "prompt": "A product page needs a concise rewrite. No tools, no policy action, no hidden state.",
+                "answer": 0,
+                "choices": [
+                  {
+                    "label": "One-shot answer",
+                    "feedback": "A bounded low-risk generation task does not need an action loop."
+                  },
+                  {
+                    "label": "Structured plan",
+                    "feedback": "Decomposition would add little because no multi-step dependency is described."
+                  },
+                  {
+                    "label": "ReAct loop",
+                    "feedback": "There is no live observation that changes the next action."
+                  },
+                  {
+                    "label": "Reflection pass",
+                    "feedback": "A review pass may help polish, but it is not required by the pressure."
+                  },
+                  {
+                    "label": "Episode memory",
+                    "feedback": "No repeated feedback pattern is described."
+                  }
+                ]
+              },
+              {
+                "prompt": "A support agent must inspect order history, check policy, then decide whether to escalate.",
+                "answer": 2,
+                "choices": [
+                  {
+                    "label": "One-shot answer",
+                    "feedback": "The model needs observations from tools before deciding."
+                  },
+                  {
+                    "label": "Structured plan",
+                    "feedback": "A plan helps, but tool observations drive the next decision."
+                  },
+                  {
+                    "label": "ReAct loop",
+                    "feedback": "Tool results and policy observations determine whether the workflow continues or escalates."
+                  },
+                  {
+                    "label": "Reflection pass",
+                    "feedback": "Review may be useful later, but observation-driven action is the main pressure."
+                  },
+                  {
+                    "label": "Episode memory",
+                    "feedback": "No future-use feedback store is required by the scenario."
+                  }
+                ]
+              },
+              {
+                "prompt": "A legal summary must be reviewed for missing caveats before it is shown to a user.",
+                "answer": 3,
+                "choices": [
+                  {
+                    "label": "One-shot answer",
+                    "feedback": "The scenario explicitly asks for a second pass before release."
+                  },
+                  {
+                    "label": "Structured plan",
+                    "feedback": "Planning alone does not create the requested review boundary."
+                  },
+                  {
+                    "label": "ReAct loop",
+                    "feedback": "No changing environment or tool observation is central here."
+                  },
+                  {
+                    "label": "Reflection pass",
+                    "feedback": "A critique-and-revise step fits the quality review pressure."
+                  },
+                  {
+                    "label": "Episode memory",
+                    "feedback": "Stored feedback may help later, but this asks for pre-release review."
+                  }
+                ]
+              },
+              {
+                "prompt": "A coding assistant keeps making the same migration mistake after human corrections.",
+                "answer": 4,
+                "choices": [
+                  {
+                    "label": "One-shot answer",
+                    "feedback": "The issue is repeated behavior across attempts, not one response."
+                  },
+                  {
+                    "label": "Structured plan",
+                    "feedback": "A plan may help one task, but it will not preserve corrections."
+                  },
+                  {
+                    "label": "ReAct loop",
+                    "feedback": "Tool observations are not the central missing capability."
+                  },
+                  {
+                    "label": "Reflection pass",
+                    "feedback": "A review pass can catch one error, but the pattern asks to reuse feedback later."
+                  },
+                  {
+                    "label": "Episode memory",
+                    "feedback": "Store human corrections with scope, provenance, confidence, and expiry so future attempts can use them."
+                  }
+                ]
+              }
+            ]
+          }
+        </script>
+      </course-quiz>
+    </section>
+
+    <section class="exercise">
+      <h2 id="recall-check">Recall Check</h2>
+      <p>From memory: explain why ReAct is more than "chain-of-thought plus tools."</p>
+      <textarea aria-label="Explain ReAct from memory" placeholder="ReAct is..."></textarea>
+      <p><button type="button" class="secondary" data-reveal="#recall-answer">Show example</button></p>
+      <div class="answer" id="recall-answer">
+        <p>ReAct is a reason-act-observe loop: each tool result or environment observation can change the next decision. The controller must mediate tool access, validate arguments, handle errors, update state, and enforce the stop condition.</p>
+      </div>
+    </section>
+
+    <section class="exercise">
+      <h2 id="design-drill">Design Drill: Refund Assistant</h2>
+      <p>A refund assistant drafts a decision for a $240 order. It can read order history, read refund policy, and create an escalation ticket. It cannot issue money directly.</p>
+      <textarea aria-label="Choose reasoning pattern and boundaries" placeholder="Pattern:&#10;Controller owns:&#10;Model may decide:&#10;Stop condition:"></textarea>
+      <p><button type="button" class="secondary" data-reveal="#example-answer">Show example</button></p>
+      <div class="answer" id="example-answer">
+        <p><strong>Pattern:</strong> ReAct, because order and policy observations change the next step. <strong>Controller owns:</strong> tool permissions, argument validation, policy cap enforcement, audit logs, ticket creation, and stop conditions. <strong>Model may decide:</strong> which read-only check to request next and whether the gathered evidence supports escalation. <strong>Stop condition:</strong> final recommendation, escalation ticket created, tool failure escalated, or max turns reached.</p>
+      </div>
+    </section>
+
+    <section>
+      <h2 id="architecture-check">Architecture Check</h2>
+      <ul>
+        <li>What pressure justifies the reasoning pattern: decomposition, observation, review, or repeated feedback?</li>
+        <li>What should stay hidden, and what concise rationale should be shown?</li>
+        <li>Which tool calls can change the environment?</li>
+        <li>What validates tool names, arguments, permissions, and returned errors?</li>
+        <li>What observations are saved as task state, and what feedback becomes longer-term memory?</li>
+        <li>What stop condition prevents runaway reasoning or tool use?</li>
+      </ul>
+    </section>
+
+    <section class="callout">
+      <h2 id="primary-source">Primary Source</h2>
+      <p>Read the local <a href="../agentic-ai-solution-design-patterns.html#internal-reasoning-and-agent-behavior">Internal Reasoning and Agent Behavior</a> section first. Then read the original <a href="https://arxiv.org/abs/2210.03629">ReAct paper</a> for the reason-act-observe framing, and the local Claude notes on <a href="../Claude%20Certified%20Architect%20%E2%80%93%20Foundations.html#task-statement-1-1-design-and-implement-agentic-loops-for-autonomous-task-execution">agentic loop control flow</a>.</p>
+    </section>
+
+    <p class="footer-note">Previous lesson: <a href="./0004-system-architecture-choices.html">0004 - System Architecture Choices</a>. Ask the agent follow-up questions about which reasoning pattern fits one of your own workflows, and what the controller must own outside the model.</p>
+  </main>
+</body>
+</html>
