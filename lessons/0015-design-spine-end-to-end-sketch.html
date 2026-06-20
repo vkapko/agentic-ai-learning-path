@@ -1,0 +1,299 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Lesson 0015: The Design Spine — An End-to-End Agent Sketch</title>
+  <link rel="stylesheet" href="../assets/course.css">
+  <script src="../assets/quiz.js" defer></script>
+  <script src="../assets/reveal.js" defer></script>
+</head>
+<body>
+  <main>
+    <header>
+      <p class="kicker">Lesson 0015 &middot; Capstone</p>
+      <h1 id="design-spine-end-to-end-sketch">The Design Spine: An End-to-End Agent Sketch</h1>
+      <p class="summary">Tangible win: a single repeatable template that turns "design an agent" into eight ordered passes — frame, fit, loop, tools, memory, gates, monitoring, failure modes — and you produce one full architecture sketch with it for a real use case, defending every box by the cost it removes.</p>
+    </header>
+
+    <section>
+      <h2 id="the-one-idea">The One Idea</h2>
+      <p>The mission's hardest success criterion is to <em>"sketch a design with explicit perception, reasoning, action, memory, monitoring, approval, and recovery paths"</em> — and then defend the trade-offs in plain language. Every lesson so far taught one of those surfaces in isolation. This lesson is the spine that holds them together: an ordered checklist you run top to bottom so nothing is forgotten and nothing is over-built.</p>
+      <p>The discipline is <strong>design from the task inward, not from the pattern outward</strong>. You do not start with "let's use multi-agent ReAct with a verifier." You start with the goal and add only the machinery the task's cost structure demands. Keep the compact template open while you work: <a href="../reference/design-spine-end-to-end-sketch.html">The Design Spine Reference</a>.</p>
+    </section>
+
+    <section class="callout">
+      <h2 id="minimum-rule">Minimum Rule</h2>
+      <p>The smallest reliable design wins. Every pass you add — a second agent, a ReAct loop, a verifier, a gate — buys something specific and costs latency, money, or complexity. You must be able to name what each box removes <em>and</em> defend each box you left out. A capstone you can't defend in plain language isn't finished.</p>
+    </section>
+
+    <section>
+      <h2 id="the-eight-passes">The Eight Passes</h2>
+      <p>Run these in order. Each maps to a lesson you've already done — the spine is mostly retrieval, not new knowledge.</p>
+      <div class="grid">
+        <article class="card">
+          <span class="tag">1 &middot; Frame</span>
+          <h3 id="frame">Goal &amp; boundaries</h3>
+          <p>Goal, environment, percepts (stale? noisy? adversarial?), actions (reversible?), authority, stop condition. <a href="./0001-agentic-ai-control-loop.html">0001</a>, <a href="./0002-agent-types-and-autonomy.html">0002</a>.</p>
+        </article>
+        <article class="card">
+          <span class="tag">2 &middot; Fit</span>
+          <h3 id="fit">Smallest type + topology</h3>
+          <p>Simplest agent type that meets the goal; single-agent unless work cleanly splits. <a href="./0004-system-architecture-choices.html">0004</a>, <a href="./0011-multi-agent-coordination.html">0011</a>.</p>
+        </article>
+        <article class="card">
+          <span class="tag">3 &middot; Loop</span>
+          <h3 id="loop">Reasoning + planning</h3>
+          <p>One-shot / CoT / ReAct; sequential / parallel / retrieval-first; verifier only where it pays. <a href="./0005-reasoning-behavior-patterns.html">0005</a>, <a href="./0007-tool-orchestration-plans.html">0007</a>, <a href="./0012-search-verification-self-correction.html">0012</a>.</p>
+        </article>
+        <article class="card">
+          <span class="tag">4 &middot; Tools</span>
+          <h3 id="tools">Contracts</h3>
+          <p>Per tool: capability, args, permissions, side effects, cost, failure modes. <a href="./0006-tool-interface-contracts.html">0006</a>, <a href="./0009-structured-output-reliable-extraction.html">0009</a>.</p>
+        </article>
+        <article class="card">
+          <span class="tag">5 &middot; Memory</span>
+          <h3 id="memory">Governed store</h3>
+          <p>Episodic / procedural / scratchpad; provenance + expiry; retrieval by authority + recency. <a href="./0013-memory-as-data-infrastructure.html">0013</a>.</p>
+        </article>
+        <article class="card">
+          <span class="tag">6 &middot; Gates</span>
+          <h3 id="gates">Control boundaries</h3>
+          <p>Gate where wrong-action cost &gt; wait cost; pick interrupt mode; checkable triggers; route feedback. <a href="./0014-human-in-the-loop-approval-boundaries.html">0014</a>.</p>
+        </article>
+        <article class="card">
+          <span class="tag">7 &middot; Watch</span>
+          <h3 id="watch">Monitoring + recovery</h3>
+          <p>Catch loops/drift/no-progress; recover locally then escalate; rollback path; keep provenance. <a href="./0008-runtime-monitoring-and-recovery.html">0008</a>, <a href="./0010-context-escalation-provenance.html">0010</a>.</p>
+        </article>
+        <article class="card">
+          <span class="tag">8 &middot; Fail</span>
+          <h3 id="fail">Failure modes</h3>
+          <p>Top risks + mitigations, each mapped to a box you drew: stale state, injection, loops, poisoned memory, hidden authority, irreversible side effects.</p>
+        </article>
+      </div>
+    </section>
+
+    <section>
+      <h2 id="worked-example">Worked Example: An On-Call Triage Agent</h2>
+      <p>To see the spine run end to end, here is a compact sketch for one use case — an agent that triages production incidents for a SaaS service. Read it as a model for the shape of your own answer, not as the only correct design.</p>
+      <pre><code>1 FRAME    Goal: stabilize a firing incident and hand a clean summary to on-call.
+          Percepts: alerts, logs, metrics — DELAYED + NOISY; deploy history (authoritative).
+          Actions: read logs (rev), restart service (rev), scale up (rev),
+                   roll back deploy (HARD to undo), page human (rev), post status (rev-ish).
+          Authority: may restart/scale freely; may NOT roll back a deploy alone.
+          Stop: incident acknowledged-resolved, or 15 min of no progress.
+
+2 FIT     Goal-based, single agent. No clean skill split that pays for a second agent.
+
+3 LOOP    ReAct — each log/metric observation changes the next action.
+          Planning: sequential (steps depend on prior results), not parallel.
+          Verify: cross-check "deploy X caused it" against the deploy timeline before acting.
+
+4 TOOLS   get_logs(service, window) -> read-only, cheap.
+          restart(service) -> side effect, reversible, idempotent.
+          rollback(deploy_id) -> side effect, HARD to undo, needs approval.
+          page(team) -> side effect, reversible.
+          Each returns structured errors (access-fail vs. empty result).
+
+5 MEMORY  Episodic: past incidents + what fixed them (provenance, recency-ranked).
+          Procedural: runbooks. Scratchpad: this incident's timeline.
+          Retrieval ranks by authority + recency, filtered by service permission.
+
+6 GATES   restart/scale/page -> escalate-on-trigger (autonomous).
+          rollback -> approve-before (hard to undo, high blast radius).
+          Triggers: low confidence, conflicting signals, novel service, no progress.
+
+7 WATCH   Watch for restart loops (same service N times), budget/time cap,
+          metric drift. Recover: retry read, fall back to runbook, then page.
+          Provenance: every claim in the summary links to its log/metric source.
+
+8 FAIL    Stale metrics -> act on resolved state  | mitig: timestamp + freshness check.
+          Restart loop                            | mitig: loop monitor + cap (pass 7).
+          Poisoned incident memory                | mitig: validated writes, confidence.
+          Rollback without authority              | mitig: approve-before gate (pass 6).
+          Prompt injection via log contents       | mitig: treat logs as data, not orders.</code></pre>
+      <p>Notice how passes feed each other: the <code>rollback</code> being hard to undo (pass 1) forces the approve-before gate (pass 6); the restart loop risk (pass 8) is closed by the monitor (pass 7). The spine's value is exactly these cross-links.</p>
+    </section>
+
+    <section>
+      <h2 id="interleaved-quiz">Interleaved Check</h2>
+      <p>Each question lives in the same incident-triage system but tests a different pass. The skill is recognizing which surface owns each decision.</p>
+
+      <course-quiz>
+        <script type="application/json">
+          {
+            "questions": [
+              {
+                "prompt": "Metrics arrive on a 90-second delay, so the agent might restart a service that already recovered. Which pass owns the fix, and what is it?",
+                "choices": [
+                  {
+                    "label": "Frame: check freshness",
+                    "feedback": "Stale, delayed percepts are a framing problem — timestamp inputs and check freshness before acting on them.",
+                    "correct": 1
+                  },
+                  {
+                    "label": "Loop: add a verifier",
+                    "feedback": "A verifier checks reasoning quality; it does not make a delayed metric current.",
+                    "correct": 0
+                  },
+                  {
+                    "label": "Tools: rewrite contract",
+                    "feedback": "The tool contract documents latency but the staleness still must be handled when framing percepts.",
+                    "correct": 0
+                  },
+                  {
+                    "label": "Gates: require approval",
+                    "feedback": "A human gate on every restart would crush response time for a reversible action.",
+                    "correct": 0
+                  }
+                ]
+              },
+              {
+                "prompt": "The agent rolls back a deploy on its own, taking the whole service down. The action was reversible-by-effort but high blast radius. Which pass was skipped?",
+                "choices": [
+                  {
+                    "label": "Gates: approve-before",
+                    "feedback": "High-blast-radius, hard-to-undo actions need an approve-before gate — wrong-action cost beats wait cost.",
+                    "correct": 1
+                  },
+                  {
+                    "label": "Memory: add provenance",
+                    "feedback": "Provenance explains where a claim came from; it does not stop an unauthorized action.",
+                    "correct": 0
+                  },
+                  {
+                    "label": "Loop: switch to ReAct",
+                    "feedback": "The reasoning loop choice does not govern whether a dangerous action needs human sign-off.",
+                    "correct": 0
+                  },
+                  {
+                    "label": "Fit: add an agent",
+                    "feedback": "A second agent adds coordination cost and still could roll back without a gate.",
+                    "correct": 0
+                  }
+                ]
+              },
+              {
+                "prompt": "A teammate wants to add a second 'log-analysis agent' alongside the triage agent. What is the right default stance?",
+                "choices": [
+                  {
+                    "label": "Stay single-agent first",
+                    "feedback": "Single-agent is the default; add a second only when work splits cleanly and coordination cost pays for itself.",
+                    "correct": 1
+                  },
+                  {
+                    "label": "Split for modularity",
+                    "feedback": "Modularity sounds good but two agents add shared-state and handoff failure modes for no clear gain here.",
+                    "correct": 0
+                  },
+                  {
+                    "label": "Split to go faster",
+                    "feedback": "Steps here are sequential and dependent, so a second agent adds latency, not speed.",
+                    "correct": 0
+                  },
+                  {
+                    "label": "Split per tool call",
+                    "feedback": "One agent per tool multiplies coordination overhead without splitting real skill or context.",
+                    "correct": 0
+                  }
+                ]
+              },
+              {
+                "prompt": "The agent keeps restarting the same service in a loop without resolving anything. Which pass should catch this?",
+                "choices": [
+                  {
+                    "label": "Watch: loop monitor",
+                    "feedback": "Tool loops and no-progress are monitoring concerns — cap repeats and escalate when progress stalls.",
+                    "correct": 0
+                  },
+                  {
+                    "label": "Monitoring: cap repeats",
+                    "feedback": "Correct surface — a loop monitor with a repeat cap and no-progress stop is exactly pass 7's job.",
+                    "correct": 1
+                  },
+                  {
+                    "label": "Memory: store attempts",
+                    "feedback": "Recording attempts helps later, but stopping the live loop is a monitoring-and-recovery job.",
+                    "correct": 0
+                  },
+                  {
+                    "label": "Tools: make idempotent",
+                    "feedback": "Idempotency stops duplicate effects, not the agent's decision to retry forever.",
+                    "correct": 0
+                  }
+                ]
+              },
+              {
+                "prompt": "After an incident, an engineer says: 'For the payments service, always page the DB team first.' Where should this land?",
+                "choices": [
+                  {
+                    "label": "Policy: a routing rule",
+                    "feedback": "An always-applies routing constraint is a policy/threshold update that binds every future run, not a one-off.",
+                    "correct": 1
+                  },
+                  {
+                    "label": "Memory: one record",
+                    "feedback": "Stored as a single record, a system-wide rule can drift or fail to apply on the next incident.",
+                    "correct": 0
+                  },
+                  {
+                    "label": "Weights: fine-tune it",
+                    "feedback": "A routing rule is enforced, not retrained into model weights by one instruction.",
+                    "correct": 0
+                  },
+                  {
+                    "label": "Prompt: paste it in",
+                    "feedback": "Dropping unvalidated feedback into the prompt is the poisoned-memory risk — route it as a governed rule.",
+                    "correct": 0
+                  }
+                ]
+              }
+            ]
+          }
+        </script>
+      </course-quiz>
+    </section>
+
+    <section class="exercise">
+      <h2 id="recall-the-spine">Recall Check</h2>
+      <p>From memory, before scrolling up: name the eight passes of the design spine in order, and the one rule that decides whether to add machinery at any pass.</p>
+      <textarea aria-label="Recall the eight passes and the rule" placeholder="1.&#10;2.&#10;3.&#10;4.&#10;5.&#10;6.&#10;7.&#10;8.&#10;Rule:"></textarea>
+      <p><button type="button" class="secondary" data-reveal="#recall-answer">Show example</button></p>
+      <div class="answer" id="recall-answer">
+        <p>1 Frame (goal, percepts, actions, authority, stop) &middot; 2 Fit (smallest agent type + topology) &middot; 3 Loop (reasoning + planning + verify) &middot; 4 Tools (contracts) &middot; 5 Memory (governed store) &middot; 6 Gates (control boundaries) &middot; 7 Watch (monitoring + recovery) &middot; 8 Fail (failure modes + mitigations). Rule: add machinery only when its cost is less than the cost it removes — smallest reliable design wins, and you must defend every box you drew and every one you left out.</p>
+      </div>
+    </section>
+
+    <section class="exercise">
+      <h2 id="capstone-drill">Capstone Drill: Sketch Your Own</h2>
+      <p>Pick a real use case — ideally one from your own work or a target interview. Suggested options if you want one handed to you: a <strong>refund-processing agent</strong>, a <strong>recruiting-inbox triage agent</strong>, or a <strong>code-review assistant that opens PRs</strong>. Run all eight passes. Keep each pass to a few lines — the goal is a complete spine, not a long document.</p>
+      <textarea aria-label="Your end-to-end design sketch" placeholder="1 FRAME  goal / percepts (stale? noisy?) / actions (reversible?) / authority / stop:&#10;2 FIT    agent type + single vs multi:&#10;3 LOOP   reasoning + planning + verify?:&#10;4 TOOLS  contracts (capability/perms/side effects/cost/failure):&#10;5 MEMORY what's stored / retrieval / provenance:&#10;6 GATES  which actions gated / interrupt mode / triggers / feedback routing:&#10;7 WATCH  what's monitored / recovery / rollback:&#10;8 FAIL   top 5 failure modes + mitigations:"></textarea>
+      <p>There is no single answer here — bring this sketch back to the agent and have it pressure-test you. Use the checklist below to self-grade first.</p>
+    </section>
+
+    <section>
+      <h2 id="defense-check">Defense Check</h2>
+      <p>Your sketch is defensible when you can answer each of these in plain language:</p>
+      <ul>
+        <li>What makes this system <strong>agentic</strong> rather than just a generative model with tools?</li>
+        <li>What is the <strong>smallest agent type</strong> that fits — and why not something simpler?</li>
+        <li>What happens when a tool call <strong>partially succeeds</strong>?</li>
+        <li>Which <strong>state is authoritative</strong> when percepts and memory disagree?</li>
+        <li>What memory is <strong>useful</strong>, and what memory would be <strong>dangerous</strong> to keep?</li>
+        <li>What would make a <strong>verifier independent</strong> rather than the same model grading itself?</li>
+        <li>What monitor would catch a <strong>tool loop or state drift</strong> before it does damage?</li>
+        <li>Which rules are enforced <strong>programmatically</strong> (a gate or prerequisite) vs. by prompt guidance?</li>
+        <li>For every box you added — what cost does it remove? For every pattern you skipped — why was it overkill?</li>
+      </ul>
+    </section>
+
+    <section class="callout">
+      <h2 id="primary-source">Primary Source</h2>
+      <p>This capstone integrates all three local design files — revisit the <a href="../agentic-ai-architecture-foundations-designing-autonomous-ai-systems.html">Architecture Foundations</a>, <a href="../agentic-ai-solution-design-patterns.html">Solution Design Patterns</a>, and <a href="../agentic-ai-planning-and-reasoning-design.html">Planning and Reasoning Design</a> for the detail behind any pass. For the workflow-vs-agent framing that underlies "smallest reliable design," see <a href="https://docs.langchain.com/oss/python/langgraph/workflows-agents">LangGraph: Workflows and agents</a>.</p>
+    </section>
+
+    <p class="footer-note">Previous lesson: <a href="./0014-human-in-the-loop-approval-boundaries.html">0014 - Human-in-the-Loop and Approval Boundaries</a>. Ask the agent follow-up questions: paste your eight-pass sketch and have it play a skeptical reviewer — challenging every box you added and every pattern you skipped, then naming the failure mode you most likely missed. To build storage strength, redesign the same system from a blank page in a week and compare.</p>
+  </main>
+</body>
+</html>

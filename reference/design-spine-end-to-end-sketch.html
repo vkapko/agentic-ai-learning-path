@@ -1,0 +1,104 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>The Design Spine: End-to-End Agent Sketch Reference</title>
+  <link rel="stylesheet" href="../assets/course.css">
+</head>
+<body>
+  <main>
+    <header>
+      <p class="kicker">Reference 0015</p>
+      <h1 id="design-spine">The Design Spine</h1>
+      <p class="summary">A one-page, repeatable template for sketching an agentic system. Walk the eight passes in order; each names the design decisions and the prior reference that owns the detail. Stop at the smallest reliable design — every added pass is a cost, not a virtue.</p>
+    </header>
+
+    <section class="callout">
+      <h2 id="the-rule">The Rule</h2>
+      <p class="compact">Design from the task inward, not from the pattern outward. Pick the smallest agent type, the simplest reasoning loop, and the fewest gates that make wrong actions survivable. You should be able to defend every box by the cost it removes — and defend every box you left out.</p>
+    </section>
+
+    <section>
+      <h2 id="pass-1">1 &middot; Frame the task</h2>
+      <ul>
+        <li><strong>Goal</strong> — the outcome, not the steps.</li>
+        <li><strong>Environment &amp; percepts</strong> — what the agent observes, and which inputs are stale, delayed, noisy, partial, or adversarial.</li>
+        <li><strong>Actions</strong> — what can change the environment; flag each reversible or not.</li>
+        <li><strong>Authority</strong> — what the agent may do without asking.</li>
+        <li><strong>Stop condition</strong> — what ends the run (success, budget, no progress).</li>
+      </ul>
+      <p class="compact">Detail: <a href="./agentic-control-loop.html">Agentic Control Loop</a>.</p>
+    </section>
+
+    <section>
+      <h2 id="pass-2">2 &middot; Pick the smallest fit</h2>
+      <ul>
+        <li><strong>Agent type</strong> — reflex &rarr; model-based &rarr; goal-based &rarr; utility-based. Choose the simplest that meets the goal.</li>
+        <li><strong>Topology</strong> — single agent first; multi-agent only when work splits by skill or context cleanly and the coordination cost pays for itself.</li>
+      </ul>
+      <p class="compact">Detail: <a href="./system-architecture-choices.html">System Architecture Choices</a>, <a href="./multi-agent-coordination.html">Multi-Agent Coordination</a>.</p>
+    </section>
+
+    <section>
+      <h2 id="pass-3">3 &middot; Choose the reasoning + planning loop</h2>
+      <ul>
+        <li><strong>Reasoning</strong> — one-shot, chain-of-thought, or ReAct. Use ReAct only when each observation changes the next action.</li>
+        <li><strong>Planning</strong> — sequential, parallel (independent steps), or retrieval-first (ReWOO) when info can be gathered up front.</li>
+        <li><strong>Verification</strong> — add an independent second-pass check only where a wrong answer is costly and external evidence exists.</li>
+      </ul>
+      <p class="compact">Detail: <a href="./reasoning-behavior-patterns.html">Reasoning Patterns</a>, <a href="./tool-orchestration-plans.html">Tool Orchestration</a>, <a href="./search-verification-self-correction.html">Search, Verification &amp; Self-Correction</a>.</p>
+    </section>
+
+    <section>
+      <h2 id="pass-4">4 &middot; Specify the tools</h2>
+      <p class="compact">For each tool, write the contract: capability, arguments, permissions, side effects, cost, latency, and failure modes (with structured, retryable errors). Two similar tools need descriptions distinct enough to route correctly.</p>
+      <p class="compact">Detail: <a href="./tool-interface-contracts.html">Tool Interface Contracts</a>, <a href="./structured-output-reliable-extraction.html">Structured Output</a>.</p>
+    </section>
+
+    <section>
+      <h2 id="pass-5">5 &middot; Design the memory</h2>
+      <ul>
+        <li><strong>What's stored</strong> — episodic (events), procedural (skills/runbooks), scratchpad (this run). Not the raw transcript.</li>
+        <li><strong>Record metadata</strong> — provenance, owner, timestamp, confidence, expiry.</li>
+        <li><strong>Retrieval</strong> — rank by authority + recency (+ permission filter), not similarity alone.</li>
+      </ul>
+      <p class="compact">Detail: <a href="./memory-as-data-infrastructure.html">Memory Is Data Infrastructure</a>.</p>
+    </section>
+
+    <section>
+      <h2 id="pass-6">6 &middot; Place the control boundaries</h2>
+      <ul>
+        <li><strong>Gates</strong> — gate an action only when wrong-action cost &gt; wait cost.</li>
+        <li><strong>Interrupt mode</strong> — approve-before (irreversible/expensive), review-after (reversible/high-volume), escalate-on-trigger (the default).</li>
+        <li><strong>Triggers</strong> — checkable booleans: low confidence, safety risk, missing permission, irreversible action, policy conflict, novel state.</li>
+        <li><strong>Feedback routing</strong> — memory write vs. policy/threshold update vs. model-weight update; log who approved or overrode.</li>
+      </ul>
+      <p class="compact">Detail: <a href="./human-in-the-loop-approval-boundaries.html">Human-in-the-Loop &amp; Approval Boundaries</a>.</p>
+    </section>
+
+    <section>
+      <h2 id="pass-7">7 &middot; Add monitoring + recovery</h2>
+      <ul>
+        <li><strong>Watch</strong> — tool loops, state drift, budget/latency, unsafe escalation, no progress.</li>
+        <li><strong>Recover locally first</strong> — retry, fall back, then escalate; distinguish access failure from a valid empty result.</li>
+        <li><strong>Rollback / compensation</strong> — what undoes a partial success.</li>
+        <li><strong>Provenance</strong> — preserve claim-source mappings through synthesis.</li>
+      </ul>
+      <p class="compact">Detail: <a href="./runtime-monitoring-and-recovery.html">Runtime Monitoring &amp; Recovery</a>, <a href="./context-escalation-provenance.html">Context, Escalation &amp; Provenance</a>.</p>
+    </section>
+
+    <section>
+      <h2 id="pass-8">8 &middot; List the failure modes</h2>
+      <p class="compact">Name the top risks and their mitigation: stale state, prompt injection, tool loops, poisoned memory, weak verification, hidden authority, irreversible side effects, slow/absent human. Each should map to a box you already drew (or a gap you must close).</p>
+    </section>
+
+    <section class="callout">
+      <h2 id="defense">The Defense Test</h2>
+      <p class="compact">You can defend the sketch when you can answer, in plain language: what makes it agentic rather than generative; the smallest agent type that fits; what a partial tool success does; which state is authoritative; what memory is useful vs. risky; what would make the verifier independent; what catches a tool loop; and which rules are enforced programmatically vs. by prompt.</p>
+    </section>
+
+    <p class="footer-note">Related lesson: <a href="../lessons/0015-design-spine-end-to-end-sketch.html">0015 - The Design Spine: An End-to-End Agent Sketch</a>.</p>
+  </main>
+</body>
+</html>
