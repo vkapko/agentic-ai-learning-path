@@ -1,0 +1,132 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Lesson 0001: Agentic AI Control Loop</title>
+  <link rel="stylesheet" href="../assets/course.css">
+  <script src="../assets/quiz.js" defer></script>
+  <script src="../assets/reveal.js" defer></script>
+</head>
+<body>
+  <main>
+    <header>
+      <p class="kicker">Lesson 0001</p>
+      <h1>Agentic AI Is a Control Loop</h1>
+      <p class="summary">Tangible win: classify a system as predictive, generative, or agentic, then map one agentic workflow into perceive, reason, act, observe, and update steps.</p>
+    </header>
+
+    <section>
+      <h2>The One Idea</h2>
+      <p>Predictive AI maps inputs to estimates. Generative AI maps prompts or context to artifacts. Agentic AI adds a closed loop: it observes an environment, reasons against a goal or condition, acts through a controlled interface, observes the result, and continues or stops. The local architecture notes define this as the practical difference between a one-shot model call and an agentic system, grounded in the classic agent-environment framing from <a href="https://aima.cs.berkeley.edu/">AIMA</a>.</p>
+      <p>Keep the compact version open: <a href="../reference/agentic-control-loop.html">Agentic Control Loop Reference</a>.</p>
+    </section>
+
+    <section class="loop" aria-label="agentic control loop">
+      <span>Perceive<small>What changed?</small></span>
+      <span>Interpret<small>What does it mean?</small></span>
+      <span>Reason<small>What should happen?</small></span>
+      <span>Act<small>What can change state?</small></span>
+      <span>Observe<small>What happened?</small></span>
+      <span>Update<small>Continue, recover, or stop.</small></span>
+    </section>
+
+    <section>
+      <h2>Fast Classification</h2>
+      <p>Choose the architecture type. Each answer is plausible; only one identifies the organizing pattern.</p>
+
+      <course-quiz>
+        <script type="application/json">
+          {
+            "questions": [
+              {
+                "prompt": "A model scores incoming support tickets by churn risk.",
+                "answer": 0,
+                "choices": [
+                  {
+                    "label": "Predictive",
+                    "feedback": "It maps ticket data to a risk estimate."
+                  },
+                  {
+                    "label": "Generative",
+                    "feedback": "Nothing here produces a new artifact."
+                  },
+                  {
+                    "label": "Agentic AI",
+                    "feedback": "No controlled action loop is described."
+                  }
+                ]
+              },
+              {
+                "prompt": "A model drafts three reply options for an account manager.",
+                "answer": 1,
+                "choices": [
+                  {
+                    "label": "Predictive",
+                    "feedback": "The output is content, not a score."
+                  },
+                  {
+                    "label": "Generative",
+                    "feedback": "It creates candidate reply text."
+                  },
+                  {
+                    "label": "Agentic AI",
+                    "feedback": "Drafting alone does not act in the environment."
+                  }
+                ]
+              },
+              {
+                "prompt": "A system reads a ticket, checks policy, updates priority, watches SLA status, and escalates if unresolved.",
+                "answer": 2,
+                "choices": [
+                  {
+                    "label": "Predictive",
+                    "feedback": "There is more than a one-time estimate."
+                  },
+                  {
+                    "label": "Generative",
+                    "feedback": "Generated text is not the core pattern."
+                  },
+                  {
+                    "label": "Agentic AI",
+                    "feedback": "It observes, acts, receives feedback, and continues."
+                  }
+                ]
+              }
+            ]
+          }
+        </script>
+      </course-quiz>
+    </section>
+
+    <section class="exercise">
+      <h2>Design Drill</h2>
+      <p>Map this workflow into the loop from memory:</p>
+      <p><strong>Workflow:</strong> a calendar assistant receives a meeting request, checks availability, proposes times, books the meeting after approval, and watches for conflicts.</p>
+      <textarea aria-label="Map the calendar assistant into the agentic control loop" placeholder="Perceive:&#10;Interpret:&#10;Reason:&#10;Act:&#10;Observe:&#10;Update or stop:"></textarea>
+      <p><button type="button" class="secondary" data-reveal="#example-answer">Show example</button></p>
+      <div class="answer" id="example-answer">
+        <p><strong>Perceive:</strong> meeting request, attendees, calendar state. <strong>Interpret:</strong> required duration, constraints, conflicts. <strong>Reason:</strong> choose candidate slots within policy. <strong>Act:</strong> propose times, then book only after approval. <strong>Observe:</strong> booking success, declines, new conflicts. <strong>Update or stop:</strong> record task state, retry proposals, escalate, or stop when confirmed.</p>
+      </div>
+    </section>
+
+    <section>
+      <h2>Architecture Check</h2>
+      <p>Before calling a system agentic, ask:</p>
+      <ul>
+        <li>What environment does it observe and affect?</li>
+        <li>Which actions change that environment?</li>
+        <li>What feedback arrives after each action?</li>
+        <li>What approval, rollback, audit, or stop condition controls unsafe action?</li>
+      </ul>
+    </section>
+
+    <section class="callout">
+      <h2>Primary Source</h2>
+      <p>Read the local section <a href="../agentic-ai-architecture-foundations-designing-autonomous-ai-systems.md#agent-environment-interaction-loop">Agent-Environment Interaction Loop</a>, then compare it with the broader agent framing in <a href="https://aima.cs.berkeley.edu/">Artificial Intelligence: A Modern Approach</a>. For language-agent tool use, the later bridge is <a href="https://arxiv.org/abs/2210.03629">ReAct: Synergizing Reasoning and Acting in Language Models</a>.</p>
+    </section>
+
+    <p class="footer-note">Ask the agent follow-up questions about any step that feels fuzzy, especially the difference between acting once and running a controlled feedback loop.</p>
+  </main>
+</body>
+</html>
