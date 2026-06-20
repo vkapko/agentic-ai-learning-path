@@ -12,19 +12,19 @@
   <main>
     <header>
       <p class="kicker">Lesson 0001</p>
-      <h1>Agentic AI Is a Control Loop</h1>
+      <h1 id="agentic-ai-is-a-control-loop">Agentic AI Is a Control Loop</h1>
       <p class="summary">Tangible win: classify a system as predictive, generative, or agentic, then map one agentic workflow into perceive, interpret, reason, act, observe, and update steps.</p>
     </header>
 
     <section>
-      <h2>The One Idea</h2>
+      <h2 id="the-one-idea">The One Idea</h2>
       <p>Predictive AI maps inputs to estimates. Generative AI maps prompts or context to artifacts. Agentic AI adds a closed loop: it observes an environment, reasons against a goal or condition, acts through a controlled interface, observes the result, and continues or stops. The local architecture notes define this as the practical difference between a one-shot model call and an agentic system, grounded in the classic agent-environment framing from <a href="https://aima.cs.berkeley.edu/">AIMA</a>.</p>
       <p>The three categories are not rivals. Predictive and generative models can be <em>components inside</em> an agentic system &mdash; they show up in perception, reasoning, planning, memory, tool selection, or monitoring. The churn-risk scorer and the reply-drafter from the quiz below are not agentic on their own, but either could be a tool the loop calls. What makes the system agentic is that the architecture is organized around action in an environment, not the presence or absence of any one model.</p>
       <p>Keep the compact version open: <a href="../reference/agentic-control-loop.html">Agentic Control Loop Reference</a>.</p>
     </section>
 
     <section class="callout">
-      <h2>The Minimum Test</h2>
+      <h2 id="the-minimum-test">The Minimum Test</h2>
       <p>A system is agentic only when all three are explicit: <strong>an environment it can observe</strong>, <strong>an action surface that can change that environment</strong>, and <strong>a feedback path that decides whether to continue, recover, escalate, or stop</strong>. If any one is missing, you probably have a model call, workflow, or tool-backed response rather than an agent architecture.</p>
     </section>
 
@@ -38,23 +38,23 @@
     </section>
 
     <section>
-      <h2>Single Call or Loop?</h2>
+      <h2 id="single-call-or-loop">Single Call or Loop?</h2>
       <div class="grid">
         <article class="card">
           <span class="tag">Not yet agentic</span>
-          <h3>One-shot tool use</h3>
+          <h3 id="one-shot-tool-use">One-shot tool use</h3>
           <p>User asks for the weather. A model calls a weather API, summarizes the result, and ends. There is tool use, but no ongoing control of an environment.</p>
         </article>
         <article class="card">
           <span class="tag">Agentic</span>
-          <h3>Controlled feedback loop</h3>
+          <h3 id="controlled-feedback-loop">Controlled feedback loop</h3>
           <p>A travel assistant watches a trip plan, checks weather before departure, rebooks only within policy after approval, observes confirmation, then stops or escalates.</p>
         </article>
       </div>
     </section>
 
     <section>
-      <h2>Fast Classification</h2>
+      <h2 id="fast-classification">Fast Classification</h2>
       <p>Choose the architecture type. Each answer is plausible; only one identifies the organizing pattern.</p>
 
       <course-quiz>
@@ -176,7 +176,7 @@
     </section>
 
     <section class="exercise">
-      <h2>Recall Check</h2>
+      <h2 id="recall-check">Recall Check</h2>
       <p>Hide the text above and answer from memory in one sentence: what is the minimum that makes a system agentic rather than generative?</p>
       <textarea aria-label="State the minimum that makes a system agentic" placeholder="In one sentence..."></textarea>
       <p><button type="button" class="secondary" data-reveal="#recall-answer">Show example</button></p>
@@ -186,7 +186,7 @@
     </section>
 
     <section class="exercise">
-      <h2>Design Drill</h2>
+      <h2 id="design-drill">Design Drill</h2>
       <p>Map this workflow into the loop from memory:</p>
       <p><strong>Workflow:</strong> a calendar assistant receives a meeting request, checks availability, proposes times, books the meeting after approval, and watches for conflicts.</p>
       <textarea aria-label="Map the calendar assistant into the agentic control loop" placeholder="Perceive:&#10;Interpret:&#10;Reason:&#10;Act:&#10;Observe:&#10;Update or stop:"></textarea>
@@ -198,7 +198,7 @@
     </section>
 
     <section class="exercise">
-      <h2>Design Drill 2</h2>
+      <h2 id="design-drill-2">Design Drill 2</h2>
       <p>Different domain, same loop. Map this one from memory and notice which step carries the irreversible action:</p>
       <p><strong>Workflow:</strong> an on-call agent watches alerts, correlates them to a likely failing service, drains traffic from a bad node after approval, then verifies error rates recover or rolls back.</p>
       <textarea aria-label="Map the incident-response agent into the agentic control loop" placeholder="Perceive:&#10;Interpret:&#10;Reason:&#10;Act:&#10;Observe:&#10;Update or stop:"></textarea>
@@ -210,7 +210,7 @@
     </section>
 
     <section class="exercise">
-      <h2>Design Drill 3: Rewrite the Vague Brief</h2>
+      <h2 id="design-drill-3-rewrite-the-vague-brief">Design Drill 3: Rewrite the Vague Brief</h2>
       <p>Most "AI agent" pitches hide their autonomy. Rewrite this one-line brief into precise boundaries: what it observes, which actions can change the environment, what limits and approvals constrain those actions, and what stop condition ends the loop.</p>
       <p><strong>Vague brief:</strong> "An AI agent that handles customer refunds automatically."</p>
       <textarea aria-label="Rewrite the vague brief into precise autonomy boundaries" placeholder="Observes (percepts &amp; sources):&#10;Environment-changing actions:&#10;Limits &amp; approvals:&#10;Stop condition:"></textarea>
@@ -222,7 +222,7 @@
     </section>
 
     <section>
-      <h2>Architecture Check</h2>
+      <h2 id="architecture-check">Architecture Check</h2>
       <p>Before calling a system agentic, ask:</p>
       <ul>
         <li>What environment does it observe and affect?</li>
@@ -233,8 +233,8 @@
     </section>
 
     <section class="callout">
-      <h2>Primary Source</h2>
-      <p>Read the local section <a href="../agentic-ai-architecture-foundations-designing-autonomous-ai-systems.md#agent-environment-interaction-loop">Agent-Environment Interaction Loop</a>, then compare it with the broader agent framing in <a href="https://aima.cs.berkeley.edu/">Artificial Intelligence: A Modern Approach</a>. For language-agent tool use, the later bridge is <a href="https://arxiv.org/abs/2210.03629">ReAct: Synergizing Reasoning and Acting in Language Models</a>.</p>
+      <h2 id="primary-source">Primary Source</h2>
+      <p>Read the local section <a href="../agentic-ai-architecture-foundations-designing-autonomous-ai-systems.html#agent-environment-interaction-loop">Agent-Environment Interaction Loop</a>, then compare it with the broader agent framing in <a href="https://aima.cs.berkeley.edu/">Artificial Intelligence: A Modern Approach</a>. For language-agent tool use, the later bridge is <a href="https://arxiv.org/abs/2210.03629">ReAct: Synergizing Reasoning and Acting in Language Models</a>.</p>
     </section>
 
     <p class="footer-note">Next lesson: <a href="./0002-agent-types-and-autonomy.html">0002 &mdash; Agent Types and Autonomy Levels</a>. Ask the agent follow-up questions about any step that feels fuzzy, especially the difference between acting once and running a controlled feedback loop.</p>

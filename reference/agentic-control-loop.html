@@ -10,12 +10,12 @@
   <main>
     <header>
       <p class="kicker">Reference 0001</p>
-      <h1>Agentic Control Loop</h1>
+      <h1 id="agentic-control-loop">Agentic Control Loop</h1>
       <p class="summary">Use this sheet to decide whether a system is merely predictive, generative, or genuinely agentic.</p>
     </header>
 
     <section>
-      <h2>The Test</h2>
+      <h2 id="the-test">The Test</h2>
       <p class="compact">A system is agentic when its architecture is organized around closed-loop action in an environment: it perceives state, reasons against a goal or rule, acts through a tool or effector, observes the result, and continues or stops. This framing follows the local architecture notes and the classic agent definition from <a href="https://aima.cs.berkeley.edu/">Artificial Intelligence: A Modern Approach</a>.</p>
     </section>
 
@@ -29,28 +29,28 @@
     </section>
 
     <section>
-      <h2>Classification</h2>
+      <h2 id="classification">Classification</h2>
       <div class="grid">
         <article class="card">
           <span class="tag">Predictive</span>
-          <h3>Input to estimate</h3>
+          <h3 id="input-to-estimate">Input to estimate</h3>
           <p>Maps data to a label, score, forecast, rank, or decision. It may inform an agent, but does not itself manage an action loop.</p>
         </article>
         <article class="card">
           <span class="tag">Generative</span>
-          <h3>Prompt to artifact</h3>
+          <h3 id="prompt-to-artifact">Prompt to artifact</h3>
           <p>Produces text, code, images, audio, plans, or other artifacts. It becomes part of an agent only when connected to controlled action and feedback.</p>
         </article>
         <article class="card">
           <span class="tag">Agentic</span>
-          <h3>Goal to action loop</h3>
+          <h3 id="goal-to-action-loop">Goal to action loop</h3>
           <p>Uses models, rules, tools, state, and monitoring to act in an environment until success, failure, approval, or a stop condition.</p>
         </article>
       </div>
     </section>
 
     <section>
-      <h2>Design Questions</h2>
+      <h2 id="design-questions">Design Questions</h2>
       <ul>
         <li>What is the environment, and which parts are observable, hidden, stale, delayed, noisy, or adversarial?</li>
         <li>What actions can change that environment?</li>
@@ -62,7 +62,7 @@
     </section>
 
     <section class="callout">
-      <h2>First Failure Mode</h2>
+      <h2 id="first-failure-mode">First Failure Mode</h2>
       <p>Do not call a prompt plus tools an architecture. Tool access without explicit state, permissions, feedback, auditability, and stop conditions is an uncontrolled action surface.</p>
     </section>
 

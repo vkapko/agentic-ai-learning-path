@@ -1,0 +1,383 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Agentic AI: Planning and Reasoning Design Patterns</title>
+  <link rel="stylesheet" href="./assets/course.css">
+</head>
+<body>
+  <main>
+    <header>
+      <p class="kicker">Reference Notes</p>
+      <h1 id="agentic-ai-planning-and-reasoning-design-patterns">Agentic AI: Planning and Reasoning Design Patterns</h1>
+      <p>Overview-level coverage of advanced planning and reasoning design techniques for agentic AI systems. Use as a map to identify patterns worth deeper research — implementation details and backend components are intentionally omitted.</p>
+    </header>
+
+    <section>
+      <h2 id="chapter-1-planning-and-execution-design-patterns">Chapter 1: Planning and Execution Design Patterns</h2>
+      <p>These patterns govern how agents formulate strategies, manage execution in dynamic environments, and adapt based on task complexity. They address trade-offs like sequential vs. parallel operations, reliance on external feedback, and internal self-correction.</p>
+    </section>
+    <section>
+      <h3 id="plan-and-execute">Plan-and-Execute</h3>
+      <p><strong>What it is</strong></p>
+      <p>Separates the agent's reasoning logic from its controller logic into two phases: planning and execution.</p>
+      <p><strong>How it works</strong></p>
+      <ul>
+        <li><em>Planning phase:</em> The LLM receives the full task and generates a step-by-step plan before actions are taken. A dedicated planner agent can handle this phase.
+        </li>
+        <li><em>Execution phase:</em> A controller or executor follows the plan step by step. Execution may be deterministic, tool-driven, or model-assisted depending on the implementation. [1]
+        </li>
+        <li>The reasoning module (with LLM) can live in a planner agent; the controller and action module in a separate controller agent — or all in a single agent for smaller solutions.
+        </li>
+      </ul>
+      <p><strong>Trade-offs</strong></p>
+      <ul>
+        <li>Often more efficient than ReAct when execution does not require a model call after every tool observation. ReAct interleaves reasoning, action, and observation, which improves adaptiveness but can increase latency and cost. [2]
+        </li>
+        <li>Less adaptive: if an unexpected error occurs mid-execution, the entire plan may become invalid and require a full re-plan.
+        </li>
+        <li>ReAct reasons over each observation before choosing the next action, making it better suited to environments where each result changes the next step. [2]
+        </li>
+      </ul>
+      <p><strong>When to use</strong></p>
+      <p>Tasks that don't require constant mid-course adaptation; complex multi-step workflows where upfront planning reduces cost.</p>
+    </section>
+    <section>
+      <h3 id="concurrent-execution-optimizer">Concurrent Execution Optimizer</h3>
+      <p><strong>What it is</strong></p>
+      <p>Restructures a linear plan into an optimized parallel execution plan, commonly represented as a dependency graph or task DAG.</p>
+      <p><strong>How it works</strong></p>
+      <ul>
+        <li>Introduces a <em>task compiler</em> module between the reasoning and controller modules.
+        </li>
+        <li>The task compiler converts a natural-language or structured plan into tasks with explicit dependencies. LLMCompiler-style systems use a planner, task-fetching unit, and executor to dispatch independent function calls in parallel. [3]
+        </li>
+        <li>Independent tasks are scheduled to run concurrently; dependent tasks remain sequential.
+        </li>
+        <li>The task compiler typically resides in the planner agent alongside the reasoning module.
+        </li>
+      </ul>
+      <p><strong>Trade-offs</strong></p>
+      <ul>
+        <li>Significant time savings for plans with independent parallel steps; published LLMCompiler benchmarks report latency and cost reductions versus sequential ReAct-style function calling. [3]
+        </li>
+        <li>Compilation and management of a parallel execution environment introduces overhead — must be justified.
+        </li>
+        <li>Not suitable for plans with a strongly sequential flow, or very simple plans where dependency analysis takes longer than execution.
+        </li>
+      </ul>
+      <p><strong>When to use</strong></p>
+      <p>Complex plans where some steps are independent and parallelizable; scenarios where execution latency is a key concern.</p>
+    </section>
+    <section>
+      <h3 id="reasoning-without-observation-rewoo">Reasoning Without Observation (ReWOO)</h3>
+      <p><strong>What it is</strong></p>
+      <p>Decouples complex planning from tool-based data retrieval by generating a reasoning plan before external observations are available. This pattern is commonly associated with ReWOO: Reasoning WithOut Observation. [4]</p>
+      <p><strong>How it works</strong></p>
+      <ul>
+        <li>The LLM creates a plan listing external data required and how observations will be substituted into later reasoning steps.
+        </li>
+        <li>The planner provides the overall plan to the controller first; retrieval calls with no dependencies can run in parallel, while calls that reference earlier results remain sequential.
+        </li>
+        <li>A <em>synthesis template</em> specifies how concurrently fetched data is combined into the final output.
+        </li>
+        <li>Unlike the Concurrent Execution Optimizer, no general task compiler or DAG is required; the plan and retrieval placeholders are passed directly from the reasoning module to the controller. [4]
+        </li>
+      </ul>
+      <p><strong>How it differs from Concurrent Execution Optimizer</strong></p>
+      <ul>
+        <li>The optimizer looks for all independent actions across the entire plan.
+        </li>
+        <li>This pattern is scoped to pre-planned retrieval/tool steps, including independent calls and calls that reference earlier outputs.
+        </li>
+        <li>Uses variable substitution or a synthesis step instead of a general-purpose task DAG.
+        </li>
+      </ul>
+      <p><strong>Trade-offs</strong></p>
+      <ul>
+        <li>Can reduce latency and token use for information-heavy tasks requiring multiple tool calls.
+        </li>
+        <li>ReWOO reports improved token efficiency versus interleaved reasoning-observation baselines, but results depend on task structure and tool reliability. [4]
+        </li>
+      </ul>
+      <p><strong>When to use</strong></p>
+      <p>Tasks requiring multiple independent external data retrievals (searches, database queries) before constructing a result.</p>
+    </section>
+    <section>
+      <h3 id="planner-critic-refiner">Planner-Critic-Refiner</h3>
+      <p><strong>What it is</strong></p>
+      <p>A feedback loop between a planner agent and a critic/refiner pass that attempts to improve plan quality before execution or at checkpoints.</p>
+      <p><strong>How it works</strong></p>
+      <ul>
+        <li><em>Planner role:</em> LLM generates an initial plan.
+        </li>
+        <li><em>Critic agent:</em> Assesses the plan against distinct evaluation criteria — logical flow, resource availability, safety, constraint adherence — using a separate prompt, model, tool, or human review path.
+        </li>
+        <li><em>Refiner role:</em> The planner's LLM is re-prompted with the critic's feedback to produce a refined plan.
+        </li>
+        <li>The cycle iterates until the plan meets a quality threshold. No actions are executed during iteration.
+        </li>
+        <li>Example failure modes the critic might catch: missing budget for catering, venue booked before confirming attendee count, no pre-check for venue availability.
+        </li>
+      </ul>
+      <p><strong>Trade-offs</strong></p>
+      <ul>
+        <li>Can improve draft quality when the critic has useful criteria or external feedback, but self-correction without external evidence is not a correctness guarantee. [5] [6]
+        </li>
+        <li>Slow: multiple LLM calls per task.
+        </li>
+        <li>Higher token cost in cloud environments.
+        </li>
+        <li>High architectural complexity: three distinct LLM roles requiring careful prompt engineering and intricate controller logic.
+        </li>
+      </ul>
+      <p><strong>When to use</strong></p>
+      <p>High-stakes tasks where correctness matters more than speed or cost; scenarios where a flawed plan would be expensive or dangerous to execute.</p>
+    </section>
+    <section>
+      <h2 id="chapter-2-search-and-self-correction-design-patterns">Chapter 2: Search and Self-Correction Design Patterns</h2>
+      <p>These patterns enable agents to navigate tasks where linear execution is insufficient, or where initial outputs are likely suboptimal. They introduce explicit mechanisms for exploring multiple solution paths and correcting errors.</p>
+    </section>
+    <section>
+      <h3 id="language-agent-tree-search-lats">Language Agent Tree Search (LATS)</h3>
+      <p><strong>What it is</strong></p>
+      <p>Integrates LLM reasoning with Monte Carlo Tree Search (MCTS) to explore multiple possible action paths before committing to an action. [7]</p>
+      <p><strong>How it works</strong></p>
+      <ul>
+        <li>Instead of generating one thought and one action, an internal MCTS loop prompts the LLM to propose multiple diverse next steps (tree branches).
+        </li>
+        <li>Each MCTS iteration has four phases:
+          <ol>
+            <li><strong>Selection</strong> — follow the most promising path in the internal tree until finding an untested action.
+            </li>
+            <li><strong>Expansion</strong> — add a new hypothetical action to the tree.
+            </li>
+            <li><strong>Evaluation/simulation</strong> — estimate value through environment feedback, a value function, reflection, or rollout depending on implementation.
+            </li>
+            <li><strong>Back propagation</strong> — send the final score back up the path, updating each prior action's record.
+            </li>
+          </ol>
+        </li>
+        <li>The loop may run multiple search iterations per real-world action; the practical count is a configuration and budget choice.
+        </li>
+        <li>The action with the highest average success rate becomes the <em>atomic action</em> passed to the controller for execution.
+        </li>
+        <li>The MCTS loop occurs within the reasoning module's interactions with the LLM.
+        </li>
+      </ul>
+      <p><strong>Trade-offs</strong></p>
+      <ul>
+        <li>Can improve deliberate decision-making on hard tasks by exploring alternatives before acting. [7]
+        </li>
+        <li>Higher time and resource cost than single-path prompting — must be justified by task complexity and stakes.
+        </li>
+      </ul>
+      <p><strong>When to use</strong></p>
+      <p>Tasks where early mistakes are hard to recover from and where exploring multiple options before acting is worth the cost.</p>
+    </section>
+    <section>
+      <h3 id="self-discover">Self-Discover</h3>
+      <p><strong>What it is</strong></p>
+      <p>Prompts the LLM to compose a task-specific reasoning structure before solving the task. [8]</p>
+      <p><strong>How it works</strong></p>
+      <ul>
+        <li>A <em>meta-controller agent</em> or prompt pipeline coordinates two stages:
+          <ol>
+            <li><strong>Discovery stage</strong> — the LLM selects and composes reasoning modules into a task-specific structure rather than directly solving the task. [8]
+            </li>
+            <li><strong>Execution stage</strong> — those reasoning steps are injected into the system prompt, and the LLM performs actual problem-solving guided by its own generated strategy.
+            </li>
+          </ol>
+        </li>
+        <li>In an agent implementation, the standard reasoning module can be split into separate discovery and execution modules.
+        </li>
+        <li>Observations from the controller typically affect execution, while discovery is usually run up front unless the system explicitly re-discovers a strategy.
+        </li>
+      </ul>
+      <p><strong>How it differs from LATS</strong></p>
+      <ul>
+        <li>Self-Discover is a <em>strategy generator</em>: front-loads a thinking strategy, then executes linearly following those rules.
+        </li>
+        <li>LATS is a <em>sequence explorer</em>: evaluates multiple potential paths at each step, mid-task.
+        </li>
+      </ul>
+      <p><strong>Trade-offs</strong></p>
+      <ul>
+        <li>Strong fit for novel, specialized problems without a predefined solution structure; the paper reports gains on complex reasoning benchmarks, but production results depend on task fit and model quality. [8]
+        </li>
+        <li>Dynamic nature makes behavior less predictable and harder to debug — both execution code and the agent-invented reasoning logic must be debugged when failures occur.
+        </li>
+      </ul>
+      <p><strong>When to use</strong></p>
+      <p>Novel, specialized problems — e.g., zero-day security vulnerability triage, cross-departmental process optimization, non-standard conflict resolution, regulatory change impact analysis.</p>
+    </section>
+    <section>
+      <h3 id="second-pass-verification-verifier-agent">Second-Pass Verification (Verifier Agent)</h3>
+      <p><strong>What it is</strong></p>
+      <p>A dedicated verifier independently audits planner outputs against defined criteria before actions are executed.</p>
+      <p><strong>How it works</strong></p>
+      <ul>
+        <li>The verifier may use a separate prompt, model, rule system, formal checker, external tool, or human review. Stronger independence reduces shared failure modes.
+        </li>
+        <li>It receives planner output (plan or action) and returns a verdict: <strong>pass</strong> or <strong>fail</strong> with explanation. The planner treats this verdict as its next observation.
+        </li>
+        <li>The verifier can use external tools (e.g., a contract compliance checker, booking confirmation cross-reference).
+        </li>
+        <li>Supports <em>graded verification</em> with verdict levels (e.g., fatal error vs. minor inconsistency) — minor issues may trigger a human-in-the-loop notification rather than blocking execution entirely.
+        </li>
+        <li>The verifier module is typically invoked by the controller module after it receives LLM output from the reasoning module.
+        </li>
+      </ul>
+      <p><strong>Trade-offs</strong></p>
+      <ul>
+        <li>Can improve reliability and trustworthiness when the verifier has independent evidence or stronger evaluation criteria. [9]
+        </li>
+        <li>Increased resource usage due to a second LLM.
+        </li>
+        <li>Greater architectural complexity.
+        </li>
+        <li>Risk of false negatives: the verifier's own LLM or external tools may have flaws of their own.
+        </li>
+      </ul>
+      <p><strong>When to use</strong></p>
+      <p>High-stakes scenarios where agent outputs must be reliably correct and independently validated before actions are taken.</p>
+    </section>
+    <section>
+      <h2 id="chapter-3-memory-skill-and-adaptive-action-design-patterns">Chapter 3: Memory, Skill, and Adaptive Action Design Patterns</h2>
+      <p>These patterns enable agents to maintain continuity across tasks, leverage learned competencies, and dynamically interact with external environments — moving beyond single-turn reasoning toward persistent, context-aware behavior.</p>
+    </section>
+    <section>
+      <h3 id="episodic-and-procedural-memory">Episodic and Procedural Memory</h3>
+      <p><strong>What it is</strong></p>
+      <p>A structured mechanism for agents to store and retrieve long-term memory such as episodic records (events/interactions) and procedural knowledge (actions/outcomes). [10] [11]</p>
+      <p><strong>How it works</strong></p>
+      <ul>
+        <li>Uses a local scratch pad for task state and a longer-term memory store for durable records. Implementations may use vector databases, relational stores, event logs, document stores, or hybrid retrieval.
+        </li>
+        <li><strong>Episodic memory</strong> — records specific past interactions: preferences, history, user profiles.
+          <ul>
+            <li>Example: <em>&quot;User always requests the central tech hub venue and prefers vegetarian catering.&quot;</em>
+            </li>
+          </ul>
+        </li>
+        <li><strong>Procedural memory</strong> — records action sequences and tool outcomes: what worked, performance metrics.
+          <ul>
+            <li>Example: <em>&quot;The venue search tool for groups of 15 always returns successful results within the downtown region.&quot;</em>
+            </li>
+          </ul>
+        </li>
+        <li>When a task step completes, the planner's communication module captures the output and relays it to the controller, which triggers the memory module.
+        </li>
+        <li>The memory module packages episodic data (request, response, feedback) into structured records and procedural data (tools used, parameters, latency, success rate) into reusable skill templates stored as vectors.
+        </li>
+      </ul>
+      <p><strong>Primary benefits</strong></p>
+      <p>Enables in-context learning (see below); also supports auditing, debugging, traceability, monitoring, analytics, and model refinement.</p>
+      <p><strong>When to use</strong></p>
+      <p>Long-running agent solutions where continuity across sessions, user preference tracking, or operational improvement over time is valuable.</p>
+    </section>
+    <section>
+      <h3 id="in-context-learning">In-Context Learning</h3>
+      <p><strong>What it is</strong></p>
+      <p>Uses retrieved examples, memories, instructions, or task context to enrich the LLM's prompt without changing model weights. [12]</p>
+      <p><strong>How it works</strong></p>
+      <ul>
+        <li>When a new task arrives, the memory module queries the shared agent memory system using the current task context.
+        </li>
+        <li>The most relevant memories are retrieved and injected into the LLM's prompt:
+          <ul>
+            <li><strong>Episodic retrieval</strong> — past user/agent interactions for contextual or preference-based constraints.
+              <ul>
+                <li>Example: <em>&quot;User A always prefers the Innovation Suite and requests vegetarian catering.&quot;</em>
+                </li>
+              </ul>
+            </li>
+            <li><strong>Procedural retrieval</strong> — past successful action sequences and tool performance data.
+              <ul>
+                <li>Example: <em>&quot;The venue search tool takes 10 minutes and requires 3 retries; the internal booking tool succeeds on the first try.&quot;</em>
+                </li>
+              </ul>
+            </li>
+          </ul>
+        </li>
+        <li>Not mutually exclusive with model retraining — the same memory data can serve both purposes.
+        </li>
+      </ul>
+      <p><strong>Trade-offs</strong></p>
+      <ul>
+        <li>Can improve behavior immediately without retraining when retrieval is relevant and trustworthy.
+        </li>
+        <li>Context window growth over time increases latency, token costs, and risks hitting processing limits.
+        </li>
+      </ul>
+      <p><strong>When to use</strong></p>
+      <p>Agents handling repeated or similar tasks that benefit from improving over time based on accumulated experience.</p>
+    </section>
+    <section>
+      <h3 id="adaptive-tool-orchestration">Adaptive Tool Orchestration</h3>
+      <p><strong>What it is</strong></p>
+      <p>Elevates the LLM from selecting the next single tool to generating a toolchain workflow that a controller or orchestrator executes. [3] [13]</p>
+      <p><strong>How it works</strong></p>
+      <ul>
+        <li>The planner agent handles high-level planning and decision-making.
+        </li>
+        <li>The LLM generates an <em>orchestration command</em> — a workflow specifying a coordinated sequence of tool calls.
+          <ul>
+            <li>Example: check calendar → search venue → collect catering options.
+            </li>
+          </ul>
+        </li>
+        <li>The controller recognizes the orchestration command and hands it to the orchestrator module.
+        </li>
+        <li>The orchestrator maps the command to a predefined or dynamically constructed tool API sequence, manages tool interactions and workflow state, and reports consolidated results back to the controller.
+        </li>
+      </ul>
+      <p><strong>Trade-offs</strong></p>
+      <ul>
+        <li>Reduces LLM workload, improving efficiency and reliability.
+        </li>
+        <li>Can improve performance when the workflow is predictable and parallelizable.
+        </li>
+        <li>Less adaptive: the LLM has no opportunity to reconsider actions mid-workflow if unforeseen circumstances arise — makes this pattern unsuitable for unpredictable environments.
+        </li>
+      </ul>
+      <p><strong>When to use</strong></p>
+      <p>Complex, extensive multi-action tasks with predictable tool sequences; scenarios where LLM micromanagement of every tool call causes performance degradation.</p>
+    </section>
+    <section>
+      <h2 id="sources">Sources</h2>
+      <ol>
+        <li>LangChain, &quot;Plan-and-execute agents&quot;: <a href="https://blog.langchain.com/planning-agents/">https://blog.langchain.com/planning-agents/</a>
+        </li>
+        <li>Shunyu Yao et al., &quot;ReAct: Synergizing Reasoning and Acting in Language Models&quot; (2022): <a href="https://arxiv.org/abs/2210.03629">https://arxiv.org/abs/2210.03629</a>
+        </li>
+        <li>Sehoon Kim et al., &quot;An LLM Compiler for Parallel Function Calling&quot; (2023): <a href="https://arxiv.org/abs/2312.04511">https://arxiv.org/abs/2312.04511</a>
+        </li>
+        <li>Binfeng Xu et al., &quot;ReWOO: Decoupling Reasoning from Observations for Efficient Augmented Language Models&quot; (2023): <a href="https://arxiv.org/abs/2305.18323">https://arxiv.org/abs/2305.18323</a>
+        </li>
+        <li>Aman Madaan et al., &quot;Self-Refine: Iterative Refinement with Self-Feedback&quot; (2023): <a href="https://arxiv.org/abs/2303.17651">https://arxiv.org/abs/2303.17651</a>
+        </li>
+        <li>Jie Huang et al., &quot;Large Language Models Cannot Self-Correct Reasoning Yet&quot; (2023): <a href="https://arxiv.org/abs/2310.01798">https://arxiv.org/abs/2310.01798</a>
+        </li>
+        <li>Andy Zhou et al., &quot;Language Agent Tree Search Unifies Reasoning, Acting, and Planning in Language Models&quot; (2023): <a href="https://arxiv.org/abs/2310.04406">https://arxiv.org/abs/2310.04406</a>
+        </li>
+        <li>Pei Zhou et al., &quot;Self-Discover: Large Language Models Self-Compose Reasoning Structures&quot; (2024): <a href="https://arxiv.org/abs/2402.03620">https://arxiv.org/abs/2402.03620</a>
+        </li>
+        <li>Hunter Lightman et al., &quot;Let's Verify Step by Step&quot; (2023): <a href="https://arxiv.org/abs/2305.20050">https://arxiv.org/abs/2305.20050</a>
+        </li>
+        <li>Joon Sung Park et al., &quot;Generative Agents: Interactive Simulacra of Human Behavior&quot; (2023): <a href="https://arxiv.org/abs/2304.03442">https://arxiv.org/abs/2304.03442</a>
+        </li>
+        <li>Guanzhi Wang et al., &quot;Voyager: An Open-Ended Embodied Agent with Large Language Models&quot; (2023): <a href="https://arxiv.org/abs/2305.16291">https://arxiv.org/abs/2305.16291</a>
+        </li>
+        <li>Qingxiu Dong et al., &quot;A Survey on In-context Learning&quot; (2022): <a href="https://arxiv.org/abs/2301.00234">https://arxiv.org/abs/2301.00234</a>
+        </li>
+        <li>LangGraph documentation, &quot;Workflows and agents&quot;: <a href="https://docs.langchain.com/oss/python/langgraph/workflows-agents">https://docs.langchain.com/oss/python/langgraph/workflows-agents</a>
+        </li>
+      </ol>
+    </section>
+
+    <p class="footer-note">Source Markdown: <a href="./agentic-ai-planning-and-reasoning-design.md">agentic-ai-planning-and-reasoning-design.md</a>.</p>
+  </main>
+</body>
+</html>

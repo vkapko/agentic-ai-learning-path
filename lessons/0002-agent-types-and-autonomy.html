@@ -12,44 +12,44 @@
   <main>
     <header>
       <p class="kicker">Lesson 0002</p>
-      <h1>Pick the Simplest Agent That Fits</h1>
+      <h1 id="pick-the-simplest-agent-that-fits">Pick the Simplest Agent That Fits</h1>
       <p class="summary">Tangible win: classify a system as simple reflex, model-based reflex, goal-based, or utility-based, justify the smallest type that fits the workflow, and name the extra guardrails each step up the autonomy ladder demands.</p>
     </header>
 
     <section>
-      <h2>The One Idea</h2>
+      <h2 id="the-one-idea">The One Idea</h2>
       <p>The four classic agent types are not a quality ranking. They are a ladder of mechanism: each rung adds capability and cost. A simple reflex agent maps the current percept to an action. A model-based reflex agent adds internal state so it can act on more than the latest input. A goal-based agent adds search or planning to reach a desired state. A utility-based agent adds a scoring function to compare outcomes when several plans succeed. Design discipline is choosing the lowest rung that still solves the task, because every rung up adds failure modes you must monitor.</p>
       <p>Autonomy is the second axis. It is scoped, not binary: an agent may be autonomous only within a narrow domain, tool set, permission boundary, or time window. Risk rises as authority, tool access, and time horizon expand &mdash; so broader autonomy must be paid for with stronger guardrails and observability.</p>
     </section>
 
     <section>
-      <h2>The Ladder</h2>
+      <h2 id="the-ladder">The Ladder</h2>
       <div class="grid">
         <article class="card">
           <span class="tag">Simple reflex</span>
-          <h3>Percept to action</h3>
+          <h3 id="percept-to-action">Percept to action</h3>
           <p>Condition-action rules on the current input. No history, no plan. Brittle when the environment is partially observable; easy to over-label as "AI" when it is rule execution.</p>
         </article>
         <article class="card">
           <span class="tag">Model-based reflex</span>
-          <h3>State-aware rules</h3>
+          <h3 id="state-aware-rules">State-aware rules</h3>
           <p>Maintains an internal model of relevant state, then applies rules against it. Handles incomplete inputs, but risks stale state and unversioned model assumptions.</p>
         </article>
         <article class="card">
           <span class="tag">Goal-based</span>
-          <h3>Plan toward a state</h3>
+          <h3 id="plan-toward-a-state">Plan toward a state</h3>
           <p>Searches or plans action sequences that reach a desired state. Fits multi-step tasks, but plans go stale and goals can omit safety, legal, or user constraints.</p>
         </article>
         <article class="card">
           <span class="tag">Utility-based</span>
-          <h3>Compare outcomes</h3>
+          <h3 id="compare-outcomes">Compare outcomes</h3>
           <p>Scores competing outcomes when many plans succeed, balancing cost, speed, reliability, and risk. Powerful, but a bad utility function optimizes the wrong proxy.</p>
         </article>
       </div>
     </section>
 
     <section>
-      <h2>Classify by Type</h2>
+      <h2 id="classify-by-type">Classify by Type</h2>
       <p>Pick the simplest agent type that the description actually requires. A more capable type is rarely "wrong," but the question is which mechanism the workflow needs.</p>
 
       <course-quiz>
@@ -195,7 +195,7 @@
     </section>
 
     <section class="exercise">
-      <h2>Recall Check</h2>
+      <h2 id="recall-check">Recall Check</h2>
       <p>From memory, in one sentence each: what single capability does each rung add over the one below it?</p>
       <textarea aria-label="State what each agent rung adds" placeholder="Simple reflex:&#10;Model-based reflex:&#10;Goal-based:&#10;Utility-based:"></textarea>
       <p><button type="button" class="secondary" data-reveal="#recall-answer">Show example</button></p>
@@ -205,7 +205,7 @@
     </section>
 
     <section class="exercise">
-      <h2>Design Drill: Justify the Smallest Type</h2>
+      <h2 id="design-drill-justify-the-smallest-type">Design Drill: Justify the Smallest Type</h2>
       <p>For each workflow, name the smallest agent type that fits and the one fact that forces that rung (and rules out the one below).</p>
       <p><strong>Workflows:</strong> (a) auto-tag a ticket "urgent" when it contains a keyword; (b) approve an expense only if it fits this month's running budget; (c) assemble a multi-leg travel itinerary that satisfies dates and budget; (d) choose between three valid itineraries by traveler preference.</p>
       <textarea aria-label="Justify the smallest agent type for each workflow" placeholder="a:&#10;b:&#10;c:&#10;d:"></textarea>
@@ -216,7 +216,7 @@
     </section>
 
     <section class="exercise">
-      <h2>Design Drill 2: Pay for Autonomy</h2>
+      <h2 id="design-drill-2-pay-for-autonomy">Design Drill 2: Pay for Autonomy</h2>
       <p>Autonomy is scoped. Take one agent and widen its scope one step at a time; for each step, name the guardrail or monitor that step now requires. Notice that each step expands a different dimension of risk &mdash; <strong>authority</strong> (Step 1), <strong>time horizon</strong> via an uncapped running total (Step 2), and <strong>tool access</strong> to a new action (Step 3).</p>
       <p><strong>Agent:</strong> a model-based reflex restocker that today <em>recommends</em> purchase orders for a human to approve. Step 1: let it place orders under $500 automatically. Step 2: remove the dollar cap. Step 3: let it also switch suppliers on its own.</p>
       <textarea aria-label="Name the guardrail each autonomy step requires" placeholder="Step 1 guardrail:&#10;Step 2 guardrail:&#10;Step 3 guardrail:"></textarea>
@@ -227,7 +227,7 @@
     </section>
 
     <section>
-      <h2>Architecture Check</h2>
+      <h2 id="architecture-check">Architecture Check</h2>
       <p>Before fixing an agent type or expanding its autonomy, ask:</p>
       <ul>
         <li>What is the highest rung the workflow truly needs &mdash; and what would break if you dropped one rung?</li>
@@ -239,8 +239,8 @@
     </section>
 
     <section class="callout">
-      <h2>Primary Source</h2>
-      <p>Read the local section <a href="../agentic-ai-architecture-foundations-designing-autonomous-ai-systems.md#agent-types">Agent Types</a> and the <a href="../agentic-ai-architecture-foundations-designing-autonomous-ai-systems.md#module-utilization-by-agent-type">Module Utilization by Agent Type</a> table, then compare with the classic taxonomy in <a href="https://aima.cs.berkeley.edu/">Artificial Intelligence: A Modern Approach</a>. For the autonomy properties behind the second axis, see <a href="https://www.cs.ox.ac.uk/people/michael.wooldridge/pubs/ker95.pdf">Intelligent Agents: Theory and Practice</a>.</p>
+      <h2 id="primary-source">Primary Source</h2>
+      <p>Read the local section <a href="../agentic-ai-architecture-foundations-designing-autonomous-ai-systems.html#agent-types">Agent Types</a> and the <a href="../agentic-ai-architecture-foundations-designing-autonomous-ai-systems.html#module-utilization-by-agent-type">Module Utilization by Agent Type</a> table, then compare with the classic taxonomy in <a href="https://aima.cs.berkeley.edu/">Artificial Intelligence: A Modern Approach</a>. For the autonomy properties behind the second axis, see <a href="https://www.cs.ox.ac.uk/people/michael.wooldridge/pubs/ker95.pdf">Intelligent Agents: Theory and Practice</a>.</p>
     </section>
 
     <p class="footer-note">Previous lesson: <a href="./0001-agentic-ai-control-loop.html">0001 &mdash; Agentic AI Control Loop</a>. Next lesson: <a href="./0003-python-agent-implementations.html">0003 &mdash; Python Agent Implementations</a>. Ask the agent follow-up questions about any rung that feels fuzzy, especially the line between goal-based planning and utility-based scoring.</p>

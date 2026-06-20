@@ -1,0 +1,638 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Agentic AI: Architecture Foundations</title>
+  <link rel="stylesheet" href="./assets/course.css">
+</head>
+<body>
+  <main>
+    <header>
+      <p class="kicker">Reference Notes</p>
+      <h1 id="agentic-ai-architecture-foundations">Agentic AI: Architecture Foundations</h1>
+      <p>Reference notes for designing autonomous AI systems. This version treats agentic AI as an architectural style built around agents, environments, goals, actions, monitoring, and control boundaries.</p>
+    </header>
+
+    <section>
+      <h2 id="prerequisites">Prerequisites</h2>
+      <p>Useful background:</p>
+      <ul>
+        <li>Predictive AI: models trained to estimate, classify, rank, forecast, or recommend from input data.</li>
+        <li>Generative AI: models trained to produce text, images, code, audio, video, or other data.</li>
+        <li>Software architecture: components, interfaces, state, failure modes, observability, and deployment boundaries.</li>
+        <li>AI risk management: safety, security, fairness, accountability, transparency, privacy, robustness, and human oversight. [6]</li>
+      </ul>
+
+    </section>
+    <section>
+      <h2 id="core-concepts">Core Concepts</h2>
+
+    </section>
+    <section>
+      <h3 id="agentic-ai-system">Agentic AI System</h3>
+      <p><strong>What it is</strong></p>
+      <p>An agentic AI system uses one or more agents that perceive an environment, reason about goals or conditions, and take actions through software or hardware interfaces. The classic AI framing defines an agent as something that perceives its environment through sensors and acts on that environment through actuators. [1]</p>
+      <p><strong>Correct framing</strong></p>
+      <ul>
+        <li>"Agentic" does not mean fully independent, unconstrained, or always learning.</li>
+        <li>Autonomy is scoped: an agent may be autonomous only within a narrow domain, tool set, permission boundary, or time window.</li>
+        <li>A single agent can be an agentic system; larger systems often coordinate multiple agents.</li>
+        <li>An agentic system still needs ordinary architecture work: state management, permissions, logging, testing, rollout, recovery, and monitoring.</li>
+      </ul>
+      <p><strong>Design implications</strong></p>
+      <ul>
+        <li>Define the agent's goal, allowed actions, environment, authority, and stop conditions.</li>
+        <li>Separate agent logic from tool execution, policy enforcement, and human approval.</li>
+        <li>Treat autonomy as a risk variable: broader autonomy requires stronger guardrails and observability.</li>
+      </ul>
+
+    </section>
+    <section>
+      <h3 id="autonomous-ai-agent">Autonomous AI Agent</h3>
+      <p><strong>What it is</strong></p>
+      <p>An autonomous AI agent is a software or embodied system that can operate with some degree of independence. Agent research commonly emphasizes autonomy, reactivity, proactiveness, and social ability: agents can react to changes, pursue goals, and coordinate with other systems or people. [2]</p>
+      <p><strong>Correct framing</strong></p>
+      <ul>
+        <li>"Autonomous" is not binary. Agents can be fully automated for low-risk tasks and approval-gated for high-risk tasks.</li>
+        <li>Not every agent needs a large language model. Agents can use rules, planners, classifiers, reinforcement-learning policies, symbolic models, generative models, or combinations of these.</li>
+        <li>Not every autonomous program is meaningfully AI. A simple rule-based reflex agent may be best described as an agent-like component unless it participates in a broader AI system.</li>
+      </ul>
+      <p><strong>Design implications</strong></p>
+      <ul>
+        <li>Document which decisions the agent can make without approval.</li>
+        <li>Document which data and tools it can access.</li>
+        <li>Give every agent a measurable success criterion and a failure-handling path.</li>
+      </ul>
+
+    </section>
+    <section>
+      <h3 id="agentic-ai-compared-with-predictive-and-generative-ai">Agentic AI Compared With Predictive and Generative AI</h3>
+      <p><strong>What it is</strong></p>
+      <p>Predictive AI primarily maps inputs to predictions or decisions. Generative AI primarily maps prompts or context to generated artifacts. Agentic AI adds a control loop: perceive, reason, act, observe results, and continue.</p>
+      <p><strong>Correct framing</strong></p>
+      <ul>
+        <li>Agentic systems may include predictive and generative models, but the architecture is organized around action in an environment.</li>
+        <li>Predictive and generative models can be components inside perception, reasoning, planning, memory, tool selection, or monitoring.</li>
+        <li>The core difference is not the model type; it is the closed-loop relationship between goals, environment state, actions, and feedback.</li>
+      </ul>
+      <p><strong>Risks</strong></p>
+      <ul>
+        <li>Treating an LLM prompt as the whole architecture.</li>
+        <li>Letting a model execute actions without permission checks.</li>
+        <li>Ignoring state, rollback, and auditability because the task "looks conversational."</li>
+      </ul>
+
+    </section>
+    <section>
+      <h2 id="agent-types">Agent Types</h2>
+
+    </section>
+    <section>
+      <h3 id="simple-reflex-agent">Simple Reflex Agent</h3>
+      <p><strong>What it is</strong></p>
+      <p>A simple reflex agent maps the current percept directly to an action using condition-action rules. It does not maintain meaningful history or plan future steps. [1]</p>
+      <p><strong>Example</strong></p>
+      <p>If an order is placed, send a confirmation email.</p>
+      <p><strong>When to use</strong></p>
+      <ul>
+        <li>Narrow, low-risk reactions.</li>
+        <li>Deterministic event handling.</li>
+        <li>Small components inside a larger agentic workflow.</li>
+      </ul>
+      <p><strong>Risks</strong></p>
+      <ul>
+        <li>Brittle behavior in partially observable environments.</li>
+        <li>No memory of prior failures.</li>
+        <li>Easy to over-label as "AI" when it is just rule execution.</li>
+      </ul>
+
+    </section>
+    <section>
+      <h3 id="model-based-reflex-agent">Model-Based Reflex Agent</h3>
+      <p><strong>What it is</strong></p>
+      <p>A model-based reflex agent maintains an internal representation of relevant environment state. It still often acts through rules, but those rules consult the current internal model instead of only the latest percept. [1]</p>
+      <p><strong>Example</strong></p>
+      <p>If inventory falls below a threshold, consult current demand and lead-time state before ordering more stock.</p>
+      <p><strong>When to use</strong></p>
+      <ul>
+        <li>Environments where the latest input is incomplete.</li>
+        <li>Tasks that need current state but not long-horizon planning.</li>
+        <li>Operational workflows with clear rules and moderate context.</li>
+      </ul>
+      <p><strong>Risks</strong></p>
+      <ul>
+        <li>Stale environment state.</li>
+        <li>Hidden assumptions in the internal model.</li>
+        <li>Model updates that are not observable or versioned.</li>
+      </ul>
+
+    </section>
+    <section>
+      <h3 id="goal-based-agent">Goal-Based Agent</h3>
+      <p><strong>What it is</strong></p>
+      <p>A goal-based agent chooses actions by evaluating how they help reach a desired state. Search and planning are common mechanisms for finding action sequences that achieve goals. [1]</p>
+      <p><strong>Example</strong></p>
+      <p>Given a customer order, plan the sequence needed to reserve inventory, package the product, arrange shipping, and notify the customer.</p>
+      <p><strong>When to use</strong></p>
+      <ul>
+        <li>Multi-step workflows.</li>
+        <li>Tasks with explicit completion states.</li>
+        <li>Environments where different action sequences can reach the same goal.</li>
+      </ul>
+      <p><strong>Risks</strong></p>
+      <ul>
+        <li>Plans become stale when the environment changes.</li>
+        <li>Goal definitions may omit business, safety, legal, or user constraints.</li>
+        <li>A plausible plan can still fail without execution monitoring.</li>
+      </ul>
+
+    </section>
+    <section>
+      <h3 id="utility-based-agent">Utility-Based Agent</h3>
+      <p><strong>What it is</strong></p>
+      <p>A utility-based agent evaluates not only whether a goal is reached, but how desirable each possible outcome is. It uses a utility function or equivalent scoring mechanism to compare alternatives. [1]</p>
+      <p><strong>Example</strong></p>
+      <p>For order fulfillment, choose the option that balances delivery speed, cost, reliability, inventory risk, and customer satisfaction.</p>
+      <p><strong>Correct framing</strong></p>
+      <ul>
+        <li>Utility does not need to mean a literal mathematical utility function in every implementation.</li>
+        <li>Utility-based behavior can be implemented with scoring models, policies, optimization functions, business rules, or ranked preferences.</li>
+        <li>A utility-based agent may require more compute or external infrastructure, but it does not inherently require cloud deployment.</li>
+      </ul>
+      <p><strong>Risks</strong></p>
+      <ul>
+        <li>Poorly chosen utility functions create harmful incentives.</li>
+        <li>Optimizing measurable proxies can degrade the real outcome.</li>
+        <li>Tradeoffs need governance, not just model tuning.</li>
+      </ul>
+
+    </section>
+    <section>
+      <h2 id="environment-and-feedback">Environment and Feedback</h2>
+
+    </section>
+    <section>
+      <h3 id="environment">Environment</h3>
+      <p><strong>What it is</strong></p>
+      <p>The environment is the external context the agent observes and affects. It may be physical, digital, or hybrid.</p>
+      <p><strong>Examples</strong></p>
+      <ul>
+        <li>Digital: customer records, inventory databases, email systems, tickets, APIs, calendars, repositories.</li>
+        <li>Physical: rooms, robots, cameras, microphones, sensors, actuators, other people or machines.</li>
+        <li>Hybrid: warehouse automation where software agents coordinate inventory systems and physical robots.</li>
+      </ul>
+      <p><strong>Design implications</strong></p>
+      <ul>
+        <li>Define what state is observable, hidden, delayed, noisy, or unreliable.</li>
+        <li>Define which actions can change the environment.</li>
+        <li>Define how the agent receives feedback after acting.</li>
+      </ul>
+
+    </section>
+    <section>
+      <h3 id="agent-environment-interaction-loop">Agent-Environment Interaction Loop</h3>
+      <p><strong>What it is</strong></p>
+      <p>The basic loop is:</p>
+      <ol>
+        <li>Perceive environment state.</li>
+        <li>Interpret the percepts.</li>
+        <li>Reason about goals, constraints, and possible actions.</li>
+        <li>Act through an effector, tool, API, or actuator.</li>
+        <li>Observe the result.</li>
+        <li>Update state, memory, or policy as appropriate.</li>
+      </ol>
+      <p>This loop is the practical difference between a one-shot model call and an agentic system. ReAct-style language-agent research uses a related reason-act-observe loop for tool and environment interaction. [3]</p>
+      <p><strong>Correct framing</strong></p>
+      <ul>
+        <li>Feedback is not automatically learning.</li>
+        <li>Feedback may update only task state, environment state, logs, or escalation status.</li>
+        <li>Long-term learning requires a deliberate memory, policy-update, fine-tuning, retraining, or reinforcement-learning mechanism.</li>
+      </ul>
+      <p><strong>Risks</strong></p>
+      <ul>
+        <li>Acting on stale state.</li>
+        <li>Missing feedback after an action.</li>
+        <li>Updating memory with untrusted or low-quality observations.</li>
+      </ul>
+
+    </section>
+    <section>
+      <h2 id="core-agent-modules">Core Agent Modules</h2>
+
+    </section>
+    <section>
+      <h3 id="perception-module">Perception Module</h3>
+      <p><strong>What it is</strong></p>
+      <p>The perception module receives raw information from the environment and turns it into useful observations for reasoning.</p>
+      <p><strong>Inputs</strong></p>
+      <ul>
+        <li>Physical sensors: cameras, microphones, lidar, temperature sensors, pressure sensors.</li>
+        <li>Digital inputs: APIs, files, messages, event streams, databases, webpages, logs.</li>
+      </ul>
+      <p><strong>Responsibilities</strong></p>
+      <ul>
+        <li>Collect raw percepts.</li>
+        <li>Filter noise and malformed data.</li>
+        <li>Transform data into usable representations.</li>
+        <li>Extract features, entities, objects, state changes, and relationships.</li>
+        <li>Distinguish raw percepts from interpreted perceptions.</li>
+      </ul>
+      <p><strong>Correct framing</strong></p>
+      <ul>
+        <li>A sensor can be physical or digital, but the distinction matters for reliability, latency, and failure modes.</li>
+        <li>Perception may use vision models, speech models, parsers, classifiers, retrieval systems, rules, or direct structured inputs.</li>
+        <li>Perception outputs should include confidence, source, timestamp, and uncertainty when possible.</li>
+      </ul>
+      <p><strong>Risks</strong></p>
+      <ul>
+        <li>Treating perception as ground truth.</li>
+        <li>Ignoring missing, biased, stale, or adversarial input.</li>
+        <li>Passing untrusted retrieved content directly into high-authority prompts.</li>
+      </ul>
+
+    </section>
+    <section>
+      <h3 id="reasoning-module">Reasoning Module</h3>
+      <p><strong>What it is</strong></p>
+      <p>The reasoning module decides what to do with the agent's perceptions, goals, constraints, state, and available actions.</p>
+      <p><strong>Responsibilities</strong></p>
+      <ul>
+        <li>Interpret current state.</li>
+        <li>Select or update goals.</li>
+        <li>Plan action sequences.</li>
+        <li>Choose tools or effectors.</li>
+        <li>Handle obstacles and exceptions.</li>
+        <li>Decide when to ask for more data or human approval.</li>
+      </ul>
+      <p><strong>Correct framing</strong></p>
+      <ul>
+        <li>Reasoning can be rules, search, planning, optimization, symbolic inference, an LLM call, a learned policy, or a hybrid.</li>
+        <li>Agent knowledge is broader than AI model weights. It may include rules, memory, plans, policies, knowledge graphs, vector stores, databases, tool schemas, event logs, and external systems.</li>
+        <li>Reasoning traces are not automatically faithful explanations. Use structured logs and verifier results for auditability.</li>
+      </ul>
+      <p><strong>Risks</strong></p>
+      <ul>
+        <li>Hallucinated plans or tool choices.</li>
+        <li>Hidden conflicts between goals, policies, and user requests.</li>
+        <li>No explicit policy for replanning after failed actions.</li>
+      </ul>
+
+    </section>
+    <section>
+      <h3 id="action-module">Action Module</h3>
+      <p><strong>What it is</strong></p>
+      <p>The action module turns decisions into commands that affect the environment.</p>
+      <p><strong>Effectors</strong></p>
+      <ul>
+        <li>Software effectors: APIs, databases, queues, email systems, ticketing systems, browsers, shells, workflow engines.</li>
+        <li>Hardware effectors: actuators, robotic arms, motors, locks, sensors with control channels.</li>
+      </ul>
+      <p><strong>Responsibilities</strong></p>
+      <ul>
+        <li>Translate decisions into validated commands.</li>
+        <li>Execute actions through approved tools or effectors.</li>
+        <li>Coordinate multiple effectors for coarse-grained actions.</li>
+        <li>Monitor success, failure, side effects, and rollback needs.</li>
+      </ul>
+      <p><strong>Correct framing</strong></p>
+      <ul>
+        <li>A fine-grained action may be one API call.</li>
+        <li>A coarse-grained action may orchestrate many commands across systems or actuators.</li>
+        <li>The controller should enforce permissions before the action module executes irreversible, expensive, unsafe, or externally visible actions.</li>
+      </ul>
+      <p><strong>Risks</strong></p>
+      <ul>
+        <li>Tool argument errors.</li>
+        <li>Irreversible side effects.</li>
+        <li>Partial failure across multiple effectors.</li>
+        <li>No idempotency or rollback strategy.</li>
+      </ul>
+
+    </section>
+    <section>
+      <h3 id="learning-module">Learning Module</h3>
+      <p><strong>What it is</strong></p>
+      <p>The learning module improves future behavior using feedback, outcomes, corrections, or experience.</p>
+      <p><strong>Correct framing</strong></p>
+      <ul>
+        <li>Learning can update memory, rules, thresholds, prompts, policies, models, or training data.</li>
+        <li>Updating memory is not the same as updating model weights.</li>
+        <li>A non-learning agent can still use feedback for immediate recovery or state updates.</li>
+        <li>Embodied agents that learn skills need separate attention to perception, control, safety, and policy-update mechanisms. [4]</li>
+      </ul>
+      <p><strong>Responsibilities</strong></p>
+      <ul>
+        <li>Analyze outcomes and feedback.</li>
+        <li>Detect recurring failures.</li>
+        <li>Improve perception quality.</li>
+        <li>Improve planning and action selection.</li>
+        <li>Propose rule, memory, model, or policy updates.</li>
+        <li>Preserve provenance for learned changes.</li>
+      </ul>
+      <p><strong>Risks</strong></p>
+      <ul>
+        <li>Learning from bad feedback.</li>
+        <li>Memory poisoning.</li>
+        <li>Silent drift in behavior.</li>
+        <li>No audit trail for policy or model changes.</li>
+      </ul>
+
+    </section>
+    <section>
+      <h2 id="module-utilization-by-agent-type">Module Utilization by Agent Type</h2>
+
+    </section>
+    <section>
+      <h3 id="simple-reflex-agent-1">Simple Reflex Agent</h3>
+      <p><strong>Typical module use</strong></p>
+      <ul>
+        <li>Perception: forwards current percepts with minimal interpretation.</li>
+        <li>Reasoning: applies condition-action rules.</li>
+        <li>Action: executes the matching action.</li>
+        <li>Learning: usually absent.</li>
+      </ul>
+      <p><strong>Architecture implication</strong></p>
+      <p>Keep it small, testable, and deterministic. Use it where isolation of a narrow reaction is more valuable than adaptive behavior.</p>
+
+    </section>
+    <section>
+      <h3 id="model-based-reflex-agent-1">Model-Based Reflex Agent</h3>
+      <p><strong>Typical module use</strong></p>
+      <ul>
+        <li>Perception: forms observations and updates an internal environment model.</li>
+        <li>Reasoning: applies rules against current modeled state.</li>
+        <li>Action: executes a usually narrow action.</li>
+        <li>Learning: optional; may improve the environment model.</li>
+      </ul>
+      <p><strong>Architecture implication</strong></p>
+      <p>The internal state model becomes a dependency that needs freshness checks, versioning, and observability.</p>
+
+    </section>
+    <section>
+      <h3 id="goal-based-agent-1">Goal-Based Agent</h3>
+      <p><strong>Typical module use</strong></p>
+      <ul>
+        <li>Perception: compares current state with desired state.</li>
+        <li>Reasoning: plans action sequences.</li>
+        <li>Action: executes and monitors planned steps.</li>
+        <li>Learning: improves planning and recovery over time.</li>
+      </ul>
+      <p><strong>Architecture implication</strong></p>
+      <p>Plans need checkpoints, success criteria, failure handling, and replanning rules.</p>
+
+    </section>
+    <section>
+      <h3 id="utility-based-agent-1">Utility-Based Agent</h3>
+      <p><strong>Typical module use</strong></p>
+      <ul>
+        <li>Perception: estimates current state and possible future states.</li>
+        <li>Reasoning: evaluates alternatives against utility or preference criteria.</li>
+        <li>Action: executes selected action sequences.</li>
+        <li>Learning: improves outcome quality, not just goal completion.</li>
+      </ul>
+      <p><strong>Architecture implication</strong></p>
+      <p>Utility criteria need governance. Make tradeoffs visible, testable, and reviewable.</p>
+
+    </section>
+    <section>
+      <h2 id="monitoring">Monitoring</h2>
+
+    </section>
+    <section>
+      <h3 id="operational-monitors">Operational Monitors</h3>
+      <p><strong>What they track</strong></p>
+      <ul>
+        <li>Performance: progress toward goals, completion rate, quality, latency.</li>
+        <li>Environment state: relevant external changes, sensor readings, event streams.</li>
+        <li>Resource utilization: CPU, memory, network, tool usage, API cost, rate limits.</li>
+      </ul>
+      <p><strong>Risks</strong></p>
+      <ul>
+        <li>Metrics that reward speed over correctness.</li>
+        <li>Missing system-wide resource pressure.</li>
+        <li>No correlation between agent decisions and operational impact.</li>
+      </ul>
+
+    </section>
+    <section>
+      <h3 id="safety-ethics-and-policy-monitors">Safety, Ethics, and Policy Monitors</h3>
+      <p><strong>What they track</strong></p>
+      <ul>
+        <li>Goal alignment.</li>
+        <li>Safety constraints.</li>
+        <li>Bias and fairness indicators.</li>
+        <li>Policy and permission compliance.</li>
+        <li>Privacy and data-handling constraints.</li>
+      </ul>
+      <p>NIST AI RMF frames trustworthy AI around characteristics such as validity, reliability, safety, security, resilience, accountability, transparency, explainability, privacy, and fairness. [6]</p>
+      <p><strong>Risks</strong></p>
+      <ul>
+        <li>Treating monitoring as a substitute for prevention.</li>
+        <li>Measuring fairness or safety only after deployment.</li>
+        <li>Allowing agents to bypass policy checks during tool execution.</li>
+      </ul>
+
+    </section>
+    <section>
+      <h3 id="interaction-and-communication-monitors">Interaction and Communication Monitors</h3>
+      <p><strong>What they track</strong></p>
+      <ul>
+        <li>Agent-environment interactions.</li>
+        <li>Agent-human communication.</li>
+        <li>Agent-agent communication.</li>
+        <li>Tool calls, observations, retries, and failures.</li>
+      </ul>
+      <p><strong>Risks</strong></p>
+      <ul>
+        <li>Lost context across agent handoffs.</li>
+        <li>Undetected tool loops.</li>
+        <li>No record of who or what authorized an action.</li>
+      </ul>
+
+    </section>
+    <section>
+      <h3 id="state-and-belief-monitors">State and Belief Monitors</h3>
+      <p><strong>What they track</strong></p>
+      <ul>
+        <li>Internal state.</li>
+        <li>Beliefs about the environment.</li>
+        <li>Plans and intentions.</li>
+        <li>Decision rationale summaries.</li>
+        <li>Belief accuracy against later observations.</li>
+      </ul>
+      <p><strong>Risks</strong></p>
+      <ul>
+        <li>State drift between agents.</li>
+        <li>Conflicting memories.</li>
+        <li>Beliefs treated as facts without confidence or provenance.</li>
+      </ul>
+
+    </section>
+    <section>
+      <h3 id="robustness-explainability-and-learning-monitors">Robustness, Explainability, and Learning Monitors</h3>
+      <p><strong>What they track</strong></p>
+      <ul>
+        <li>Data quality.</li>
+        <li>Adversarial or unexpected inputs.</li>
+        <li>Robustness under environment changes.</li>
+        <li>Explainability artifacts and decision summaries.</li>
+        <li>Learning progress and adaptation.</li>
+      </ul>
+      <p><strong>Correct framing</strong></p>
+      <ul>
+        <li>Explanations are useful, but they are not proof of correctness.</li>
+        <li>Robustness monitoring should include adversarial, rare, and degraded-input cases.</li>
+        <li>Learning monitors should distinguish memory updates from model or policy updates.</li>
+      </ul>
+      <p><strong>Risks</strong></p>
+      <ul>
+        <li>Misleading explanations.</li>
+        <li>Learning drift.</li>
+        <li>Poor-quality feedback silently becoming future context.</li>
+      </ul>
+
+    </section>
+    <section>
+      <h2 id="system-architectures">System Architectures</h2>
+
+    </section>
+    <section>
+      <h3 id="single-agent-system">Single-Agent System</h3>
+      <p><strong>What it is</strong></p>
+      <p>A single-agent system deploys one agent as the main decision-making and action-taking unit.</p>
+      <p><strong>When to use</strong></p>
+      <ul>
+        <li>Narrow workflows.</li>
+        <li>Tasks with one clear owner.</li>
+        <li>Environments where coordination overhead would add more risk than value.</li>
+      </ul>
+      <p><strong>Risks</strong></p>
+      <ul>
+        <li>The agent becomes a single point of decision failure.</li>
+        <li>Too many responsibilities accumulate in one prompt, policy, or controller.</li>
+        <li>Scaling may require later decomposition.</li>
+      </ul>
+
+    </section>
+    <section>
+      <h3 id="multi-agent-system">Multi-Agent System</h3>
+      <p><strong>What it is</strong></p>
+      <p>A multi-agent system uses two or more agents that coordinate, collaborate, compete, or divide work. Multi-agent systems need protocols for communication, delegation, shared state, conflict resolution, and monitoring.</p>
+      <p><strong>When to use</strong></p>
+      <ul>
+        <li>Workflows with specialized roles.</li>
+        <li>Parallelizable tasks.</li>
+        <li>Systems that need local autonomy across domains or devices.</li>
+        <li>Simulations or environments with many independent actors. [5]</li>
+      </ul>
+      <p><strong>Risks</strong></p>
+      <ul>
+        <li>Communication overhead.</li>
+        <li>Inconsistent state.</li>
+        <li>Conflicting goals.</li>
+        <li>Harder debugging and auditability.</li>
+      </ul>
+
+    </section>
+    <section>
+      <h3 id="centralized-architecture">Centralized Architecture</h3>
+      <p><strong>What it is</strong></p>
+      <p>A central controller holds most deliberative logic and assigns tasks or actions to simpler agents or services.</p>
+      <p><strong>When to use</strong></p>
+      <ul>
+        <li>Straightforward workflows.</li>
+        <li>Strong central governance requirements.</li>
+        <li>Environments where simpler agents should not make high-level decisions.</li>
+      </ul>
+      <p><strong>Benefits</strong></p>
+      <ul>
+        <li>Easier policy enforcement.</li>
+        <li>Simpler global observability.</li>
+        <li>Clearer authority boundary.</li>
+      </ul>
+      <p><strong>Risks</strong></p>
+      <ul>
+        <li>Central bottleneck.</li>
+        <li>Single point of failure.</li>
+        <li>High coordination traffic between controller and agents.</li>
+      </ul>
+
+    </section>
+    <section>
+      <h3 id="decentralized-architecture">Decentralized Architecture</h3>
+      <p><strong>What it is</strong></p>
+      <p>Deliberative logic is distributed across agents. Individual agents can plan and act locally while the system monitors progress, health, and conflicts.</p>
+      <p><strong>When to use</strong></p>
+      <ul>
+        <li>Distributed environments.</li>
+        <li>Local decision-making requirements.</li>
+        <li>High scalability or resilience needs.</li>
+        <li>Systems where agents need autonomy under intermittent connectivity.</li>
+      </ul>
+      <p><strong>Benefits</strong></p>
+      <ul>
+        <li>Better fault isolation.</li>
+        <li>More local responsiveness.</li>
+        <li>More scalable processing.</li>
+      </ul>
+      <p><strong>Risks</strong></p>
+      <ul>
+        <li>Harder coordination.</li>
+        <li>More complex governance.</li>
+        <li>Conflicting decisions without strong protocols.</li>
+        <li>More demanding infrastructure for state, messaging, and observability.</li>
+      </ul>
+
+    </section>
+    <section>
+      <h3 id="hybrid-architecture">Hybrid Architecture</h3>
+      <p><strong>What it is</strong></p>
+      <p>A hybrid architecture combines central coordination with local agent autonomy.</p>
+      <p><strong>When to use</strong></p>
+      <ul>
+        <li>Most real-world agentic systems.</li>
+        <li>High-level goals require central control, but local actions require fast adaptation.</li>
+        <li>Some agents are trusted to act independently while others need approval.</li>
+      </ul>
+      <p><strong>Design implications</strong></p>
+      <ul>
+        <li>Define which decisions are centralized.</li>
+        <li>Define which decisions are delegated.</li>
+        <li>Define escalation, arbitration, and override rules.</li>
+        <li>Keep shared state authoritative, versioned, and observable.</li>
+      </ul>
+
+    </section>
+    <section>
+      <h2 id="practical-design-checklist">Practical Design Checklist</h2>
+      <ul>
+        <li>Define each agent's goal, environment, tools, authority, and stop conditions.</li>
+        <li>Choose the simplest agent type that fits the task.</li>
+        <li>Separate perception, reasoning, action, learning, memory, and monitoring concerns.</li>
+        <li>Treat tools and effectors as permissioned interfaces with schemas and side effects.</li>
+        <li>Add feedback paths for every important action.</li>
+        <li>Distinguish state update, memory update, policy update, and model update.</li>
+        <li>Add human approval for irreversible, unsafe, expensive, or low-confidence actions.</li>
+        <li>Monitor performance, safety, resources, data quality, state drift, and tool failures.</li>
+        <li>Make plans, actions, observations, and approvals auditable.</li>
+        <li>Test with stale state, bad input, partial failures, tool errors, and adversarial content.</li>
+      </ul>
+
+    </section>
+    <section>
+      <h2 id="sources">Sources</h2>
+      <ol>
+        <li>Stuart Russell and Peter Norvig, "Artificial Intelligence: A Modern Approach": <a href="https://aima.cs.berkeley.edu/">https://aima.cs.berkeley.edu/</a></li>
+        <li>Michael Wooldridge and Nicholas R. Jennings, "Intelligent Agents: Theory and Practice" (1995): <a href="https://www.cs.ox.ac.uk/people/michael.wooldridge/pubs/ker95.pdf">https://www.cs.ox.ac.uk/people/michael.wooldridge/pubs/ker95.pdf</a></li>
+        <li>Shunyu Yao et al., "ReAct: Synergizing Reasoning and Acting in Language Models" (2022): <a href="https://arxiv.org/abs/2210.03629">https://arxiv.org/abs/2210.03629</a></li>
+        <li>Guanzhi Wang et al., "Voyager: An Open-Ended Embodied Agent with Large Language Models" (2023): <a href="https://arxiv.org/abs/2305.16291">https://arxiv.org/abs/2305.16291</a></li>
+        <li>Joon Sung Park et al., "Generative Agents: Interactive Simulacra of Human Behavior" (2023): <a href="https://arxiv.org/abs/2304.03442">https://arxiv.org/abs/2304.03442</a></li>
+        <li>NIST, "Artificial Intelligence Risk Management Framework (AI RMF 1.0)" (2023): <a href="https://nvlpubs.nist.gov/nistpubs/ai/NIST.AI.100-1.pdf">https://nvlpubs.nist.gov/nistpubs/ai/NIST.AI.100-1.pdf</a></li>
+      </ol>
+    </section>
+
+    <p class="footer-note">Source Markdown: <a href="./agentic-ai-architecture-foundations-designing-autonomous-ai-systems.md">agentic-ai-architecture-foundations-designing-autonomous-ai-systems.md</a>.</p>
+  </main>
+</body>
+</html>

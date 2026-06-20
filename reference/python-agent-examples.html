@@ -10,28 +10,28 @@
   <main>
     <header>
       <p class="kicker">Reference 0002</p>
-      <h1>Python Agent Examples</h1>
+      <h1 id="python-agent-examples">Python Agent Examples</h1>
       <p class="summary">Use this sheet to choose between a direct Claude SDK call and a LangGraph control loop.</p>
     </header>
 
     <section>
-      <h2>Choose the Surface</h2>
+      <h2 id="choose-the-surface">Choose the Surface</h2>
       <div class="grid">
         <article class="card">
           <span class="tag">Claude SDK</span>
-          <h3>Call Claude directly</h3>
+          <h3 id="call-claude-directly">Call Claude directly</h3>
           <p>Use when your application owns the loop, policy checks, persistence, approvals, and tool execution. The Anthropic Python SDK exposes sync and async Messages API clients, streaming, retries, error handling, and tool helpers.</p>
         </article>
         <article class="card">
           <span class="tag">LangGraph</span>
-          <h3>Make the loop explicit</h3>
+          <h3 id="make-the-loop-explicit">Make the loop explicit</h3>
           <p>Use when you want state, nodes, edges, conditional routing, checkpointing, and a graph-shaped agent loop. LangGraph's quickstart builds a tool-calling agent with a model node, tool node, and stop condition.</p>
         </article>
       </div>
     </section>
 
     <section>
-      <h2>Claude SDK: One Model Call</h2>
+      <h2 id="claude-sdk-one-model-call">Claude SDK: One Model Call</h2>
       <pre><code class="language-python">from anthropic import Anthropic
 
 client = Anthropic()
@@ -51,7 +51,7 @@ print(message.content[0].text)</code></pre>
     </section>
 
     <section>
-      <h2>Claude SDK: Tool Loop Helper</h2>
+      <h2 id="claude-sdk-tool-loop-helper">Claude SDK: Tool Loop Helper</h2>
       <pre><code class="language-python">import json
 from anthropic import Anthropic, beta_tool
 
@@ -80,7 +80,7 @@ for message in runner:
     </section>
 
     <section>
-      <h2>LangGraph: Explicit Loop</h2>
+      <h2 id="langgraph-explicit-loop">LangGraph: Explicit Loop</h2>
       <pre><code class="language-python">import operator
 from typing import Annotated, Literal
 from typing_extensions import TypedDict
@@ -135,7 +135,7 @@ print(result["messages"][-1].content)</code></pre>
     </section>
 
     <section class="callout">
-      <h2>Architecture Reminder</h2>
+      <h2 id="architecture-reminder">Architecture Reminder</h2>
       <p>SDK choice does not make a system agentic. Agency comes from the loop: observable environment, controlled action surface, feedback path, state update, and stop condition.</p>
     </section>
 
