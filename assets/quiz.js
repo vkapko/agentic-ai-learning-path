@@ -1,8 +1,17 @@
 class CourseQuiz extends HTMLElement {
   connectedCallback() {
     const data = JSON.parse(this.querySelector("script[type='application/json']").textContent);
+    data.questions.forEach((question) => this.shuffle(question.choices));
     this.innerHTML = data.questions.map((question, index) => this.renderQuestion(question, index)).join("");
     this.addEventListener("click", (event) => this.handleClick(event, data.questions));
+  }
+
+  shuffle(items) {
+    for (let i = items.length - 1; i > 0; i -= 1) {
+      const j = Math.floor(Math.random() * (i + 1));
+      [items[i], items[j]] = [items[j], items[i]];
+    }
+    return items;
   }
 
   renderQuestion(question, index) {
