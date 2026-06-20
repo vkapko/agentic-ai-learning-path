@@ -1,0 +1,276 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Lesson 0016: Claude Code Configuration and CI/CD Workflows</title>
+  <link rel="stylesheet" href="../assets/course.css">
+  <script src="../assets/quiz.js" defer></script>
+  <script src="../assets/reveal.js" defer></script>
+</head>
+<body>
+  <main>
+    <header>
+      <p class="kicker">Lesson 0016</p>
+      <h1 id="claude-code-configuration-and-ci">Claude Code Configuration and CI/CD Workflows</h1>
+      <p class="summary">Tangible win: given a convention, place it at the right Claude Code surface — root CLAUDE.md, a directory CLAUDE.md, a path-scoped rule, a skill, or a command — and at the right sharing level (project vs user); choose plan mode vs direct execution by scope; and wire a CI review so its findings are trustworthy.</p>
+    </header>
+
+    <section>
+      <h2 id="the-one-idea">The One Idea</h2>
+      <p>This lesson grounds an abstraction the course has used repeatedly. Lesson <a href="./0010-context-escalation-provenance.html">0010</a> asked whether a rule should be <em>enforced programmatically or guided by prompt</em>; lesson <a href="./0006-tool-interface-contracts.html">0006</a> asked how to <em>scope authority</em> to an agent. Claude Code's configuration system is a concrete instance of both. Every config artifact answers two questions: <strong>when does it load</strong> (always / only on matching paths / only on demand) and <strong>who gets it</strong> (shared through version control, or personal to one machine). Placing configuration well is the same skill as governing context (lesson <a href="./0013-memory-as-data-infrastructure.html">0013</a>): the right instruction reaches the agent exactly when relevant, and nothing else clutters the window.</p>
+      <p>Keep the compact version open: <a href="../reference/claude-code-configuration-and-ci.html">Claude Code Configuration and CI/CD Reference</a>. This is the applied counterpart to the conceptual patterns — Domain 3 of the <a href="../Claude%20Certified%20Architect%20%E2%80%93%20Foundations.html">Claude Certified Architect</a> reference.</p>
+    </section>
+
+    <section class="callout">
+      <h2 id="minimum-rule">Minimum Rule</h2>
+      <p>Place each instruction at the <strong>narrowest scope that still covers everywhere it must apply</strong>, and at the <strong>sharing level that matches who must follow it</strong>. Always-loaded standards go in CLAUDE.md; conventions for files scattered across the tree go in a path-scoped rule; on-demand workflows go in a skill. Project scope is shared via the repo; user scope stays on your machine.</p>
+    </section>
+
+    <section>
+      <h2 id="the-surfaces">The Configuration Surfaces</h2>
+      <p>Five surfaces, distinguished by <em>when</em> they load and <em>who</em> they reach. The hierarchy is user-level (<code>~/.claude/</code>), project-level (root <code>CLAUDE.md</code> or <code>.claude/</code>), and directory-level (subdirectory <code>CLAUDE.md</code>).<a href="../Claude%20Certified%20Architect%20%E2%80%93%20Foundations.html#domain-3-claude-code-configuration-and-workflows">[3.1]</a></p>
+      <div class="grid">
+        <article class="card">
+          <span class="tag">Root CLAUDE.md</span>
+          <h3 id="root-claude-md">Always loaded</h3>
+          <p>Universal, always-in-context standards for the whole project. Shared via version control. The cost of every line is permanent context, so keep it to what truly applies everywhere.</p>
+        </article>
+        <article class="card">
+          <span class="tag">Directory CLAUDE.md</span>
+          <h3 id="directory-claude-md">Loaded in that subtree</h3>
+          <p>Conventions for one area or package, loaded when working there. Use <code>@import</code> to pull in shared standards files and keep each one modular.<a href="../Claude%20Certified%20Architect%20%E2%80%93%20Foundations.html#domain-3-claude-code-configuration-and-workflows">[3.1]</a></p>
+        </article>
+        <article class="card">
+          <span class="tag">.claude/rules/</span>
+          <h3 id="path-scoped-rules">Loaded on matching paths</h3>
+          <p>A rule file with YAML <code>paths</code> globs (e.g. <code>["**/*.test.*"]</code>) loads only when editing matching files — even when those files are <strong>spread across many directories</strong>. The win a per-directory CLAUDE.md can't give.<a href="../Claude%20Certified%20Architect%20%E2%80%93%20Foundations.html#domain-3-claude-code-configuration-and-workflows">[3.3]</a></p>
+        </article>
+        <article class="card">
+          <span class="tag">.claude/skills/</span>
+          <h3 id="skills">Loaded on demand</h3>
+          <p>A task workflow invoked when needed, not always in context. Frontmatter scopes it: <code>context: fork</code> isolates verbose output, <code>allowed-tools</code> restricts authority, <code>argument-hint</code> prompts for inputs.<a href="../Claude%20Certified%20Architect%20%E2%80%93%20Foundations.html#domain-3-claude-code-configuration-and-workflows">[3.2]</a></p>
+        </article>
+      </div>
+      <p>A fifth surface is <strong>slash commands</strong> in <code>.claude/commands/</code> — saved prompts, project-scoped (shared) or user-scoped (personal). The deciding axis across all five is the same: CLAUDE.md is always-loaded standards; skills and commands are on-demand; rules are conditional by path.<a href="../Claude%20Certified%20Architect%20%E2%80%93%20Foundations.html#domain-3-claude-code-configuration-and-workflows">[3.2]</a></p>
+    </section>
+
+    <section>
+      <h2 id="shared-vs-personal">Shared vs. Personal: The Hierarchy Trap</h2>
+      <p>The most common configuration bug is a scope mismatch. An instruction in <code>~/.claude/CLAUDE.md</code> applies <strong>only to you</strong> — it is never shared with teammates through the repo. So a standard that "everyone follows" but lives at user level silently fails for every new team member.<a href="../Claude%20Certified%20Architect%20%E2%80%93%20Foundations.html#domain-3-claude-code-configuration-and-workflows">[3.1]</a> The fix is to ask not "where is it convenient to put this?" but "who is accountable for following it?" Team standard → project scope (committed). Personal preference → user scope (yours alone). The <code>/memory</code> command shows which files are actually loaded, so you can diagnose inconsistent behavior across sessions.<a href="../Claude%20Certified%20Architect%20%E2%80%93%20Foundations.html#domain-3-claude-code-configuration-and-workflows">[3.1]</a></p>
+    </section>
+
+    <section>
+      <h2 id="plan-vs-direct">Plan Mode vs. Direct Execution</h2>
+      <p>This is the <a href="./0007-tool-orchestration-plans.html">plan-and-execute</a> decision applied to a coding agent. <strong>Plan mode</strong> explores the codebase and designs an approach before any change — for large-scale, multi-file, or architecturally consequential tasks where there are several valid approaches and rework is costly. <strong>Direct execution</strong> is right for well-scoped changes with a clear path (a single-file fix with a known stack trace).<a href="../Claude%20Certified%20Architect%20%E2%80%93%20Foundations.html#domain-3-claude-code-configuration-and-workflows">[3.4]</a> The two combine: plan to investigate, then execute the planned approach. For verbose discovery, the <strong>Explore subagent</strong> isolates the noise and returns a summary — the same context-hygiene move as <code>context: fork</code>.</p>
+    </section>
+
+    <section>
+      <h2 id="ci-cd">Claude Code in CI/CD</h2>
+      <p>A CI pipeline is a <strong>non-interactive agentic loop</strong>. Three pieces make it work:<a href="../Claude%20Certified%20Architect%20%E2%80%93%20Foundations.html#domain-3-claude-code-configuration-and-workflows">[3.6]</a></p>
+      <ul>
+        <li><strong><code>-p</code> / <code>--print</code></strong> — runs Claude Code non-interactively: it processes the prompt, writes to stdout, and exits without waiting for input. Without it, the pipeline hangs.</li>
+        <li><strong><code>--output-format json</code> with <code>--json-schema</code></strong> — forces machine-parseable structured findings, the same reliability move as structured output via tool use (lesson <a href="./0009-structured-output-reliable-extraction.html">0009</a>) — so a script can post them as inline PR comments.</li>
+        <li><strong>CLAUDE.md as the context channel</strong> — testing standards, fixture conventions, and review criteria documented there reach the CI-invoked agent and cut low-value output.</li>
+      </ul>
+      <p>The reliability point that ties back to lesson <a href="./0012-search-verification-self-correction.html">0012</a>: the same session that generated code is weaker at reviewing its own changes than an <strong>independent review instance</strong>. A trustworthy CI review runs fresh, not as a continuation of the session under review — independence is what makes the verifier meaningful.<a href="../Claude%20Certified%20Architect%20%E2%80%93%20Foundations.html#domain-3-claude-code-configuration-and-workflows">[3.6]</a></p>
+    </section>
+
+    <section>
+      <h2 id="place-the-config">Place the Configuration</h2>
+      <p>For each scenario, pick the surface or mode that loads exactly when relevant and reaches exactly the right people.</p>
+
+      <course-quiz>
+        <script type="application/json">
+          {
+            "questions": [
+              {
+                "prompt": "A test-file naming convention must apply to test files scattered across src/, lib/, and packages/ — but never to non-test files.",
+                "choices": [
+                  {
+                    "label": "A path-scoped rules file",
+                    "feedback": "Glob path-scoping loads the rule only when editing matching files, even when they span many directories.",
+                    "correct": 1
+                  },
+                  {
+                    "label": "The root CLAUDE.md file",
+                    "feedback": "Root CLAUDE.md is always loaded for everything, so the convention would also apply to non-test files.",
+                    "correct": 0
+                  },
+                  {
+                    "label": "A per-directory CLAUDE.md file",
+                    "feedback": "A directory CLAUDE.md only covers one subtree; the test files are spread across several directories.",
+                    "correct": 0
+                  },
+                  {
+                    "label": "A user-level memory file",
+                    "feedback": "User-level config is personal and not shared via the repo, so teammates would not get the convention.",
+                    "correct": 0
+                  }
+                ]
+              },
+              {
+                "prompt": "You want a personal shortcut prompt for your own workflow and must not impose it on teammates.",
+                "choices": [
+                  {
+                    "label": "A user-scoped slash command",
+                    "feedback": "User-scoped commands in ~/.claude/commands/ stay personal and are never shared through version control.",
+                    "correct": 1
+                  },
+                  {
+                    "label": "A project-scoped slash command",
+                    "feedback": "Project-scoped commands are committed to the repo and become available to every teammate.",
+                    "correct": 0
+                  },
+                  {
+                    "label": "The root CLAUDE.md file",
+                    "feedback": "Root CLAUDE.md is shared and always loaded — the opposite of a personal, on-demand shortcut.",
+                    "correct": 0
+                  },
+                  {
+                    "label": "A shared path-scoped rule",
+                    "feedback": "A path-scoped rule is committed and shared, and it loads by file path, not on explicit demand.",
+                    "correct": 0
+                  }
+                ]
+              },
+              {
+                "prompt": "A codebase-analysis skill produces pages of verbose output that pollute the main conversation context.",
+                "choices": [
+                  {
+                    "label": "Set context to fork",
+                    "feedback": "context: fork runs the skill in an isolated sub-agent so its verbose output stays out of the main session.",
+                    "correct": 1
+                  },
+                  {
+                    "label": "Restrict the allowed-tools list",
+                    "feedback": "allowed-tools limits which tools the skill may use; it does not stop output from filling the context.",
+                    "correct": 0
+                  },
+                  {
+                    "label": "Add an argument-hint field",
+                    "feedback": "argument-hint just prompts for parameters; it has no effect on how output pollutes the context.",
+                    "correct": 0
+                  },
+                  {
+                    "label": "Move it to CLAUDE.md",
+                    "feedback": "CLAUDE.md is always-loaded standards, not the place for an on-demand verbose analysis workflow.",
+                    "correct": 0
+                  }
+                ]
+              },
+              {
+                "prompt": "Your CI pipeline must run an automated review of a pull request and produce findings you can trust.",
+                "choices": [
+                  {
+                    "label": "Fresh non-interactive review instance",
+                    "feedback": "An independent instance run with -p reviews more reliably than the session that generated the code.",
+                    "correct": 1
+                  },
+                  {
+                    "label": "Reuse the generating session",
+                    "feedback": "The same session that wrote the code is weaker at finding its own faults than an independent reviewer.",
+                    "correct": 0
+                  },
+                  {
+                    "label": "An interactive prompt awaiting input",
+                    "feedback": "Interactive mode hangs in CI; the -p flag is required so the run exits without waiting for input.",
+                    "correct": 0
+                  },
+                  {
+                    "label": "Skip the CLAUDE.md context",
+                    "feedback": "Dropping CLAUDE.md removes the review criteria and standards, raising low-value and false-positive findings.",
+                    "correct": 0
+                  }
+                ]
+              },
+              {
+                "prompt": "A single-file bug fix arrives with a clear stack trace pointing straight at the broken line.",
+                "choices": [
+                  {
+                    "label": "Use direct execution mode",
+                    "feedback": "A well-scoped change with a clear path is exactly what direct execution is for — no planning overhead.",
+                    "correct": 1
+                  },
+                  {
+                    "label": "Enter plan mode first",
+                    "feedback": "Plan mode earns its cost on large, multi-file, or architectural tasks, not a clear single-file fix.",
+                    "correct": 0
+                  },
+                  {
+                    "label": "Fork an isolated subagent",
+                    "feedback": "Forking isolates verbose discovery; a one-line fix with a known cause needs no discovery phase.",
+                    "correct": 0
+                  },
+                  {
+                    "label": "Require a human approval gate",
+                    "feedback": "A gate is for irreversible or high-stakes actions, not a routine, well-understood single-file fix.",
+                    "correct": 0
+                  }
+                ]
+              }
+            ]
+          }
+        </script>
+      </course-quiz>
+    </section>
+
+    <section class="exercise">
+      <h2 id="recall-check">Recall Check</h2>
+      <p>From memory: name the five configuration surfaces, and for each say <em>when it loads</em> (always / on matching paths / on demand) and <em>how it is shared</em> (project vs user).</p>
+      <textarea aria-label="Recall the configuration surfaces" placeholder="1.&#10;2.&#10;3.&#10;4.&#10;5."></textarea>
+      <p><button type="button" class="secondary" data-reveal="#recall-answer">Show example</button></p>
+      <div class="answer" id="recall-answer">
+        <p>Root CLAUDE.md — always loaded, project-shared. Directory CLAUDE.md — loaded in that subtree, project-shared. <code>.claude/rules/</code> with <code>paths</code> globs — loaded only on matching files (can span directories), project-shared. <code>.claude/skills/</code> — on demand, project or user scope (<code>context: fork</code>, <code>allowed-tools</code>, <code>argument-hint</code>). <code>.claude/commands/</code> — on demand, project (shared) or user (personal). User-level (<code>~/.claude/</code>) is never shared via the repo.</p>
+      </div>
+    </section>
+
+    <section class="exercise">
+      <h2 id="design-drill-place">Design Drill: Place Each Convention</h2>
+      <p>A team has these conventions. For each, choose a surface (root CLAUDE.md / directory CLAUDE.md / path-scoped rule / skill / command) and a scope (project vs user), and justify it by when it must load and who must follow it.</p>
+      <p>(a) "All commit messages follow Conventional Commits." (b) "Terraform files use our module-naming standard" — terraform is one folder. (c) "Every test file, anywhere, must have a matching snapshot." (d) "A repeatable workflow to scaffold a new microservice." (e) "My own preference to always explain edits before applying them."</p>
+      <textarea aria-label="Place each convention" placeholder="(a) commit messages:&#10;(b) terraform:&#10;(c) test files:&#10;(d) scaffold workflow:&#10;(e) personal preference:"></textarea>
+      <p><button type="button" class="secondary" data-reveal="#example-answer">Show example</button></p>
+      <div class="answer" id="example-answer">
+        <pre><code>(a) commit messages   -> root CLAUDE.md (project)  always applies, everyone
+(b) terraform         -> directory CLAUDE.md OR rule paths:["terraform/**"]
+                         (one folder -> either works; rule if it may spread)
+(c) test files        -> path-scoped rule, paths:["**/*.test.*"] (project)
+                         scattered across dirs -> only a glob rule covers it
+(d) scaffold service  -> skill in .claude/skills/ (project)  on-demand workflow
+(e) explain-first     -> user-scoped (~/.claude/) personal, not in the repo</code></pre>
+        <p>The constant: narrowest scope that still covers everywhere it applies; project if the team must follow it, user if only you.</p>
+      </div>
+    </section>
+
+    <section class="exercise">
+      <h2 id="design-drill-ci">Design Drill: Wire a CI Review</h2>
+      <p>Sketch how an automated PR review should run in CI so that it (1) does not hang, (2) returns machine-parseable findings a script can post as inline comments, (3) uses the team's review criteria, and (4) is meaningfully independent. Name the flags and the one architectural choice.</p>
+      <textarea aria-label="Wire a CI review" placeholder="Flags:&#10;Context source:&#10;Independence:"></textarea>
+      <p><button type="button" class="secondary" data-reveal="#example-answer-2">Show example</button></p>
+      <div class="answer" id="example-answer-2">
+        <p>Run with <code>-p</code> (non-interactive, so it exits instead of hanging) and <code>--output-format json --json-schema &lt;schema&gt;</code> so findings are structured for automated posting. Provide review criteria, testing standards, and fixtures through <strong>CLAUDE.md</strong> to cut false positives. Run the review as a <strong>fresh, independent instance</strong> — not a continuation of the session that wrote the code — because a generator reviewing itself is the weak verifier from lesson <a href="./0012-search-verification-self-correction.html">0012</a>. When re-running after new commits, include prior findings in context and instruct it to report only new or still-unaddressed issues.</p>
+      </div>
+    </section>
+
+    <section>
+      <h2 id="architecture-check">Architecture Check</h2>
+      <ul>
+        <li>Does each instruction sit at the narrowest scope that still covers everywhere it must apply — or is it in always-loaded CLAUDE.md when a path-scoped rule would do?</li>
+        <li>Is anything a "team standard" actually living at user scope, where teammates will never receive it?</li>
+        <li>For conventions on files scattered across the tree, are you using a glob rule rather than copies of a directory CLAUDE.md?</li>
+        <li>Do verbose or destructive skills use <code>context: fork</code> and <code>allowed-tools</code> to keep context clean and authority scoped?</li>
+        <li>Is plan mode reserved for large/architectural/multi-approach work, and direct execution used for clear, well-scoped changes?</li>
+        <li>Does the CI review run with <code>-p</code> and structured output, draw criteria from CLAUDE.md, and run as an independent instance rather than reviewing its own session?</li>
+      </ul>
+    </section>
+
+    <section class="callout">
+      <h2 id="primary-source">Primary Source</h2>
+      <p>Read <a href="../Claude%20Certified%20Architect%20%E2%80%93%20Foundations.html#domain-3-claude-code-configuration-and-workflows">Domain 3 of the Claude Certified Architect — Foundations</a> reference for the full task statements on the CLAUDE.md hierarchy, path-scoped rules, skill frontmatter, plan mode, and CI integration. For current syntax and flags, the canonical source is the <a href="https://docs.claude.com/en/docs/claude-code/overview">Claude Code documentation</a>.</p>
+    </section>
+
+    <p class="footer-note">Previous lesson: <a href="./0015-design-spine-end-to-end-sketch.html">0015 - The Design Spine</a>. This lesson fills the applied Session 11 of the <a href="../LEARNING_PLAN.md">learning plan</a>. Ask the agent follow-up questions: bring a real convention from your own repo and have the agent pressure-test where you'd place it — then challenge whether your CI review is genuinely independent.</p>
+  </main>
+</body>
+</html>

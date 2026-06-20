@@ -1,0 +1,101 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Claude Code Configuration and CI/CD Reference</title>
+  <link rel="stylesheet" href="../assets/course.css">
+</head>
+<body>
+  <main>
+    <header>
+      <p class="kicker">Reference 0016</p>
+      <h1 id="claude-code-configuration-and-ci">Claude Code Configuration and CI/CD</h1>
+      <p class="summary">Use this sheet to place each Claude Code instruction at the right surface and sharing level, choose plan mode vs direct execution, and wire a trustworthy CI review.</p>
+    </header>
+
+    <section>
+      <h2 id="the-rule">The Rule</h2>
+      <p class="compact">Place each instruction at the <strong>narrowest scope that still covers everywhere it must apply</strong>, and at the <strong>sharing level that matches who must follow it</strong>. Two questions decide everything: when does it load, and who gets it.</p>
+    </section>
+
+    <section>
+      <h2 id="surfaces">The Five Surfaces</h2>
+      <div class="grid">
+        <article class="card">
+          <span class="tag">Root CLAUDE.md</span>
+          <h3 id="root">Always loaded, shared</h3>
+          <p>Universal project standards. Permanent context cost — keep to what applies everywhere.</p>
+        </article>
+        <article class="card">
+          <span class="tag">Directory CLAUDE.md</span>
+          <h3 id="directory">Loaded in subtree, shared</h3>
+          <p>Conventions for one area/package. Use <code>@import</code> to pull shared standards and stay modular.</p>
+        </article>
+        <article class="card">
+          <span class="tag">.claude/rules/</span>
+          <h3 id="rules">On matching paths, shared</h3>
+          <p>YAML <code>paths</code> globs load the rule only when editing matching files — even across many directories.</p>
+        </article>
+        <article class="card">
+          <span class="tag">.claude/skills/</span>
+          <h3 id="skills">On demand</h3>
+          <p>Task workflow. <code>context: fork</code> isolates output; <code>allowed-tools</code> scopes authority; <code>argument-hint</code> prompts inputs.</p>
+        </article>
+      </div>
+      <p class="compact"><strong>.claude/commands/</strong> — slash commands, on demand, project (shared) or user (personal). <strong>Hierarchy:</strong> user (<code>~/.claude/</code>, never shared via repo) → project (root or <code>.claude/</code>) → directory.</p>
+    </section>
+
+    <section>
+      <h2 id="when-which">When to Use Which</h2>
+      <ul>
+        <li><strong>Applies everywhere, always</strong> → root CLAUDE.md.</li>
+        <li><strong>Applies to one folder</strong> → directory CLAUDE.md (or a rule if it may spread).</li>
+        <li><strong>Applies to a file type scattered across the tree</strong> → path-scoped rule with a glob.</li>
+        <li><strong>On-demand workflow</strong> → skill (verbose/destructive → add <code>context: fork</code> / <code>allowed-tools</code>).</li>
+        <li><strong>Saved prompt</strong> → command (project = shared, user = personal).</li>
+        <li><strong>Team must follow it</strong> → project scope (committed). <strong>Only you</strong> → user scope.</li>
+      </ul>
+      <p class="compact">Use <code>/memory</code> to see which files are actually loaded and diagnose inconsistent behavior across sessions.</p>
+    </section>
+
+    <section>
+      <h2 id="plan-vs-direct">Plan Mode vs. Direct Execution</h2>
+      <ul>
+        <li><strong>Plan mode</strong> — large-scale, multi-file, architectural, or multiple-valid-approach tasks; explore and design before changing, to avoid costly rework.</li>
+        <li><strong>Direct execution</strong> — well-scoped changes with a clear path (single-file fix, known stack trace).</li>
+        <li><strong>Combine</strong> — plan to investigate, then execute the plan. Use the <strong>Explore subagent</strong> to isolate verbose discovery and return a summary.</li>
+      </ul>
+    </section>
+
+    <section>
+      <h2 id="ci">CI/CD Integration</h2>
+      <ul>
+        <li><code>-p</code> / <code>--print</code> — non-interactive; processes prompt, writes stdout, exits. Without it the pipeline hangs.</li>
+        <li><code>--output-format json</code> + <code>--json-schema</code> — machine-parseable structured findings for automated PR comments.</li>
+        <li><strong>CLAUDE.md</strong> — supplies review criteria, testing standards, fixtures to the CI-invoked agent; cuts low-value output.</li>
+        <li><strong>Independent instance</strong> — review runs fresh, not as the session that wrote the code. A generator reviewing itself is a weak verifier. Re-runs: include prior findings, report only new or unaddressed issues.</li>
+      </ul>
+    </section>
+
+    <section class="callout">
+      <h2 id="anti-patterns">Anti-Patterns</h2>
+      <ul>
+        <li>Team standard placed at user scope (<code>~/.claude/</code>) — teammates never receive it.</li>
+        <li>Always-loaded CLAUDE.md bloated with conventions that apply only to some files — a path-scoped rule would load them only when relevant.</li>
+        <li>Copies of a directory CLAUDE.md to cover files scattered across the tree — use one glob rule instead.</li>
+        <li>Plan mode on a trivial single-file fix (overhead) — or direct execution on a 45-file migration (rework).</li>
+        <li>CI review reusing the generating session — not an independent verifier.</li>
+        <li>Running CI without <code>-p</code> — the pipeline hangs waiting for input.</li>
+      </ul>
+    </section>
+
+    <section>
+      <h2 id="review-question">Review Question</h2>
+      <p class="compact">For each instruction: is it at the narrowest scope that still covers everywhere it applies, and at the sharing level matching who must follow it? Is plan mode reserved for big/architectural work? Does the CI review run with <code>-p</code>, structured output, CLAUDE.md criteria, and as an independent instance?</p>
+    </section>
+
+    <p class="footer-note">Related lesson: <a href="../lessons/0016-claude-code-configuration-and-ci.html">0016 - Claude Code Configuration and CI/CD Workflows</a>. Grounded in <a href="../Claude%20Certified%20Architect%20%E2%80%93%20Foundations.html#domain-3-claude-code-configuration-and-workflows">Domain 3</a>.</p>
+  </main>
+</body>
+</html>

@@ -46,6 +46,8 @@
   Use for: why long context windows do not guarantee uniform retrieval of important information, and why critical facts should be structured and placed deliberately.
 - [LangGraph documentation: Workflows and agents](https://docs.langchain.com/oss/python/langgraph/workflows-agents)
   Use for: practical workflow/agent distinctions and implementation framing.
+- [Claude Code documentation](https://docs.claude.com/en/docs/claude-code/overview)
+  Use for: canonical, current syntax for the CLAUDE.md hierarchy, `.claude/rules/` path-scoped rules, skills and slash commands, plan mode, and non-interactive CI flags (`-p`, `--output-format json`, `--json-schema`).
 - [Anthropic Python SDK documentation](https://platform.claude.com/docs/en/cli-sdks-libraries/sdks/python)
   Use for: current Python client setup, sync and async Messages API calls, streaming, retries, errors, token counting, and tool helpers.
 - [LangGraph Python quickstart](https://docs.langchain.com/oss/python/langgraph/quickstart)
