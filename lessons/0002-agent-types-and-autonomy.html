@@ -1,0 +1,249 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Lesson 0002: Agent Types and Autonomy Levels</title>
+  <link rel="stylesheet" href="../assets/course.css">
+  <script src="../assets/quiz.js" defer></script>
+  <script src="../assets/reveal.js" defer></script>
+</head>
+<body>
+  <main>
+    <header>
+      <p class="kicker">Lesson 0002</p>
+      <h1>Pick the Simplest Agent That Fits</h1>
+      <p class="summary">Tangible win: classify a system as simple reflex, model-based reflex, goal-based, or utility-based, justify the smallest type that fits the workflow, and name the extra guardrails each step up the autonomy ladder demands.</p>
+    </header>
+
+    <section>
+      <h2>The One Idea</h2>
+      <p>The four classic agent types are not a quality ranking. They are a ladder of mechanism: each rung adds capability and cost. A simple reflex agent maps the current percept to an action. A model-based reflex agent adds internal state so it can act on more than the latest input. A goal-based agent adds search or planning to reach a desired state. A utility-based agent adds a scoring function to compare outcomes when several plans succeed. Design discipline is choosing the lowest rung that still solves the task, because every rung up adds failure modes you must monitor.</p>
+      <p>Autonomy is the second axis. It is scoped, not binary: an agent may be autonomous only within a narrow domain, tool set, permission boundary, or time window. Risk rises as authority, tool access, and time horizon expand &mdash; so broader autonomy must be paid for with stronger guardrails and observability.</p>
+    </section>
+
+    <section>
+      <h2>The Ladder</h2>
+      <div class="grid">
+        <article class="card">
+          <span class="tag">Simple reflex</span>
+          <h3>Percept to action</h3>
+          <p>Condition-action rules on the current input. No history, no plan. Brittle when the environment is partially observable; easy to over-label as "AI" when it is rule execution.</p>
+        </article>
+        <article class="card">
+          <span class="tag">Model-based reflex</span>
+          <h3>State-aware rules</h3>
+          <p>Maintains an internal model of relevant state, then applies rules against it. Handles incomplete inputs, but risks stale state and unversioned model assumptions.</p>
+        </article>
+        <article class="card">
+          <span class="tag">Goal-based</span>
+          <h3>Plan toward a state</h3>
+          <p>Searches or plans action sequences that reach a desired state. Fits multi-step tasks, but plans go stale and goals can omit safety, legal, or user constraints.</p>
+        </article>
+        <article class="card">
+          <span class="tag">Utility-based</span>
+          <h3>Compare outcomes</h3>
+          <p>Scores competing outcomes when many plans succeed, balancing cost, speed, reliability, and risk. Powerful, but a bad utility function optimizes the wrong proxy.</p>
+        </article>
+      </div>
+    </section>
+
+    <section>
+      <h2>Classify by Type</h2>
+      <p>Pick the simplest agent type that the description actually requires. A more capable type is rarely "wrong," but the question is which mechanism the workflow needs.</p>
+
+      <course-quiz>
+        <script type="application/json">
+          {
+            "questions": [
+              {
+                "prompt": "When an order is placed, the system immediately sends a confirmation email. Nothing else is tracked.",
+                "answer": 0,
+                "choices": [
+                  {
+                    "label": "Simple reflex",
+                    "feedback": "One condition maps directly to one action with no stored state."
+                  },
+                  {
+                    "label": "Model-based reflex",
+                    "feedback": "No internal state is consulted; the latest event is enough."
+                  },
+                  {
+                    "label": "Goal-based",
+                    "feedback": "There is no desired end state to plan toward."
+                  },
+                  {
+                    "label": "Utility-based",
+                    "feedback": "Nothing is being scored or compared."
+                  }
+                ]
+              },
+              {
+                "prompt": "A restocker checks current demand and supplier lead-time state before deciding whether a low-inventory reading should trigger an order.",
+                "answer": 1,
+                "choices": [
+                  {
+                    "label": "Simple reflex",
+                    "feedback": "The latest reading alone is not enough; it consults stored state."
+                  },
+                  {
+                    "label": "Model-based reflex",
+                    "feedback": "Rules fire against an internal model of demand and lead time, not just the percept."
+                  },
+                  {
+                    "label": "Goal-based",
+                    "feedback": "It applies rules to state rather than planning a sequence toward a goal."
+                  },
+                  {
+                    "label": "Utility-based",
+                    "feedback": "It is not weighing multiple successful outcomes against each other."
+                  }
+                ]
+              },
+              {
+                "prompt": "Given an order, the system plans the steps to reserve inventory, package, arrange shipping, and notify the customer.",
+                "answer": 2,
+                "choices": [
+                  {
+                    "label": "Simple reflex",
+                    "feedback": "This is a multi-step sequence, not a single condition-action rule."
+                  },
+                  {
+                    "label": "Model-based reflex",
+                    "feedback": "State awareness is not the point; reaching a completion state is."
+                  },
+                  {
+                    "label": "Goal-based",
+                    "feedback": "It plans an action sequence toward an explicit desired state."
+                  },
+                  {
+                    "label": "Utility-based",
+                    "feedback": "Only one acceptable plan is described; nothing is being scored."
+                  }
+                ]
+              },
+              {
+                "prompt": "For fulfillment, the system compares shipping options and picks the one that best balances delivery speed, cost, reliability, and inventory risk.",
+                "answer": 3,
+                "choices": [
+                  {
+                    "label": "Simple reflex",
+                    "feedback": "Trade-off scoring is far beyond a condition-action rule."
+                  },
+                  {
+                    "label": "Model-based reflex",
+                    "feedback": "It does more than consult state; it ranks outcomes."
+                  },
+                  {
+                    "label": "Goal-based",
+                    "feedback": "Many options reach the goal; the work is choosing the most desirable one."
+                  },
+                  {
+                    "label": "Utility-based",
+                    "feedback": "It scores competing successful outcomes against weighted criteria."
+                  }
+                ]
+              },
+              {
+                "prompt": "A thermostat reads the current temperature and switches the heater on or off against a fixed target.",
+                "answer": 0,
+                "choices": [
+                  {
+                    "label": "Simple reflex",
+                    "feedback": "Current percept compared to a rule, then act. The canonical reflex agent."
+                  },
+                  {
+                    "label": "Model-based reflex",
+                    "feedback": "No internal state beyond the latest reading is needed."
+                  },
+                  {
+                    "label": "Goal-based",
+                    "feedback": "Holding a setpoint is a rule, not a planned action sequence."
+                  },
+                  {
+                    "label": "Utility-based",
+                    "feedback": "It does not weigh competing outcomes."
+                  }
+                ]
+              },
+              {
+                "prompt": "A navigation agent tracks your position from intermittent GPS, fills gaps with dead reckoning, and reroutes to reach a destination while preferring lower total travel time over distance.",
+                "answer": 3,
+                "choices": [
+                  {
+                    "label": "Simple reflex",
+                    "feedback": "It clearly maintains state and plans, well past reflex."
+                  },
+                  {
+                    "label": "Model-based reflex",
+                    "feedback": "It keeps state, but it also plans routes and ranks them &mdash; that is more than reflex on state."
+                  },
+                  {
+                    "label": "Goal-based",
+                    "feedback": "Close: it plans to a destination, but preferring lower travel time means it scores between valid routes."
+                  },
+                  {
+                    "label": "Utility-based",
+                    "feedback": "It maintains state, plans to a goal, and ranks valid routes by a preference. The highest rung in use wins."
+                  }
+                ]
+              }
+            ]
+          }
+        </script>
+      </course-quiz>
+    </section>
+
+    <section class="exercise">
+      <h2>Recall Check</h2>
+      <p>From memory, in one sentence each: what single capability does each rung add over the one below it?</p>
+      <textarea aria-label="State what each agent rung adds" placeholder="Simple reflex:&#10;Model-based reflex:&#10;Goal-based:&#10;Utility-based:"></textarea>
+      <p><button type="button" class="secondary" data-reveal="#recall-answer">Show example</button></p>
+      <div class="answer" id="recall-answer">
+        <p><strong>Simple reflex:</strong> baseline &mdash; map the current percept to an action. <strong>Model-based reflex:</strong> adds internal state so rules act on more than the latest percept. <strong>Goal-based:</strong> adds search or planning toward a desired end state. <strong>Utility-based:</strong> adds a scoring function to compare and rank successful outcomes.</p>
+      </div>
+    </section>
+
+    <section class="exercise">
+      <h2>Design Drill: Justify the Smallest Type</h2>
+      <p>For each workflow, name the smallest agent type that fits and the one fact that forces that rung (and rules out the one below).</p>
+      <p><strong>Workflows:</strong> (a) auto-tag a ticket "urgent" when it contains a keyword; (b) approve an expense only if it fits this month's running budget; (c) assemble a multi-leg travel itinerary that satisfies dates and budget; (d) choose between three valid itineraries by traveler preference.</p>
+      <textarea aria-label="Justify the smallest agent type for each workflow" placeholder="a:&#10;b:&#10;c:&#10;d:"></textarea>
+      <p><button type="button" class="secondary" data-reveal="#example-answer">Show example</button></p>
+      <div class="answer" id="example-answer">
+        <p><strong>a:</strong> simple reflex &mdash; one percept (keyword) maps to one action; no state needed. <strong>b:</strong> model-based reflex &mdash; the decision depends on running budget state, not just the current expense. <strong>c:</strong> goal-based &mdash; it must plan a sequence that reaches a valid itinerary, so a rule on current state is not enough. <strong>d:</strong> utility-based &mdash; several itineraries already satisfy the goal, so the work is scoring them against weighted preferences.</p>
+      </div>
+    </section>
+
+    <section class="exercise">
+      <h2>Design Drill 2: Pay for Autonomy</h2>
+      <p>Autonomy is scoped. Take one agent and widen its scope one step at a time; for each step, name the guardrail or monitor that step now requires.</p>
+      <p><strong>Agent:</strong> a model-based reflex restocker that today <em>recommends</em> purchase orders for a human to approve. Step 1: let it place orders under $500 automatically. Step 2: remove the dollar cap. Step 3: let it also switch suppliers on its own.</p>
+      <textarea aria-label="Name the guardrail each autonomy step requires" placeholder="Step 1 guardrail:&#10;Step 2 guardrail:&#10;Step 3 guardrail:"></textarea>
+      <p><button type="button" class="secondary" data-reveal="#example-answer-2">Show example</button></p>
+      <div class="answer" id="example-answer-2">
+        <p><strong>Step 1 (auto under $500):</strong> a hard spend limit enforced outside the model, per-order and rolling-total caps, plus an audit log of every auto-placed order. <strong>Step 2 (no cap):</strong> rate limits and anomaly detection on order size and frequency, a kill switch, and human review thresholds &mdash; removing the cap removes the cheapest containment, so containment must move into monitoring. <strong>Step 3 (switch suppliers):</strong> an approved-vendor allowlist, contract and compliance checks before any switch, and alerting on supplier concentration &mdash; new authority opens new failure modes (fraudulent or non-compliant vendors) that the previous guardrails never covered.</p>
+      </div>
+    </section>
+
+    <section>
+      <h2>Architecture Check</h2>
+      <p>Before fixing an agent type or expanding its autonomy, ask:</p>
+      <ul>
+        <li>What is the highest rung the workflow truly needs &mdash; and what would break if you dropped one rung?</li>
+        <li>If you reached for goal-based or utility-based, is there genuinely more than one successful outcome to plan or rank?</li>
+        <li>What is the current autonomy scope: which domain, tools, permissions, and time window?</li>
+        <li>For each expansion of authority, tool access, or time horizon, which new failure mode appears, and what guardrail or monitor contains it?</li>
+        <li>Is any containment relying on a single limit that a later step will remove?</li>
+      </ul>
+    </section>
+
+    <section class="callout">
+      <h2>Primary Source</h2>
+      <p>Read the local section <a href="../agentic-ai-architecture-foundations-designing-autonomous-ai-systems.md#agent-types">Agent Types</a> and the <a href="../agentic-ai-architecture-foundations-designing-autonomous-ai-systems.md#module-utilization-by-agent-type">Module Utilization by Agent Type</a> table, then compare with the classic taxonomy in <a href="https://aima.cs.berkeley.edu/">Artificial Intelligence: A Modern Approach</a>. For the autonomy properties behind the second axis, see <a href="https://www.cs.ox.ac.uk/people/michael.wooldridge/pubs/ker95.pdf">Intelligent Agents: Theory and Practice</a>.</p>
+    </section>
+
+    <p class="footer-note">Previous lesson: <a href="./0001-agentic-ai-control-loop.html">0001 &mdash; Agentic AI Control Loop</a>. Ask the agent follow-up questions about any rung that feels fuzzy, especially the line between goal-based planning and utility-based scoring.</p>
+  </main>
+</body>
+</html>

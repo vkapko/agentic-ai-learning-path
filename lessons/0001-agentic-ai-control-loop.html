@@ -13,7 +13,7 @@
     <header>
       <p class="kicker">Lesson 0001</p>
       <h1>Agentic AI Is a Control Loop</h1>
-      <p class="summary">Tangible win: classify a system as predictive, generative, or agentic, then map one agentic workflow into perceive, reason, act, observe, and update steps.</p>
+      <p class="summary">Tangible win: classify a system as predictive, generative, or agentic, then map one agentic workflow into perceive, interpret, reason, act, observe, and update steps.</p>
     </header>
 
     <section>
@@ -52,7 +52,7 @@
                     "feedback": "Nothing here produces a new artifact."
                   },
                   {
-                    "label": "Agentic AI",
+                    "label": "Agentic",
                     "feedback": "No controlled action loop is described."
                   }
                 ]
@@ -70,7 +70,7 @@
                     "feedback": "It creates candidate reply text."
                   },
                   {
-                    "label": "Agentic AI",
+                    "label": "Agentic",
                     "feedback": "Drafting alone does not act in the environment."
                   }
                 ]
@@ -88,8 +88,62 @@
                     "feedback": "Generated text is not the core pattern."
                   },
                   {
-                    "label": "Agentic AI",
+                    "label": "Agentic",
                     "feedback": "It observes, acts, receives feedback, and continues."
+                  }
+                ]
+              },
+              {
+                "prompt": "A chatbot calls a weather API one time, prints the forecast, and ends the turn.",
+                "answer": 1,
+                "choices": [
+                  {
+                    "label": "Predictive",
+                    "feedback": "It returns content, not a score or forecast model."
+                  },
+                  {
+                    "label": "Generative",
+                    "feedback": "One tool call with no loop or stop condition is not a control loop."
+                  },
+                  {
+                    "label": "Agentic",
+                    "feedback": "A single tool call is not closed-loop action; there is no observe-and-continue."
+                  }
+                ]
+              },
+              {
+                "prompt": "A thermostat reads room temperature, compares it to a target, and switches the heater until matched.",
+                "answer": 2,
+                "choices": [
+                  {
+                    "label": "Predictive",
+                    "feedback": "It does not estimate; it acts on a measured gap."
+                  },
+                  {
+                    "label": "Generative",
+                    "feedback": "It produces no artifact; it changes the environment."
+                  },
+                  {
+                    "label": "Agentic",
+                    "feedback": "A reflex agent: perceive, compare to goal, act, observe, repeat. No LLM required."
+                  }
+                ]
+              },
+              {
+                "prompt": "A retrieval chatbot remembers the conversation and cites documents, but takes no action beyond replying.",
+                "answer": 1,
+                "choices": [
+                  {
+                    "label": "Predictive",
+                    "feedback": "Retrieval plus reply is content, not a scored estimate."
+                  },
+                  {
+                    "label": "Generative",
+                    "feedback": "Memory and citations still produce only an artifact; nothing changes the environment."
+                  },
+                  {
+                    "label": "Agentic",
+                    "feedback": "Memory alone is not agency without environment-changing action and feedback."
                   }
                 ]
               }
@@ -100,6 +154,16 @@
     </section>
 
     <section class="exercise">
+      <h2>Recall Check</h2>
+      <p>From memory, in one sentence: what is the minimum that makes a system agentic rather than generative?</p>
+      <textarea aria-label="State the minimum that makes a system agentic" placeholder="In one sentence..."></textarea>
+      <p><button type="button" class="secondary" data-reveal="#recall-answer">Show example</button></p>
+      <div class="answer" id="recall-answer">
+        <p>It runs a closed loop that acts on an environment against a goal or rule, observes the result, and continues or stops &mdash; generation alone produces an artifact and then ends.</p>
+      </div>
+    </section>
+
+    <section class="exercise">
       <h2>Design Drill</h2>
       <p>Map this workflow into the loop from memory:</p>
       <p><strong>Workflow:</strong> a calendar assistant receives a meeting request, checks availability, proposes times, books the meeting after approval, and watches for conflicts.</p>
@@ -107,6 +171,17 @@
       <p><button type="button" class="secondary" data-reveal="#example-answer">Show example</button></p>
       <div class="answer" id="example-answer">
         <p><strong>Perceive:</strong> meeting request, attendees, calendar state. <strong>Interpret:</strong> required duration, constraints, conflicts. <strong>Reason:</strong> choose candidate slots within policy. <strong>Act:</strong> propose times, then book only after approval. <strong>Observe:</strong> booking success, declines, new conflicts. <strong>Update or stop:</strong> record task state, retry proposals, escalate, or stop when confirmed.</p>
+      </div>
+    </section>
+
+    <section class="exercise">
+      <h2>Design Drill 2</h2>
+      <p>Different domain, same loop. Map this one from memory and notice which step carries the irreversible action:</p>
+      <p><strong>Workflow:</strong> an on-call agent watches alerts, correlates them to a likely failing service, drains traffic from a bad node after approval, then verifies error rates recover or rolls back.</p>
+      <textarea aria-label="Map the incident-response agent into the agentic control loop" placeholder="Perceive:&#10;Interpret:&#10;Reason:&#10;Act:&#10;Observe:&#10;Update or stop:"></textarea>
+      <p><button type="button" class="secondary" data-reveal="#example-answer-2">Show example</button></p>
+      <div class="answer" id="example-answer-2">
+        <p><strong>Perceive:</strong> alerts, metrics, deploy events, node health. <strong>Interpret:</strong> which service is degraded and whether alerts share a root cause. <strong>Reason:</strong> pick the smallest safe remediation within runbook policy. <strong>Act:</strong> drain the bad node &mdash; an irreversible, externally visible action that needs approval. <strong>Observe:</strong> error rate, latency, downstream effects. <strong>Update or stop:</strong> confirm recovery and stop, retry on another node, roll back, or escalate to a human.</p>
       </div>
     </section>
 
