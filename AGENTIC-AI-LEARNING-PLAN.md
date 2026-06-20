@@ -2,9 +2,9 @@
 
 This plan is based on the three local notes:
 
-- `agentic-ai-architecture-foundations-designing-autonomous-ai-systems.md`
-- `agentic-ai-solution-design-patterns.md`
-- `agentic-ai-planning-and-reasoning-design.md`
+- [Agentic AI Architecture Foundations](./agentic-ai-architecture-foundations-designing-autonomous-ai-systems.html)
+- [Agentic AI Solution Design Patterns](./agentic-ai-solution-design-patterns.html)
+- [Agentic AI Planning and Reasoning Design Patterns](./agentic-ai-planning-and-reasoning-design.html)
 
 The plan assumes the mission in `MISSION.md`: build practical fluency for explaining and designing agentic AI systems. Revise the mission first if the real goal is narrower, such as interview prep for one company, building a demo, or evaluating vendor architecture.
 

@@ -2,10 +2,10 @@
 
 This plan is based on:
 
-- `agentic-ai-architecture-foundations-designing-autonomous-ai-systems.md`
-- `agentic-ai-solution-design-patterns.md`
-- `agentic-ai-planning-and-reasoning-design.md`
-- `Claude Certified Architect – Foundations.md` — applied, Claude-specific reference (Agent SDK, MCP, Claude Code, Claude API) used to ground the conceptual patterns in a concrete implementation and, optionally, to prepare for the certification exam.
+- [Agentic AI Architecture Foundations](./agentic-ai-architecture-foundations-designing-autonomous-ai-systems.html)
+- [Agentic AI Solution Design Patterns](./agentic-ai-solution-design-patterns.html)
+- [Agentic AI Planning and Reasoning Design Patterns](./agentic-ai-planning-and-reasoning-design.html)
+- [Claude Certified Architect - Foundations](./Claude%20Certified%20Architect%20%E2%80%93%20Foundations.html) - applied, Claude-specific reference (Agent SDK, MCP, Claude Code, Claude API) used to ground the conceptual patterns in a concrete implementation and, optionally, to prepare for the certification exam.
 
 ## Provisional mission
 
@@ -32,7 +32,7 @@ Work in short sessions. Each session should produce one artifact: a diagram, dec
 
 ### 1. Agentic AI as a control loop
 
-Primary file: `agentic-ai-architecture-foundations-designing-autonomous-ai-systems.md`
+Primary reference: [Agentic AI Architecture Foundations](./agentic-ai-architecture-foundations-designing-autonomous-ai-systems.html)
 
 Learn:
 
@@ -51,7 +51,7 @@ Checkpoint:
 
 ### 2. Agent types and autonomy levels
 
-Primary file: `agentic-ai-architecture-foundations-designing-autonomous-ai-systems.md`
+Primary reference: [Agentic AI Architecture Foundations](./agentic-ai-architecture-foundations-designing-autonomous-ai-systems.html)
 
 Learn:
 
@@ -70,7 +70,7 @@ Checkpoint:
 
 ### 3. Core modules of an agentic system
 
-Primary file: `agentic-ai-architecture-foundations-designing-autonomous-ai-systems.md`
+Primary reference: [Agentic AI Architecture Foundations](./agentic-ai-architecture-foundations-designing-autonomous-ai-systems.html)
 
 Learn:
 
@@ -89,8 +89,8 @@ Checkpoint:
 
 ### 4. System architecture choices
 
-Primary file: `agentic-ai-architecture-foundations-designing-autonomous-ai-systems.md`
-Secondary file: `Claude Certified Architect – Foundations.md` (Domain 1, Task Statements 1.2–1.3: hub-and-spoke coordinator-subagent orchestration, isolated subagent context, explicit context passing).
+Primary reference: [Agentic AI Architecture Foundations](./agentic-ai-architecture-foundations-designing-autonomous-ai-systems.html)
+Secondary reference: [Claude Certified Architect - Foundations](./Claude%20Certified%20Architect%20%E2%80%93%20Foundations.html) (Domain 1, Task Statements 1.2-1.3: hub-and-spoke coordinator-subagent orchestration, isolated subagent context, explicit context passing).
 
 Learn:
 
@@ -109,8 +109,8 @@ Checkpoint:
 
 ### 5. Foundational reasoning and behavior patterns
 
-Primary file: `agentic-ai-solution-design-patterns.md`
-Secondary file: `Claude Certified Architect – Foundations.md` (Domain 1, Task Statement 1.1: implementing the agentic loop as control flow on `stop_reason`, and the anti-pattern of parsing natural-language signals to decide termination).
+Primary reference: [Agentic AI Solution Design Patterns](./agentic-ai-solution-design-patterns.html)
+Secondary reference: [Claude Certified Architect - Foundations](./Claude%20Certified%20Architect%20%E2%80%93%20Foundations.html) (Domain 1, Task Statement 1.1: implementing the agentic loop as control flow on `stop_reason`, and the anti-pattern of parsing natural-language signals to decide termination).
 
 Learn:
 
@@ -129,8 +129,8 @@ Checkpoint:
 
 ### 6. Tools, knowledge, humans, and memory
 
-Primary file: `agentic-ai-solution-design-patterns.md`
-Secondary file: `Claude Certified Architect – Foundations.md` (Domain 2, Task Statements 2.1–2.3: tool descriptions as the selection mechanism, structured `isError` responses with retryable metadata, and scoped tool distribution across agents).
+Primary reference: [Agentic AI Solution Design Patterns](./agentic-ai-solution-design-patterns.html)
+Secondary reference: [Claude Certified Architect - Foundations](./Claude%20Certified%20Architect%20%E2%80%93%20Foundations.html) (Domain 2, Task Statements 2.1-2.3: tool descriptions as the selection mechanism, structured `isError` responses with retryable metadata, and scoped tool distribution across agents).
 
 Learn:
 
@@ -150,8 +150,8 @@ Checkpoint:
 
 ### 7. Planning and execution patterns
 
-Primary file: `agentic-ai-planning-and-reasoning-design.md`
-Secondary file: `Claude Certified Architect – Foundations.md` (Domain 1, Task Statement 1.6: fixed sequential pipelines / prompt chaining vs. dynamic adaptive decomposition, and parallel subagent execution).
+Primary reference: [Agentic AI Planning and Reasoning Design Patterns](./agentic-ai-planning-and-reasoning-design.html)
+Secondary reference: [Claude Certified Architect - Foundations](./Claude%20Certified%20Architect%20%E2%80%93%20Foundations.html) (Domain 1, Task Statement 1.6: fixed sequential pipelines / prompt chaining vs. dynamic adaptive decomposition, and parallel subagent execution).
 
 Learn:
 
@@ -172,8 +172,8 @@ Checkpoint:
 
 ### 8. Search, verification, and self-correction
 
-Primary file: `agentic-ai-planning-and-reasoning-design.md`
-Secondary file: `Claude Certified Architect – Foundations.md` (Domain 4, Task Statement 4.6: why a generator reviewing its own output in-session is weaker than an independent review instance; multi-pass review).
+Primary reference: [Agentic AI Planning and Reasoning Design Patterns](./agentic-ai-planning-and-reasoning-design.html)
+Secondary reference: [Claude Certified Architect - Foundations](./Claude%20Certified%20Architect%20%E2%80%93%20Foundations.html) (Domain 4, Task Statement 4.6: why a generator reviewing its own output in-session is weaker than an independent review instance; multi-pass review).
 
 Learn:
 
@@ -193,7 +193,7 @@ Checkpoint:
 
 ### 9. Applied: structured output and reliable extraction
 
-Primary file: `Claude Certified Architect – Foundations.md` (Domain 4: prompt engineering and structured output).
+Primary reference: [Claude Certified Architect - Foundations](./Claude%20Certified%20Architect%20%E2%80%93%20Foundations.html) (Domain 4: prompt engineering and structured output).
 
 Learn:
 
@@ -212,7 +212,7 @@ Checkpoint:
 
 ### 10. Applied: context management, escalation, and provenance
 
-Primary file: `Claude Certified Architect – Foundations.md` (Domain 5: context management and reliability).
+Primary reference: [Claude Certified Architect - Foundations](./Claude%20Certified%20Architect%20%E2%80%93%20Foundations.html) (Domain 5: context management and reliability).
 
 Learn:
 
@@ -232,7 +232,7 @@ Checkpoint:
 
 ### 11. Applied: Claude Code configuration and CI/CD workflows
 
-Primary file: `Claude Certified Architect – Foundations.md` (Domain 3: Claude Code configuration and workflows).
+Primary reference: [Claude Certified Architect - Foundations](./Claude%20Certified%20Architect%20%E2%80%93%20Foundations.html) (Domain 3: Claude Code configuration and workflows).
 
 Learn:
 

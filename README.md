@@ -10,9 +10,9 @@ The repository focuses on architecture judgment: autonomy boundaries, agent-envi
 2. Use `AGENTIC-AI-LEARNING-PLAN.md` as the main lesson sequence.
 3. Keep `RESOURCES.md` nearby for supporting papers, books, and community references.
 4. Use the three core reference modules when a lesson points to deeper reading:
-   - `agentic-ai-architecture-foundations-designing-autonomous-ai-systems.md`
-   - `agentic-ai-solution-design-patterns.md`
-   - `agentic-ai-planning-and-reasoning-design.md`
+   - [Agentic AI Architecture Foundations](./agentic-ai-architecture-foundations-designing-autonomous-ai-systems.html)
+   - [Agentic AI Solution Design Patterns](./agentic-ai-solution-design-patterns.html)
+   - [Agentic AI Planning and Reasoning Design Patterns](./agentic-ai-planning-and-reasoning-design.html)
 
 ## Repository Contents
 
@@ -20,7 +20,7 @@ The repository focuses on architecture judgment: autonomy boundaries, agent-envi
 - `AGENTIC-AI-LEARNING-PLAN.md`: current structured curriculum.
 - `LEARNING_PLAN.md`: earlier learning-plan draft retained as reference.
 - `RESOURCES.md`: curated local and external resources.
-- `agentic-ai-*.md`: standalone reference modules.
+- `agentic-ai-*.html`: standalone rendered reference modules.
 - `lessons/`: HTML lesson material.
 - `reference/`: rendered reference material.
 - `assets/`: CSS, JavaScript, and Reveal.js assets used by lessons.
