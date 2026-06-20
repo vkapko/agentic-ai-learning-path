@@ -8,6 +8,8 @@
   Use for: ReAct, chain of thought, reflection, Reflexion, tool discovery, human-in-the-loop, multi-agent patterns, and shared memory.
 - [Local: Agentic AI Planning and Reasoning Design Patterns](./agentic-ai-planning-and-reasoning-design.md)
   Use for: plan-and-execute, concurrent execution, ReWOO, planner-critic-refiner, LATS, Self-Discover, verifier agents, memory, in-context learning, and adaptive tool orchestration.
+- [Local: Claude Certified Architect – Foundations](./Claude%20Certified%20Architect%20%E2%80%93%20Foundations.md)
+  Use for: exam-oriented Claude reference — agentic loops, coordinator-subagent orchestration, MCP tool/error design, Claude Code configuration (CLAUDE.md, rules, skills, plan mode), prompt engineering and structured output, context management, and reliability/escalation patterns.
 - [Book: Artificial Intelligence: A Modern Approach](https://aima.cs.berkeley.edu/)
   Use for: classical agent definitions, agent-environment loops, reflex/model-based/goal-based/utility-based agents, and search/planning foundations.
 - [Paper: Intelligent Agents: Theory and Practice](https://www.cs.ox.ac.uk/people/michael.wooldridge/pubs/ker95.pdf)
