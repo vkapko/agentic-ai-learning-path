@@ -217,7 +217,7 @@
 
     <section class="exercise">
       <h2>Design Drill 2: Pay for Autonomy</h2>
-      <p>Autonomy is scoped. Take one agent and widen its scope one step at a time; for each step, name the guardrail or monitor that step now requires.</p>
+      <p>Autonomy is scoped. Take one agent and widen its scope one step at a time; for each step, name the guardrail or monitor that step now requires. Notice that each step expands a different dimension of risk &mdash; <strong>authority</strong> (Step 1), <strong>time horizon</strong> via an uncapped running total (Step 2), and <strong>tool access</strong> to a new action (Step 3).</p>
       <p><strong>Agent:</strong> a model-based reflex restocker that today <em>recommends</em> purchase orders for a human to approve. Step 1: let it place orders under $500 automatically. Step 2: remove the dollar cap. Step 3: let it also switch suppliers on its own.</p>
       <textarea aria-label="Name the guardrail each autonomy step requires" placeholder="Step 1 guardrail:&#10;Step 2 guardrail:&#10;Step 3 guardrail:"></textarea>
       <p><button type="button" class="secondary" data-reveal="#example-answer-2">Show example</button></p>

@@ -19,6 +19,7 @@
     <section>
       <h2>The One Idea</h2>
       <p>Predictive AI maps inputs to estimates. Generative AI maps prompts or context to artifacts. Agentic AI adds a closed loop: it observes an environment, reasons against a goal or condition, acts through a controlled interface, observes the result, and continues or stops. The local architecture notes define this as the practical difference between a one-shot model call and an agentic system, grounded in the classic agent-environment framing from <a href="https://aima.cs.berkeley.edu/">AIMA</a>.</p>
+      <p>The three categories are not rivals. Predictive and generative models can be <em>components inside</em> an agentic system &mdash; they show up in perception, reasoning, planning, memory, tool selection, or monitoring. The churn-risk scorer and the reply-drafter from the quiz below are not agentic on their own, but either could be a tool the loop calls. What makes the system agentic is that the architecture is organized around action in an environment, not the presence or absence of any one model.</p>
       <p>Keep the compact version open: <a href="../reference/agentic-control-loop.html">Agentic Control Loop Reference</a>.</p>
     </section>
 
@@ -185,6 +186,17 @@
       </div>
     </section>
 
+    <section class="exercise">
+      <h2>Design Drill 3: Rewrite the Vague Brief</h2>
+      <p>Most "AI agent" pitches hide their autonomy. Rewrite this one-line brief into precise boundaries: what it observes, which actions can change the environment, what limits and approvals constrain those actions, and what stop condition ends the loop.</p>
+      <p><strong>Vague brief:</strong> "An AI agent that handles customer refunds automatically."</p>
+      <textarea aria-label="Rewrite the vague brief into precise autonomy boundaries" placeholder="Observes (percepts &amp; sources):&#10;Environment-changing actions:&#10;Limits &amp; approvals:&#10;Stop condition:"></textarea>
+      <p><button type="button" class="secondary" data-reveal="#example-answer-3">Show example</button></p>
+      <div class="answer" id="example-answer-3">
+        <p><strong>Observes:</strong> the refund request, order and payment history, return status, fraud signals, and refund policy. <strong>Environment-changing actions:</strong> issuing the refund to the payment processor &mdash; irreversible and externally visible &mdash; plus notifying the customer and updating the case. <strong>Limits &amp; approvals:</strong> auto-refund only within a dollar cap and policy window; anything above the cap, outside policy, or flagged for fraud routes to a human. <strong>Stop condition:</strong> refund confirmed and case closed, escalation handed off, or request denied with reason recorded. Notice that "automatically" hid an irreversible money-moving action that needs an enforced cap and an approval path.</p>
+      </div>
+    </section>
+
     <section>
       <h2>Architecture Check</h2>
       <p>Before calling a system agentic, ask:</p>
@@ -201,7 +213,7 @@
       <p>Read the local section <a href="../agentic-ai-architecture-foundations-designing-autonomous-ai-systems.md#agent-environment-interaction-loop">Agent-Environment Interaction Loop</a>, then compare it with the broader agent framing in <a href="https://aima.cs.berkeley.edu/">Artificial Intelligence: A Modern Approach</a>. For language-agent tool use, the later bridge is <a href="https://arxiv.org/abs/2210.03629">ReAct: Synergizing Reasoning and Acting in Language Models</a>.</p>
     </section>
 
-    <p class="footer-note">Ask the agent follow-up questions about any step that feels fuzzy, especially the difference between acting once and running a controlled feedback loop.</p>
+    <p class="footer-note">Next lesson: <a href="./0002-agent-types-and-autonomy.html">0002 &mdash; Agent Types and Autonomy Levels</a>. Ask the agent follow-up questions about any step that feels fuzzy, especially the difference between acting once and running a controlled feedback loop.</p>
   </main>
 </body>
 </html>
