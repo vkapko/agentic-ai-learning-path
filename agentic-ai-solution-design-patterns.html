@@ -1,0 +1,375 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Agentic AI: Solution Design Patterns</title>
+  <link rel="stylesheet" href="./assets/course.css">
+</head>
+<body>
+  <main>
+    <header>
+      <p class="kicker">Reference Notes</p>
+      <h1 id="agentic-ai-solution-design-patterns">Agentic AI: Solution Design Patterns</h1>
+      <p>Reference notes for common agentic AI design patterns. This version treats the patterns as architectural options, not guarantees: each pattern trades quality, latency, cost, observability, and operational complexity differently.</p>
+    </header>
+
+    <section id="prerequisites">
+      <h2 id="prerequisites-heading">Prerequisites</h2>
+      <p>Useful background:</p>
+      <ul>
+        <li>Agent architectures: controller, reasoning model, action/tool layer, memory, environment.</li>
+        <li>Prompt roles and authority: static system/developer instructions should be separated from dynamic user input, tool observations, and retrieved data.</li>
+        <li>LLM limits: context windows, hallucination risk, unfaithful reasoning traces, tool errors, and stale knowledge.</li>
+      </ul>
+    </section>
+    <section id="internal-reasoning-and-agent-behavior">
+      <h2 id="internal-reasoning-and-agent-behavior-heading">Internal Reasoning and Agent Behavior</h2>
+    </section>
+    <section id="internal-monologue">
+      <h3 id="internal-monologue-heading">Internal Monologue</h3>
+      <p><strong>What it is</strong></p>
+      <p>An agent may use hidden intermediate reasoning, scratchpads, plans, or self-dialogue before returning a final answer or tool action.</p>
+      <p><strong>Correct framing</strong></p>
+      <ul>
+        <li>The LLM can generate intermediate reasoning steps, but those steps are not guaranteed to be faithful explanations of the model's actual computation.</li>
+        <li>Production systems should usually expose concise rationales or summaries, not raw chain-of-thought.</li>
+        <li>Dynamic observations and tool outputs should not be injected as high-authority system prompts. Treat them as tool results, observations, or task context with lower authority.</li>
+      </ul>
+      <p><strong>Design implications</strong></p>
+      <ul>
+        <li>Keep private reasoning private unless the product explicitly requires inspectable traces.</li>
+        <li>Log structured decisions, tool calls, inputs, outputs, and verifier results for auditability.</li>
+        <li>Use guardrails to prevent untrusted retrieved/tool content from overriding system instructions.</li>
+      </ul>
+    </section>
+    <section id="chain-of-thought">
+      <h3 id="chain-of-thought-heading">Chain of Thought</h3>
+      <p><strong>What it is</strong></p>
+      <p>Chain-of-thought prompting asks the model to use intermediate reasoning steps before producing an answer. The original research showed accuracy gains on complex arithmetic, commonsense, and symbolic tasks for sufficiently capable models. [1]</p>
+      <p><strong>Corrected claims</strong></p>
+      <ul>
+        <li>Chain of thought can improve performance; it does not force correct reasoning.</li>
+        <li>Visible reasoning can be plausible but unfaithful. Do not treat it as proof that the answer is correct. [2]</li>
+        <li>Prefer hidden reasoning or concise reasoning summaries in production systems.</li>
+      </ul>
+      <p><strong>When to use</strong></p>
+      <ul>
+        <li>Multi-step reasoning tasks.</li>
+        <li>Planning or analysis where decomposition improves reliability.</li>
+        <li>Cases where extra latency/token cost is acceptable.</li>
+      </ul>
+      <p><strong>Risks</strong></p>
+      <ul>
+        <li>Higher cost and latency.</li>
+        <li>Overthinking simple tasks.</li>
+        <li>False confidence if users or downstream systems treat generated reasoning as ground truth.</li>
+      </ul>
+    </section>
+    <section id="react">
+      <h3 id="react-heading">ReAct</h3>
+      <p><strong>What it is</strong></p>
+      <p>ReAct interleaves reasoning and acting: the model reasons about the task, selects an action/tool, receives an observation, and uses that observation to decide the next step. The key distinction is the feedback loop between model reasoning, tool use, and environment observations. [3]</p>
+      <p><strong>Corrected claims</strong></p>
+      <ul>
+        <li>ReAct is not merely &quot;chain of thought plus tools.&quot; Its value comes from alternating reasoning, action, and observation.</li>
+        <li>Tool calls should be structured whenever possible: function/tool name, validated arguments, typed result, and error state.</li>
+        <li>The controller should mediate tool access, enforce permissions, validate arguments, and decide whether the next model call receives the observation.</li>
+      </ul>
+      <p><strong>When to use</strong></p>
+      <ul>
+        <li>Tasks requiring live information or external actions.</li>
+        <li>Workflows where each result affects the next action.</li>
+        <li>Environments where recovery from partial failure matters.</li>
+      </ul>
+      <p><strong>Risks</strong></p>
+      <ul>
+        <li>Tool loops and runaway cost.</li>
+        <li>Tool hallucination if available tools are unclear.</li>
+        <li>Prompt injection through retrieved content or tool results.</li>
+      </ul>
+    </section>
+    <section id="reflection-and-self-refinement">
+      <h3 id="reflection-and-self-refinement-heading">Reflection and Self-Refinement</h3>
+      <p><strong>What it is</strong></p>
+      <p>Reflection asks a model or separate critic to evaluate outputs, actions, observations, or failures and propose improvements. Self-Refine-style systems use iterative self-feedback to improve an answer without external training. [4]</p>
+      <p><strong>Corrected claims</strong></p>
+      <ul>
+        <li>Reflection can happen before final output, after a failed action, between ReAct steps, or after an episode.</li>
+        <li>Reflection does not update model weights by itself.</li>
+        <li>If feedback is stored and reused later, that is memory-based adaptation. If weights change, that is fine-tuning or retraining.</li>
+      </ul>
+      <p><strong>When to use</strong></p>
+      <ul>
+        <li>Draft quality improvement.</li>
+        <li>Failure recovery.</li>
+        <li>High-stakes outputs that need internal critique before release.</li>
+      </ul>
+      <p><strong>Risks</strong></p>
+      <ul>
+        <li>A model can critique itself incorrectly.</li>
+        <li>Multiple passes increase latency and cost.</li>
+        <li>Self-critique can reinforce wrong assumptions without external checks.</li>
+      </ul>
+    </section>
+    <section id="reflexion-style-episode-learning">
+      <h3 id="reflexion-style-episode-learning-heading">Reflexion-Style Episode Learning</h3>
+      <p><strong>What it is</strong></p>
+      <p>Reflexion stores verbal feedback from prior task attempts and uses it in later attempts. It improves future behavior through memory/context, not direct model-weight updates. [5]</p>
+      <p><strong>When to use</strong></p>
+      <ul>
+        <li>Repeated tasks.</li>
+        <li>Agents that need to learn from tool failures, human corrections, or environment feedback.</li>
+        <li>Situations where fine-tuning is too slow or expensive.</li>
+      </ul>
+      <p><strong>Risks</strong></p>
+      <ul>
+        <li>Bad memories can poison future behavior.</li>
+        <li>Memory needs provenance, expiry, and confidence metadata.</li>
+        <li>Privacy and retention rules matter.</li>
+      </ul>
+    </section>
+    <section id="environment-knowledge-and-tooling">
+      <h2 id="environment-knowledge-and-tooling-heading">Environment, Knowledge, and Tooling</h2>
+    </section>
+    <section id="knowledge-graph-integration">
+      <h3 id="knowledge-graph-integration-heading">Knowledge Graph Integration</h3>
+      <p><strong>What it is</strong></p>
+      <p>Knowledge graphs model entities and relationships in a domain: people, rooms, documents, systems, policies, devices, dependencies, ownership, or constraints.</p>
+      <p><strong>Correct framing</strong></p>
+      <ul>
+        <li>Knowledge graphs help when entity relationships are important and change over time.</li>
+        <li>They are not required for every agent. A database, search index, vector store, API, or event log may be simpler and better.</li>
+        <li>The graph must be maintained, versioned, and governed like any other critical data asset.</li>
+      </ul>
+      <p><strong>When to use</strong></p>
+      <ul>
+        <li>Enterprise environments with rich relationships.</li>
+        <li>Dependency analysis.</li>
+        <li>Compliance, policy, or access-control reasoning.</li>
+        <li>Multi-agent systems needing shared domain state.</li>
+      </ul>
+      <p><strong>Risks</strong></p>
+      <ul>
+        <li>Expensive data modeling and maintenance.</li>
+        <li>Stale graph edges can create confident wrong actions.</li>
+        <li>Query results still need relevance and permission filtering before model use.</li>
+      </ul>
+    </section>
+    <section id="tool-discovery-and-use">
+      <h3 id="tool-discovery-and-use-heading">Tool Discovery and Use</h3>
+      <p><strong>What it is</strong></p>
+      <p>Tool discovery lets an agent find relevant tools from a registry instead of loading every tool description into the prompt.</p>
+      <p><strong>Correct framing</strong></p>
+      <ul>
+        <li>A tool registry can be centralized, distributed, or scoped per agent/domain.</li>
+        <li>Tool descriptions should include capability, schema, permissions, side effects, cost, latency, and failure modes.</li>
+        <li>The controller should validate tool choice and arguments before execution.</li>
+      </ul>
+      <p><strong>When to use</strong></p>
+      <ul>
+        <li>Large tool catalogs.</li>
+        <li>Multi-agent systems with shared tools.</li>
+        <li>Domains where tools are frequently added, deprecated, or permissioned.</li>
+      </ul>
+      <p><strong>Risks</strong></p>
+      <ul>
+        <li>Tool-selection errors.</li>
+        <li>Overbroad tool access.</li>
+        <li>Registry drift between documented tool behavior and real behavior.</li>
+      </ul>
+    </section>
+    <section id="human-in-the-loop">
+      <h3 id="human-in-the-loop-heading">Human-in-the-Loop</h3>
+      <p><strong>What it is</strong></p>
+      <p>Human-in-the-loop inserts human judgment, approval, intervention, or teaching into an agent workflow.</p>
+      <p><strong>Corrected claims</strong></p>
+      <ul>
+        <li>A human demonstration does not make the LLM permanently learn a new physical skill by itself.</li>
+        <li>The system may record a procedural memory, update a robot policy, create a skill template, or trigger retraining/fine-tuning of a perception/control model.</li>
+        <li>Use explicit escalation criteria: low confidence, safety risk, missing permission, irreversible action, policy conflict, or novel environment state.</li>
+      </ul>
+      <p><strong>When to use</strong></p>
+      <ul>
+        <li>Safety-critical actions.</li>
+        <li>Irreversible operations.</li>
+        <li>Ambiguous goals or missing authority.</li>
+        <li>Physical-world tasks with uncertain perception or control.</li>
+      </ul>
+      <p><strong>Risks</strong></p>
+      <ul>
+        <li>Latency and staffing cost.</li>
+        <li>Unclear ownership if humans override automated recommendations.</li>
+        <li>Feedback quality varies by human reviewer.</li>
+      </ul>
+    </section>
+    <section id="human-feedback-loop-integration">
+      <h3 id="human-feedback-loop-integration-heading">Human Feedback Loop Integration</h3>
+      <p><strong>What it is</strong></p>
+      <p>Human feedback loops collect corrections, ratings, confirmations, and examples to improve future behavior.</p>
+      <p><strong>Corrected claims</strong></p>
+      <ul>
+        <li>Feedback can update memory, thresholds, prompts, routing rules, evaluators, or separate ML models.</li>
+        <li>LLM behavior only changes permanently if the feedback is used for fine-tuning, RLHF/RLAIF-style training, or another model-update process.</li>
+        <li>For perception-heavy tasks, the updated component may be a vision model or classifier, not the LLM.</li>
+      </ul>
+      <p><strong>When to use</strong></p>
+      <ul>
+        <li>Continuous quality improvement.</li>
+        <li>Domains with subjective preferences.</li>
+        <li>Detection tasks where false positives/false negatives need reviewer labels.</li>
+      </ul>
+      <p><strong>Risks</strong></p>
+      <ul>
+        <li>Biased or inconsistent labels.</li>
+        <li>Feedback leakage into prompts without validation.</li>
+        <li>Missing audit trail for model or policy changes.</li>
+      </ul>
+    </section>
+    <section id="multi-agent-architecture">
+      <h2 id="multi-agent-architecture-heading">Multi-Agent Architecture</h2>
+    </section>
+    <section id="planning">
+      <h3 id="planning-heading">Planning</h3>
+      <p><strong>What it is</strong></p>
+      <p>Planning decomposes a goal into steps, constraints, dependencies, and success criteria.</p>
+      <p><strong>Corrected claims</strong></p>
+      <ul>
+        <li>Planning does not require multiple agents.</li>
+        <li>It can be implemented as a single-agent plan-and-execute loop, a planner/executor split, or an orchestrator-worker system.</li>
+        <li>Multi-agent delegation is one implementation, not the definition of planning.</li>
+      </ul>
+      <p><strong>When to use</strong></p>
+      <ul>
+        <li>Large or long-running tasks.</li>
+        <li>Tasks with dependencies, checkpoints, or rollback needs.</li>
+        <li>Workflows where upfront structure reduces tool calls and confusion.</li>
+      </ul>
+      <p><strong>Risks</strong></p>
+      <ul>
+        <li>Static plans become stale in dynamic environments.</li>
+        <li>Plans can look complete while missing hidden constraints.</li>
+        <li>Replanning policy must be explicit.</li>
+      </ul>
+    </section>
+    <section id="orchestrator-worker">
+      <h3 id="orchestrator-worker-heading">Orchestrator-Worker</h3>
+      <p><strong>What it is</strong></p>
+      <p>An orchestrator decomposes work and delegates units to worker agents or services. Workers return results, errors, or status updates.</p>
+      <p><strong>When to use</strong></p>
+      <ul>
+        <li>Parallelizable subtasks.</li>
+        <li>Specialized workers with narrow tool access.</li>
+        <li>Workflows needing centralized progress tracking.</li>
+      </ul>
+      <p><strong>Risks</strong></p>
+      <ul>
+        <li>Orchestrator bottleneck.</li>
+        <li>Worker result inconsistency.</li>
+        <li>Error handling and retries become distributed-system problems.</li>
+      </ul>
+    </section>
+    <section id="specialized-expert-team">
+      <h3 id="specialized-expert-team-heading">Specialized Expert Team</h3>
+      <p><strong>What it is</strong></p>
+      <p>A group of specialized agents collaborates on a domain-heavy task. The team may expose one interface agent to the broader system.</p>
+      <p><strong>Correct framing</strong></p>
+      <ul>
+        <li>Expert teams are useful when a subtask needs multiple forms of domain reasoning.</li>
+        <li>&quot;Debate&quot; can help surface alternatives, but it is not a substitute for external verification.</li>
+        <li>The team needs protocols for disagreement, source ranking, final authority, and audit logs.</li>
+      </ul>
+      <p><strong>When to use</strong></p>
+      <ul>
+        <li>Legal, security, medical, finance, compliance, or incident-response workflows.</li>
+        <li>Tasks where one general-purpose agent is likely to miss domain constraints.</li>
+      </ul>
+      <p><strong>Risks</strong></p>
+      <ul>
+        <li>Higher latency and cost.</li>
+        <li>Groupthink if agents share the same model/prompt weaknesses.</li>
+        <li>Harder debugging across agent interactions.</li>
+      </ul>
+    </section>
+    <section id="hierarchical-multi-agent-system">
+      <h3 id="hierarchical-multi-agent-system-heading">Hierarchical Multi-Agent System</h3>
+      <p><strong>What it is</strong></p>
+      <p>A hierarchy uses top-level orchestrators, sub-orchestrators, workers, and specialized teams to manage large tasks.</p>
+      <p><strong>Correct framing</strong></p>
+      <ul>
+        <li>Hierarchies can scale coordination, but they are not automatically the most reliable architecture.</li>
+        <li>Reliability depends on observability, retry semantics, memory consistency, authorization, idempotency, and failure isolation.</li>
+      </ul>
+      <p><strong>When to use</strong></p>
+      <ul>
+        <li>Very large workflows.</li>
+        <li>Systems with naturally nested domains or departments.</li>
+        <li>Cases where one orchestrator cannot track all subtasks efficiently.</li>
+      </ul>
+      <p><strong>Risks</strong></p>
+      <ul>
+        <li>Communication overhead.</li>
+        <li>State drift between layers.</li>
+        <li>Slow failure diagnosis.</li>
+      </ul>
+    </section>
+    <section id="coherent-state-and-collective-memory">
+      <h3 id="coherent-state-and-collective-memory-heading">Coherent State and Collective Memory</h3>
+      <p><strong>What it is</strong></p>
+      <p>Agents need consistent access to task state, environment state, decisions, observations, and shared knowledge.</p>
+      <p><strong>Corrected claims</strong></p>
+      <ul>
+        <li>A centralized shared memory can act as a source of truth, but it can also become a bottleneck or single point of failure.</li>
+        <li>Large systems may need event sourcing, distributed stores, scoped memories, caches, leases, versioning, and conflict resolution.</li>
+        <li>Shared memory should enforce access control, provenance, retention, and data-quality rules.</li>
+      </ul>
+      <p><strong>What to store</strong></p>
+      <ul>
+        <li>Task goals and status.</li>
+        <li>Tool calls and results.</li>
+        <li>Environment observations.</li>
+        <li>Human approvals and corrections.</li>
+        <li>Policies and constraints.</li>
+        <li>Knowledge graph references.</li>
+        <li>Memory records with provenance, timestamps, owner, confidence, and expiry.</li>
+      </ul>
+      <p><strong>Risks</strong></p>
+      <ul>
+        <li>Stale or contradictory state.</li>
+        <li>Prompt injection through stored content.</li>
+        <li>Privacy and retention violations.</li>
+        <li>Memory retrieval that optimizes similarity but ignores authority or recency.</li>
+      </ul>
+    </section>
+    <section id="practical-design-checklist">
+      <h2 id="practical-design-checklist-heading">Practical Design Checklist</h2>
+      <ul>
+        <li>Define agent roles, authority boundaries, and allowed tools.</li>
+        <li>Separate system/developer instructions from user input, retrieved content, and tool observations.</li>
+        <li>Prefer structured tool calls over free-text action commands.</li>
+        <li>Add validators for tool arguments and outputs.</li>
+        <li>Use reflection/verifiers for high-risk outputs, not as a blanket correctness guarantee.</li>
+        <li>Treat memory as data infrastructure: provenance, permissions, expiry, conflict handling, and observability.</li>
+        <li>Add human approval for irreversible, unsafe, expensive, or low-confidence actions.</li>
+        <li>Measure latency, cost, success rate, recovery rate, and human escalation rate.</li>
+      </ul>
+    </section>
+    <section id="sources">
+      <h2 id="sources-heading">Sources</h2>
+      <ol>
+        <li>Jason Wei et al., &quot;Chain-of-Thought Prompting Elicits Reasoning in Large Language Models&quot; (2022): <a href="https://arxiv.org/abs/2201.11903">https://arxiv.org/abs/2201.11903</a></li>
+        <li>Miles Turpin et al., &quot;Language Models Don't Always Say What They Think: Unfaithful Explanations in Chain-of-Thought Prompting&quot; (2023): <a href="https://arxiv.org/abs/2305.04388">https://arxiv.org/abs/2305.04388</a></li>
+        <li>Shunyu Yao et al., &quot;ReAct: Synergizing Reasoning and Acting in Language Models&quot; (2022): <a href="https://arxiv.org/abs/2210.03629">https://arxiv.org/abs/2210.03629</a></li>
+        <li>Aman Madaan et al., &quot;Self-Refine: Iterative Refinement with Self-Feedback&quot; (2023): <a href="https://arxiv.org/abs/2303.17651">https://arxiv.org/abs/2303.17651</a></li>
+        <li>Noah Shinn et al., &quot;Reflexion: Language Agents with Verbal Reinforcement Learning&quot; (2023): <a href="https://arxiv.org/abs/2303.11366">https://arxiv.org/abs/2303.11366</a></li>
+        <li>Andy Zhou et al., &quot;Language Agent Tree Search Unifies Reasoning, Acting, and Planning in Language Models&quot; (2023): <a href="https://arxiv.org/abs/2310.04406">https://arxiv.org/abs/2310.04406</a></li>
+        <li>Pei Zhou et al., &quot;Self-Discover: Large Language Models Self-Compose Reasoning Structures&quot; (2024): <a href="https://arxiv.org/abs/2402.03620">https://arxiv.org/abs/2402.03620</a></li>
+        <li>Joon Sung Park et al., &quot;Generative Agents: Interactive Simulacra of Human Behavior&quot; (2023): <a href="https://arxiv.org/abs/2304.03442">https://arxiv.org/abs/2304.03442</a></li>
+        <li>Guanzhi Wang et al., &quot;Voyager: An Open-Ended Embodied Agent with Large Language Models&quot; (2023): <a href="https://arxiv.org/abs/2305.16291">https://arxiv.org/abs/2305.16291</a></li>
+      </ol>
+    </section>
+
+    <p class="footer-note">Source Markdown: <a href="./agentic-ai-solution-design-patterns.md">agentic-ai-solution-design-patterns.md</a>.</p>
+  </main>
+</body>
+</html>
