@@ -1,0 +1,229 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Lesson 0012: Search, Verification, and Self-Correction</title>
+  <link rel="stylesheet" href="../assets/course.css">
+  <script src="../assets/quiz.js" defer></script>
+  <script src="../assets/reveal.js" defer></script>
+</head>
+<body>
+  <main>
+    <header>
+      <p class="kicker">Lesson 0012</p>
+      <h1 id="when-one-pass-is-not-enough">When One Pass Is Not Enough</h1>
+      <p class="summary">Tangible win: for a hard task, choose between exploring action paths (LATS), generating a reasoning strategy first (Self-Discover), and an independent verifier — and judge what actually makes a second pass add reliability instead of just cost.</p>
+    </header>
+
+    <section>
+      <h2 id="the-one-idea">The One Idea</h2>
+      <p>Lesson <a href="./0005-reasoning-behavior-patterns.html">0005</a> chose how an agent reasons in one forward pass, and lesson <a href="./0007-tool-orchestration-plans.html">0007</a> assumed a single plan was good enough to execute. This lesson covers what to do when one pass is <em>not</em> enough. The local planning notes describe three moves — <a href="../agentic-ai-planning-and-reasoning-design.html#language-agent-tree-search-lats">explore paths before committing</a>, <a href="../agentic-ai-planning-and-reasoning-design.html#self-discover">compose a strategy before solving</a>, and <a href="../agentic-ai-planning-and-reasoning-design.html#second-pass-verification-verifier-agent">verify output before acting</a> — and one rule that governs all of them: an extra pass only helps if it brings something the first pass did not have.</p>
+      <p>Keep the compact version open: <a href="../reference/search-verification-self-correction.html">Search, Verification, and Self-Correction Reference</a>.</p>
+    </section>
+
+    <section class="callout">
+      <h2 id="minimum-rule">Minimum Rule</h2>
+      <p>Add an extra reasoning pass only when it buys reliability you cannot get more cheaply, and make every pass bring something new — a different path, a different strategy, or independent evidence — never just a re-read of the same context by the same mind.</p>
+    </section>
+
+    <section>
+      <h2 id="three-moves">Three Moves Past One Pass</h2>
+      <div class="grid">
+        <article class="card">
+          <span class="tag">Explore</span>
+          <h3 id="lats">LATS — search paths</h3>
+          <p>A sequence explorer: an internal tree search proposes several next actions, scores them by feedback or rollout, and commits the highest-value one. Use when early mistakes are hard to recover from. Cost: many model calls per real-world action.</p>
+        </article>
+        <article class="card">
+          <span class="tag">Generate</span>
+          <h3 id="self-discover">Self-Discover — compose method</h3>
+          <p>A strategy generator: the model first composes a task-specific reasoning structure, then executes linearly by following it. Use for novel problems with no standard solution shape. Risk: less predictable, harder to debug both code and invented logic.</p>
+        </article>
+        <article class="card">
+          <span class="tag">Verify</span>
+          <h3 id="verifier">Second-pass — add verifier</h3>
+          <p>An independent verifier audits planner output against criteria and returns pass/fail with explanation before the action runs. Supports graded verdicts (block vs. notify a human). Risk: false negatives if the verifier shares the planner's flaws.</p>
+        </article>
+      </div>
+    </section>
+
+    <section>
+      <h2 id="the-self-correction-trap">The Self-Correction Trap</h2>
+      <p>The seductive error is treating <em>any</em> second pass as if it adds reliability. A generator that reviews its own output in the same session reuses the same context and the same blind spots — it tends to rationalize its answer, not catch its mistake. Reflection and Reflexion (lesson <a href="./0005-reasoning-behavior-patterns.html#reflection">0005</a>) improve results when each loop feeds in <strong>new external evidence</strong>: a failed test, a tool error, a real observation. Without new evidence, extra passes mostly add cost and false confidence. Independence is the active ingredient — a separate instance, a different model, a rule system, a formal checker, or a human — which is exactly why the Claude foundations guide rates an <a href="../Claude%20Certified%20Architect%20%E2%80%93%20Foundations.html#task-statement-4-6-design-multi-instance-and-multi-pass-review-architectures">independent review instance above in-session self-review</a>. Verification is not free reliability; it is reliability <em>if</em> the reviewer can see what the generator could not.</p>
+    </section>
+
+    <section>
+      <h2 id="choose-the-move">Choose The Move</h2>
+      <p>Match the move to where the single pass actually breaks.</p>
+
+      <course-quiz>
+        <script type="application/json">
+          {
+            "questions": [
+              {
+                "prompt": "An irreversible trade-routing decision needs several candidate action paths weighed and scored before one is committed.",
+                "answer": 0,
+                "choices": [
+                  {
+                    "label": "Search paths",
+                    "feedback": "LATS explores and scores multiple action paths before committing, which fits costly-to-reverse decisions."
+                  },
+                  {
+                    "label": "Compose method",
+                    "feedback": "Self-Discover front-loads a strategy; it does not weigh multiple action paths mid-task."
+                  },
+                  {
+                    "label": "Add verifier",
+                    "feedback": "A verifier checks one output; it does not explore alternative paths before choosing."
+                  },
+                  {
+                    "label": "Single shot",
+                    "feedback": "A single pass commits without exploring the alternatives the stakes demand."
+                  }
+                ]
+              },
+              {
+                "prompt": "A zero-day vulnerability triage has no standard procedure, so the agent must invent a reasoning structure before solving it.",
+                "answer": 1,
+                "choices": [
+                  {
+                    "label": "Search paths",
+                    "feedback": "Path search explores actions but does not compose a new reasoning structure for a novel task."
+                  },
+                  {
+                    "label": "Compose method",
+                    "feedback": "Self-Discover composes a task-specific reasoning structure first, which fits novel problems with no fixed shape."
+                  },
+                  {
+                    "label": "Add verifier",
+                    "feedback": "A verifier audits an answer; it does not supply the missing solution strategy."
+                  },
+                  {
+                    "label": "Single shot",
+                    "feedback": "A single generic pass is likely to miss structure a novel problem needs."
+                  }
+                ]
+              },
+              {
+                "prompt": "A booking agent's itinerary must be validated against live availability before any reservation is actually placed.",
+                "answer": 2,
+                "choices": [
+                  {
+                    "label": "Search paths",
+                    "feedback": "Exploring paths does not confirm the chosen plan against external ground truth."
+                  },
+                  {
+                    "label": "Compose method",
+                    "feedback": "A reasoning strategy does not check the output against live availability."
+                  },
+                  {
+                    "label": "Add verifier",
+                    "feedback": "A second-pass verifier with an availability cross-check audits the plan before the action runs."
+                  },
+                  {
+                    "label": "Single shot",
+                    "feedback": "Acting on an unchecked plan is exactly what high-stakes booking should avoid."
+                  }
+                ]
+              },
+              {
+                "prompt": "A high-stakes plan must be reviewed before execution. Which review most reduces shared blind spots?",
+                "answer": 1,
+                "choices": [
+                  {
+                    "label": "Same context",
+                    "feedback": "The same instance re-reading the same context inherits the generator's blind spots and tends to rationalize."
+                  },
+                  {
+                    "label": "Independent check",
+                    "feedback": "A separate instance, model, rule system, or tool with its own evidence can catch what the generator could not."
+                  },
+                  {
+                    "label": "Longer prompt",
+                    "feedback": "More instructions do not give the reviewer evidence the generator lacked."
+                  },
+                  {
+                    "label": "Higher budget",
+                    "feedback": "More tokens to the same reviewer add cost, not independence."
+                  }
+                ]
+              }
+            ]
+          }
+        </script>
+      </course-quiz>
+    </section>
+
+    <section class="exercise">
+      <h2 id="recall-check">Recall Check</h2>
+      <p>From memory: name the three moves past a single pass, and the one condition that makes a second pass add reliability rather than cost.</p>
+      <textarea aria-label="Recall the three moves and the reliability condition" placeholder="Move 1:&#10;Move 2:&#10;Move 3:&#10;What makes a second pass worth it:"></textarea>
+      <p><button type="button" class="secondary" data-reveal="#recall-answer">Show example</button></p>
+      <div class="answer" id="recall-answer">
+        <p>LATS (explore and score paths), Self-Discover (compose a reasoning strategy first), and second-pass verification (independent audit before acting). A second pass adds reliability only when it brings something new — a different path, a different strategy, or independent evidence — not a re-read by the same mind.</p>
+      </div>
+    </section>
+
+    <section class="exercise">
+      <h2 id="design-drill-independence">Design Drill: Make The Verifier Independent</h2>
+      <p>A travel agent drafts a flight-plus-hotel itinerary and is about to place reservations. Design a second-pass verifier that is genuinely independent of the planner, not a self-review.</p>
+      <textarea aria-label="Design an independent verifier" placeholder="What it checks:&#10;Evidence source independent of the planner:&#10;Verdict levels:&#10;Pass / block / escalate rules:"></textarea>
+      <p><button type="button" class="secondary" data-reveal="#example-answer">Show example</button></p>
+      <div class="answer" id="example-answer">
+        <pre><code>{
+  "checks": ["dates contiguous", "hotel night count matches stay", "total within budget", "seats and rooms still available"],
+  "independentEvidence": "live availability + price re-query through the booking API, not the planner's cached draft",
+  "verdictLevels": ["fatal", "minor", "pass"],
+  "rules": {
+    "fatal": "block execution and return the failing check to the planner as its next observation",
+    "minor": "notify a human-in-the-loop; do not block",
+    "pass": "release the reservation action"
+  },
+  "independenceNote": "separate prompt + external API as ground truth so it does not share the planner's context or blind spots"
+}</code></pre>
+      </div>
+    </section>
+
+    <section class="exercise">
+      <h2 id="design-drill-choose">Design Drill: Pick The Pass</h2>
+      <p>For each scenario, name the single best move — search paths, compose method, add verifier, or single pass — and one line of why.</p>
+      <textarea aria-label="Pick the pass for each scenario" placeholder="A) Drafting a routine internal email:&#10;B) Planning a multi-day robot route where a wrong turn is unrecoverable:&#10;C) Triaging a novel cross-department process with no playbook:&#10;D) Approving a refund above the autonomy limit:"></textarea>
+      <p><button type="button" class="secondary" data-reveal="#example-answer-2">Show example</button></p>
+      <div class="answer" id="example-answer-2">
+        <p><strong>A)</strong> Single pass — low stakes, reversible, an extra pass only adds cost. <strong>B)</strong> Search paths (LATS) — early mistakes are unrecoverable, so weigh alternatives before committing. <strong>C)</strong> Compose method (Self-Discover) — no standard structure exists, so generate one before solving. <strong>D)</strong> Add verifier — high-stakes, irreversible side effect that must be independently checked (and gated by approval) before it runs.</p>
+      </div>
+    </section>
+
+    <section class="exercise">
+      <h2 id="design-drill-downgrade">Design Drill: Defend The Downgrade</h2>
+      <p>A teammate proposes a five-iteration self-reflection loop on a document-summarization task, with the same model re-reading its own summary each round and no external check. In two sentences, argue why this mostly adds cost.</p>
+      <textarea aria-label="Argue against an evidence-free self-reflection loop" placeholder="What the loop lacks:&#10;What it costs:&#10;What would actually help:"></textarea>
+      <p><button type="button" class="secondary" data-reveal="#example-answer-3">Show example</button></p>
+      <div class="answer" id="example-answer-3">
+        <p>Each iteration re-reads the same source through the same model with no new external evidence, so it inherits the same blind spots and tends to rationalize rather than catch errors — five passes mostly multiply latency and tokens. Reliability would improve only by adding something independent: a checklist of required facts verified against the source, a different reviewing instance, or a rule check that the summary omits no flagged section.</p>
+      </div>
+    </section>
+
+    <section>
+      <h2 id="architecture-check">Architecture Check</h2>
+      <ul>
+        <li>Where does the single forward pass actually break — wrong path, missing strategy, or unchecked output?</li>
+        <li>If early mistakes are unrecoverable, is exploring and scoring paths worth the extra model calls?</li>
+        <li>For a novel task, does composing a reasoning structure first beat a generic single pass?</li>
+        <li>Does every added pass bring a new path, a new strategy, or new evidence — or just re-read the same context?</li>
+        <li>Is the verifier independent (separate instance, model, rule, tool, or human), or is it self-review in disguise?</li>
+        <li>What evidence does the verifier hold that the generator did not?</li>
+        <li>Are verdicts graded so minor issues notify a human while fatal ones block execution?</li>
+      </ul>
+    </section>
+
+    <section class="callout">
+      <h2 id="primary-source">Primary Source</h2>
+      <p>Read the local <a href="../agentic-ai-planning-and-reasoning-design.html#chapter-2-search-and-self-correction-design-patterns">Search and Self-Correction Design Patterns</a> chapter for LATS, Self-Discover, and second-pass verification, and the foundations guide on <a href="../Claude%20Certified%20Architect%20%E2%80%93%20Foundations.html#task-statement-4-6-design-multi-instance-and-multi-pass-review-architectures">multi-instance and multi-pass review</a>. For the limits of self-feedback, see <a href="https://arxiv.org/abs/2303.17651">Self-Refine: Iterative Refinement with Self-Feedback</a>.</p>
+    </section>
+
+    <p class="footer-note">Previous lesson: <a href="./0011-multi-agent-coordination.html">0011 - Multi-Agent Coordination</a>. Ask the agent follow-up questions: give it one hard task and ask it to decide whether to explore paths, compose a strategy, or add a verifier — then have it justify what makes that extra pass earn its cost.</p>
+  </main>
+</body>
+</html>

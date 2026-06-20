@@ -1,0 +1,85 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Search, Verification, and Self-Correction Reference</title>
+  <link rel="stylesheet" href="../assets/course.css">
+</head>
+<body>
+  <main>
+    <header>
+      <p class="kicker">Reference 0012</p>
+      <h1 id="search-verification-self-correction">Search, Verification, and Self-Correction</h1>
+      <p class="summary">Use this sheet to decide when a single reasoning pass is not enough, which extra-pass pattern fits, and whether the extra pass actually earns its cost.</p>
+    </header>
+
+    <section>
+      <h2 id="the-rule">The Rule</h2>
+      <p class="compact">An extra reasoning pass adds reliability only when it brings something the first pass lacked: a different path, a different strategy, or independent evidence. A re-read of the same context by the same model mostly adds cost and false confidence.</p>
+    </section>
+
+    <section>
+      <h2 id="three-patterns">Three Patterns</h2>
+      <div class="grid">
+        <article class="card">
+          <span class="tag">Explore</span>
+          <h3 id="lats">LATS</h3>
+          <p>Tree search proposes several next actions, scores by feedback or rollout, commits the best one. For tasks where early mistakes are hard to undo. Cost: many calls per real action.</p>
+        </article>
+        <article class="card">
+          <span class="tag">Generate</span>
+          <h3 id="self-discover">Self-Discover</h3>
+          <p>Compose a task-specific reasoning structure first, then execute linearly by it. For novel problems with no standard shape. Risk: less predictable, harder to debug.</p>
+        </article>
+        <article class="card">
+          <span class="tag">Verify</span>
+          <h3 id="verifier">Second-pass verifier</h3>
+          <p>Independent audit of planner output, pass/fail with explanation, before the action runs. Supports graded verdicts. Risk: false negatives if not truly independent.</p>
+        </article>
+        <article class="card">
+          <span class="tag">Default</span>
+          <h3 id="single-pass">Single pass</h3>
+          <p>For low-stakes, reversible work, one pass is the right answer. Any extra pass is pure cost unless the stakes or novelty justify it.</p>
+        </article>
+      </div>
+    </section>
+
+    <section>
+      <h2 id="lats-vs-self-discover">LATS vs. Self-Discover</h2>
+      <ul>
+        <li><strong>LATS</strong> is a <em>sequence explorer</em>: evaluates multiple paths at each step, mid-task.</li>
+        <li><strong>Self-Discover</strong> is a <em>strategy generator</em>: front-loads a thinking structure, then executes linearly.</li>
+      </ul>
+    </section>
+
+    <section>
+      <h2 id="independence-test">Independence Test For A Verifier</h2>
+      <ul>
+        <li>Separate instance, model, rule system, formal checker, or human — not the generator in the same session.</li>
+        <li>Holds evidence the generator did not: a live re-query, an external tool, an authoritative source.</li>
+        <li>Returns a verdict the controller treats as the planner's next observation.</li>
+        <li>Graded: fatal blocks execution; minor notifies a human; pass releases the action.</li>
+      </ul>
+    </section>
+
+    <section class="callout">
+      <h2 id="anti-patterns">Anti-Patterns</h2>
+      <ul>
+        <li>Treating any second pass as reliability, regardless of what it adds.</li>
+        <li>A self-review that re-reads the same context with the same model and no new evidence.</li>
+        <li>Multi-iteration reflection loops on tasks with no external signal to learn from.</li>
+        <li>Running LATS or Self-Discover on low-stakes, reversible tasks a single pass handles.</li>
+        <li>A verifier that shares the planner's model and prompt, so it inherits the same blind spots.</li>
+      </ul>
+    </section>
+
+    <section>
+      <h2 id="review-question">Review Question</h2>
+      <p class="compact">Before adding a pass, ask: does this pass bring a new path, a new strategy, or independent evidence — or is it the same mind grading its own work?</p>
+    </section>
+
+    <p class="footer-note">Related lesson: <a href="../lessons/0012-search-verification-self-correction.html">0012 - Search, Verification, and Self-Correction</a>.</p>
+  </main>
+</body>
+</html>
