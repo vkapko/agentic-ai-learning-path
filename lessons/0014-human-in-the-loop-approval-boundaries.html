@@ -1,0 +1,250 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Lesson 0014: Human-in-the-Loop and Approval Boundaries</title>
+  <link rel="stylesheet" href="../assets/course.css">
+  <script src="../assets/quiz.js" defer></script>
+  <script src="../assets/reveal.js" defer></script>
+</head>
+<body>
+  <main>
+    <header>
+      <p class="kicker">Lesson 0014</p>
+      <h1 id="human-in-the-loop-approval-boundaries">Human-in-the-Loop and Approval Boundaries</h1>
+      <p class="summary">Tangible win: for a list of agent actions, place a human gate only where it earns its cost, pick the right kind of interrupt (approve-before, review-after, or escalate-on-trigger), write explicit escalation criteria, and say what a human's feedback actually changes — memory, policy, or weights.</p>
+    </header>
+
+    <section>
+      <h2 id="the-one-idea">The One Idea</h2>
+      <p>The mission names <em>approval</em> and <em>control boundaries</em> as first-class design surfaces, alongside perception, reasoning, action, memory, and monitoring. A human gate is a control boundary: a point where the agent stops and hands a decision to a person. The local notes frame it plainly — <a href="../agentic-ai-solution-design-patterns.html#human-in-the-loop">human-in-the-loop inserts human judgment, approval, intervention, or teaching</a> into the loop. The design question is never "should there be a human?" but <strong>where</strong>, <strong>what kind of interrupt</strong>, and <strong>what the human's feedback changes</strong>.</p>
+      <p>Keep the compact version open: <a href="../reference/human-in-the-loop-approval-boundaries.html">Human-in-the-Loop and Approval Boundaries Reference</a>.</p>
+    </section>
+
+    <section class="callout">
+      <h2 id="minimum-rule">Minimum Rule</h2>
+      <p>Gate an action when the cost of a wrong autonomous action exceeds the cost of waiting for a human — and nowhere else. Each gate names an explicit trigger, an interrupt mode, and an owner who is accountable for the override. Gating everything dies of latency; gating nothing is unsafe.</p>
+    </section>
+
+    <section>
+      <h2 id="where-to-gate">Where to Gate: The Cost Trade</h2>
+      <p>A gate buys safety and pays in latency and staffing. So place it only where the trade is worth it. The notes give explicit conditions for a human stop: <a href="../agentic-ai-solution-design-patterns.html#human-in-the-loop">low confidence, safety risk, missing permission, irreversible action, policy conflict, or a novel environment state</a>. Read that list as a cost test — each item is a case where a wrong move is expensive, unrecoverable, or out of the agent's authority. Everything else the agent should just do, because <a href="../agentic-ai-solution-design-patterns.html#human-in-the-loop">latency and staffing cost</a> are the standing price of every gate.</p>
+    </section>
+
+    <section>
+      <h2 id="interrupt-modes">Three Interrupt Modes</h2>
+      <p>Once you know an action needs a human, choose <em>how</em> the human enters. The mode follows from reversibility and volume, not from how important the action feels.</p>
+      <div class="grid">
+        <article class="card">
+          <span class="tag">Approve-before</span>
+          <h3 id="approve-before">Block, then act</h3>
+          <p>Agent pauses and waits for a human to approve before the action runs. For <strong>irreversible, unsafe, or expensive</strong> actions where a wrong move can't be undone. Pays full latency every time.</p>
+        </article>
+        <article class="card">
+          <span class="tag">Review-after</span>
+          <h3 id="review-after">Act, then correct</h3>
+          <p>Agent acts immediately; a human reviews later and corrections feed back. For <strong>reversible, high-volume</strong> work where latency matters and mistakes are cheap to fix.</p>
+        </article>
+        <article class="card">
+          <span class="tag">Escalate-on-trigger</span>
+          <h3 id="escalate-on-trigger">Run until a line is crossed</h3>
+          <p>Agent proceeds autonomously until a defined trigger fires — low confidence, policy conflict, novel state — then hands off. The default for everything in between.</p>
+        </article>
+      </div>
+      <p>A fourth flavor is <strong>teaching</strong>: a human demonstrates or corrects, and that example is captured for next time. It connects directly to monitoring and recovery (lesson <a href="./0008-runtime-monitoring-and-recovery.html">0008</a>) and to escalation by provenance (lesson <a href="./0010-context-escalation-provenance.html">0010</a>) — a gate is the deliberate, planned cousin of an emergency stop.</p>
+    </section>
+
+    <section>
+      <h2 id="what-feedback-changes">What the Human's Feedback Actually Changes</h2>
+      <p>This is where designs quietly go wrong. The notes are explicit: a human demonstration <a href="../agentic-ai-solution-design-patterns.html#human-in-the-loop">does not make the model permanently learn a new skill by itself</a>. Instead the system might record a procedural memory, create a skill template, change a threshold or prompt, update a routing rule, or — separately and rarely — trigger fine-tuning. This is exactly the <a href="./0013-memory-as-data-infrastructure.html#three-updates-trap">three-updates frame</a> from lesson 0013, now driven by a human:</p>
+      <ul>
+        <li><strong>Memory write</strong> — "this client always wants the morning slot." A record, scoped to whoever retrieves it.</li>
+        <li><strong>Policy / threshold update</strong> — "from now on, refunds over $500 need approval." A rule that binds every run.</li>
+        <li><strong>Model-weight update</strong> — RLHF or fine-tuning. Slow, expensive, and <em>not</em> what one correction does.</li>
+      </ul>
+      <p>Two failure modes follow. <a href="../agentic-ai-solution-design-patterns.html#human-feedback-loop-integration">Feedback leaking into prompts without validation</a> turns a stray correction into durable behavior — the same poisoned-memory risk as lesson 0013. And a <a href="../agentic-ai-solution-design-patterns.html#human-feedback-loop-integration">missing audit trail</a> means no one can answer who approved what, which matters most when humans override the agent and ownership is already unclear.</p>
+    </section>
+
+    <section>
+      <h2 id="classify-the-gate">Classify the Gate</h2>
+      <p>For each situation, pick the interrupt mode or the system the feedback should change.</p>
+
+      <course-quiz>
+        <script type="application/json">
+          {
+            "questions": [
+              {
+                "prompt": "An agent is about to permanently delete a customer's production database to reclaim disk space.",
+                "choices": [
+                  {
+                    "label": "Approve before acting",
+                    "feedback": "Irreversible and high-stakes — block and require a human sign-off before the action runs.",
+                    "correct": 1
+                  },
+                  {
+                    "label": "Review after acting",
+                    "feedback": "Reviewing an irreversible action after the fact is too late; the data is already gone.",
+                    "correct": 0
+                  },
+                  {
+                    "label": "Log without gating",
+                    "feedback": "A log records what happened but never stops an unrecoverable action from happening.",
+                    "correct": 0
+                  },
+                  {
+                    "label": "Retrain the model",
+                    "feedback": "Retraining is a slow model-update process, not a control on a single dangerous action.",
+                    "correct": 0
+                  }
+                ]
+              },
+              {
+                "prompt": "A high-volume agent tags thousands of support tickets per hour; mislabels are cheap to fix and latency must stay low.",
+                "choices": [
+                  {
+                    "label": "Review after acting",
+                    "feedback": "Reversible, high-volume, latency-sensitive work fits async review with corrections fed back later.",
+                    "correct": 1
+                  },
+                  {
+                    "label": "Approve before acting",
+                    "feedback": "Blocking on every ticket would destroy throughput for mistakes that are cheap to undo.",
+                    "correct": 0
+                  },
+                  {
+                    "label": "Escalate every item",
+                    "feedback": "Routing every item to a human is just a blocking gate in disguise and kills the latency budget.",
+                    "correct": 0
+                  },
+                  {
+                    "label": "Fine-tune the model",
+                    "feedback": "Fine-tuning is a separate training process, not a way to handle live throughput.",
+                    "correct": 0
+                  }
+                ]
+              },
+              {
+                "prompt": "A reviewer tells the team that from now on, every refund above five hundred dollars must get human approval.",
+                "choices": [
+                  {
+                    "label": "Update a policy rule",
+                    "feedback": "A constraint that binds every future run is a policy/threshold change, reviewed and rolled out once.",
+                    "correct": 1
+                  },
+                  {
+                    "label": "Write episodic memory",
+                    "feedback": "Stored as one record, a system-wide rule can drift or fail to apply on the next run.",
+                    "correct": 0
+                  },
+                  {
+                    "label": "Fine-tune the model",
+                    "feedback": "An approval threshold is a rule to enforce, not behavior to retrain into the weights.",
+                    "correct": 0
+                  },
+                  {
+                    "label": "Discard after run",
+                    "feedback": "Dropping it loses the constraint entirely; the rule must persist across every run.",
+                    "correct": 0
+                  }
+                ]
+              },
+              {
+                "prompt": "A human demonstrates the correct multi-step workflow once after the agent got it wrong. What does the system actually do?",
+                "choices": [
+                  {
+                    "label": "Record a reusable template",
+                    "feedback": "One demonstration is captured as a procedural memory or skill template — reused, not learned into weights.",
+                    "correct": 1
+                  },
+                  {
+                    "label": "Permanently learns it",
+                    "feedback": "A single demonstration does not make the model permanently learn the skill by itself.",
+                    "correct": 0
+                  },
+                  {
+                    "label": "Nothing is retained",
+                    "feedback": "The point of teaching is retention — it should become a record or template for next time.",
+                    "correct": 0
+                  },
+                  {
+                    "label": "Change weights now",
+                    "feedback": "Weight changes need a deliberate training process, not one inline correction.",
+                    "correct": 0
+                  }
+                ]
+              }
+            ]
+          }
+        </script>
+      </course-quiz>
+    </section>
+
+    <section class="exercise">
+      <h2 id="recall-check">Recall Check</h2>
+      <p>From memory: name the six standard escalation triggers that should route a decision to a human, and the three interrupt modes.</p>
+      <textarea aria-label="Recall escalation triggers and interrupt modes" placeholder="Escalation triggers (6):&#10;Interrupt modes (3):"></textarea>
+      <p><button type="button" class="secondary" data-reveal="#recall-answer">Show example</button></p>
+      <div class="answer" id="recall-answer">
+        <p>Triggers: low confidence, safety risk, missing permission, irreversible action, policy conflict, novel environment state. Interrupt modes: approve-before (block then act), review-after (act then correct), escalate-on-trigger (run until a line is crossed). Teaching/demonstration is a fourth flavor that produces a record, not a weight change.</p>
+      </div>
+    </section>
+
+    <section class="exercise">
+      <h2 id="design-drill-place-gates">Design Drill: Place the Gates</h2>
+      <p>A travel-booking agent can take these actions in one run: (a) search flights, (b) hold a refundable seat, (c) charge the client's card for a non-refundable fare, (d) email the client an itinerary, (e) cancel an existing booking, (f) book travel to a region it has never handled before. For each, decide no-gate / approve-before / review-after / escalate-on-trigger, and justify it by the cost of a wrong move.</p>
+      <textarea aria-label="Place a gate on each action" placeholder="(a) search:&#10;(b) hold seat:&#10;(c) charge card:&#10;(d) email itinerary:&#10;(e) cancel booking:&#10;(f) novel region:"></textarea>
+      <p><button type="button" class="secondary" data-reveal="#example-answer">Show example</button></p>
+      <div class="answer" id="example-answer">
+        <pre><code>(a) search flights     -> no gate     (reversible, no side effect)
+(b) hold refundable    -> no gate     (cheap to release; reversible)
+(c) charge card (NR)   -> approve-before  (expensive + irreversible)
+(d) email itinerary    -> review-after    (reversible-ish; latency matters)
+(e) cancel booking     -> approve-before  (irreversible loss for the client)
+(f) novel region       -> escalate-on-trigger (novel state = low confidence)</code></pre>
+        <p>The principle is constant: gate where wrong-action cost &gt; wait cost, and let the interrupt mode follow from reversibility and volume.</p>
+      </div>
+    </section>
+
+    <section class="exercise">
+      <h2 id="design-drill-escalation-criteria">Design Drill: Write the Escalation Criteria</h2>
+      <p>For the same agent's autonomous zone (the actions you did <em>not</em> hard-gate), write the explicit triggers that should still pause it mid-run and route to a human. Make them checkable, not vague.</p>
+      <textarea aria-label="Write explicit escalation triggers" placeholder="Pause and escalate when..."></textarea>
+      <p><button type="button" class="secondary" data-reveal="#example-answer-2">Show example</button></p>
+      <div class="answer" id="example-answer-2">
+        <p>Pause and escalate when: model/tool confidence falls below a set threshold; total spend on a booking exceeds a dollar cap; the action would touch a region or fare class not seen before; two memory or tool results conflict and can't be resolved by authority; the caller lacks permission for the requested action; or any action flagged irreversible reaches its execution step. Each is a boolean the runtime can evaluate — not "if it seems risky."</p>
+      </div>
+    </section>
+
+    <section class="exercise">
+      <h2 id="design-drill-feedback">Design Drill: What Does the Feedback Change?</h2>
+      <p>After a run, a human gives three corrections: (1) "This client always prefers aisle seats." (2) "Stop auto-booking non-refundable fares without approval — make that the rule for everyone." (3) "Your seat-selection step keeps mis-parsing this airline's seat map." For each, name whether it should change memory, policy, or weights — and what audit trail it needs.</p>
+      <textarea aria-label="Classify each correction" placeholder="(1):&#10;(2):&#10;(3):"></textarea>
+      <p><button type="button" class="secondary" data-reveal="#example-answer-3">Show example</button></p>
+      <div class="answer" id="example-answer-3">
+        <p><strong>(1)</strong> Memory write — episodic, scoped to that client, with provenance and confidence; audit = who added it, when. <strong>(2)</strong> Policy/threshold update — a rule binding every run, reviewed and rolled out, with a change record of who approved it. <strong>(3)</strong> Likely a separate component fix (a parser/perception model) or a procedural-memory note to retry/route differently — and only a candidate for retraining if the pattern persists; never an inline weight change. The shared rule: validate before any correction reaches a prompt, and log who changed what so an override is never anonymous.</p>
+      </div>
+    </section>
+
+    <section>
+      <h2 id="architecture-check">Architecture Check</h2>
+      <ul>
+        <li>Does each gate exist because wrong-action cost beats wait cost — or did it creep in "to be safe" and now taxes every run?</li>
+        <li>Is the interrupt mode (approve-before / review-after / escalate-on-trigger) matched to reversibility and volume, not to how scary the action feels?</li>
+        <li>Are escalation triggers explicit and checkable (confidence, spend cap, permission, irreversibility, conflict, novel state) rather than "if it seems risky"?</li>
+        <li>When a human gives feedback, is it routed to the right system — memory, policy, or a training process — instead of all landing in the prompt?</li>
+        <li>Is feedback validated before it can shape future behavior, so one stray correction can't poison the agent?</li>
+        <li>Is there an audit trail naming who approved or overrode each gated action, and who owns the outcome?</li>
+        <li>What is the fallback when the human is slow or absent — does the agent block, time out, or take the safe default?</li>
+      </ul>
+    </section>
+
+    <section class="callout">
+      <h2 id="primary-source">Primary Source</h2>
+      <p>Read the local <a href="../agentic-ai-solution-design-patterns.html#human-in-the-loop">Human-in-the-Loop</a> and <a href="../agentic-ai-solution-design-patterns.html#human-feedback-loop-integration">Human Feedback Loop Integration</a> sections for the escalation criteria, the corrected claims about what a demonstration does, and the feedback risks. For the governance framing behind approval boundaries and audit trails, see the <a href="https://nvlpubs.nist.gov/nistpubs/ai/NIST.AI.100-1.pdf">NIST AI Risk Management Framework</a>.</p>
+    </section>
+
+    <p class="footer-note">Previous lesson: <a href="./0013-memory-as-data-infrastructure.html">0013 - Memory Is Data Infrastructure</a>. Ask the agent follow-up questions: bring a workflow from your own work, list its actions, and have the agent pressure-test where you placed gates — then challenge whether each correction you'd give changes memory, policy, or weights.</p>
+  </main>
+</body>
+</html>

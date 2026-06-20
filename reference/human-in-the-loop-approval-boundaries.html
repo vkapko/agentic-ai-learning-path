@@ -1,0 +1,88 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Human-in-the-Loop and Approval Boundaries Reference</title>
+  <link rel="stylesheet" href="../assets/course.css">
+</head>
+<body>
+  <main>
+    <header>
+      <p class="kicker">Reference 0014</p>
+      <h1 id="human-in-the-loop-approval-boundaries">Human-in-the-Loop and Approval Boundaries</h1>
+      <p class="summary">Use this sheet to place human gates where they earn their cost, choose the interrupt mode, write checkable escalation criteria, and route human feedback to the system that should own it.</p>
+    </header>
+
+    <section>
+      <h2 id="the-rule">The Rule</h2>
+      <p class="compact">Gate an action when the cost of a wrong autonomous action exceeds the cost of waiting for a human — and nowhere else. Every gate names a trigger, an interrupt mode, and an accountable owner. Gating everything dies of latency; gating nothing is unsafe.</p>
+    </section>
+
+    <section>
+      <h2 id="interrupt-modes">Three Interrupt Modes</h2>
+      <div class="grid">
+        <article class="card">
+          <span class="tag">Approve-before</span>
+          <h3 id="approve-before">Block, then act</h3>
+          <p>Pause until a human approves. For irreversible, unsafe, or expensive actions. Pays full latency every time.</p>
+        </article>
+        <article class="card">
+          <span class="tag">Review-after</span>
+          <h3 id="review-after">Act, then correct</h3>
+          <p>Act now, human reviews later, corrections feed back. For reversible, high-volume, latency-sensitive work.</p>
+        </article>
+        <article class="card">
+          <span class="tag">Escalate-on-trigger</span>
+          <h3 id="escalate-on-trigger">Run until a line is crossed</h3>
+          <p>Autonomous until a defined trigger fires, then hand off. The default for everything in between.</p>
+        </article>
+      </div>
+      <p class="compact"><strong>Teaching / demonstration</strong> is a fourth flavor: a human example is captured as a procedural memory or skill template — a record, not a weight change.</p>
+    </section>
+
+    <section>
+      <h2 id="escalation-triggers">Escalation Triggers</h2>
+      <p class="compact">Standard, checkable conditions that should route a decision to a human:</p>
+      <ul>
+        <li><strong>Low confidence</strong> — model or tool confidence below a set threshold.</li>
+        <li><strong>Safety risk</strong> — the action could cause harm.</li>
+        <li><strong>Missing permission</strong> — the caller lacks authority for the action.</li>
+        <li><strong>Irreversible action</strong> — a wrong move can't be undone.</li>
+        <li><strong>Policy conflict</strong> — the action collides with a rule or constraint.</li>
+        <li><strong>Novel environment state</strong> — a situation the agent has not handled.</li>
+      </ul>
+    </section>
+
+    <section>
+      <h2 id="feedback-routing">What Feedback Changes (Three Updates)</h2>
+      <ul>
+        <li><strong>Memory write</strong> — a scoped record (e.g. a client preference). Cheap, instant, reversible.</li>
+        <li><strong>Policy / threshold update</strong> — a rule binding every run (e.g. an approval cap). Reviewed and rolled out once.</li>
+        <li><strong>Model-weight update</strong> — RLHF or fine-tuning. Slow, expensive; not what one correction does.</li>
+      </ul>
+      <p class="compact">A demonstration does not make the model permanently learn a skill by itself. It may produce a procedural memory, a skill template, a threshold/prompt/routing change, or a separate component fix. See <a href="./memory-as-data-infrastructure.html#three-updates">Memory reference</a> for the same frame.</p>
+    </section>
+
+    <section class="callout">
+      <h2 id="anti-patterns">Anti-Patterns</h2>
+      <ul>
+        <li>Gating everything "to be safe" — latency and staffing cost make the agent useless.</li>
+        <li>Review-after on an irreversible action — the review can't undo it.</li>
+        <li>Vague triggers ("if it seems risky") instead of checkable booleans.</li>
+        <li>Feedback leaking into prompts without validation — one stray correction becomes durable behavior.</li>
+        <li>No audit trail — no one can say who approved or overrode a gated action.</li>
+        <li>Treating one demonstration as if the model permanently learned the skill.</li>
+        <li>No fallback when the human is slow or absent, so the agent stalls or guesses.</li>
+      </ul>
+    </section>
+
+    <section>
+      <h2 id="review-question">Review Question</h2>
+      <p class="compact">For each gate: does wrong-action cost beat wait cost, is the interrupt mode matched to reversibility and volume, and when feedback arrives, is it routed to memory, policy, or training — with who-approved-what logged?</p>
+    </section>
+
+    <p class="footer-note">Related lesson: <a href="../lessons/0014-human-in-the-loop-approval-boundaries.html">0014 - Human-in-the-Loop and Approval Boundaries</a>.</p>
+  </main>
+</body>
+</html>
