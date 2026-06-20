@@ -42,6 +42,8 @@
   Use for: procedural memory and open-ended skill acquisition in embodied/digital environments.
 - [Survey: In-Context Learning](https://arxiv.org/abs/2301.00234)
   Use for: retrieved examples, memories, and prompt context without model-weight updates.
+- [Paper: Lost in the Middle: How Language Models Use Long Contexts](https://arxiv.org/abs/2307.03172)
+  Use for: why long context windows do not guarantee uniform retrieval of important information, and why critical facts should be structured and placed deliberately.
 - [LangGraph documentation: Workflows and agents](https://docs.langchain.com/oss/python/langgraph/workflows-agents)
   Use for: practical workflow/agent distinctions and implementation framing.
 - [Anthropic Python SDK documentation](https://platform.claude.com/docs/en/cli-sdks-libraries/sdks/python)

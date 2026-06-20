@@ -1,0 +1,249 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Lesson 0010: Context, Escalation, and Provenance</title>
+  <link rel="stylesheet" href="../assets/course.css">
+  <script src="../assets/quiz.js" defer></script>
+  <script src="../assets/reveal.js" defer></script>
+</head>
+<body>
+  <main>
+    <header>
+      <p class="kicker">Lesson 0010</p>
+      <h1 id="preserve-the-case-file">Preserve The Case File</h1>
+      <p class="summary">Tangible win: design a context packet that keeps exact facts, escalation reasons, and claim-source links intact as an agent workflow gets longer.</p>
+    </header>
+
+    <section>
+      <h2 id="the-one-idea">The One Idea</h2>
+      <p>Context management is not just token budgeting. It is reliability design. The Claude architecture notes warn that progressive summaries can blur numbers, dates, and customer-stated expectations, and that downstream agents need structured metadata rather than loose prose <a href="../Claude%20Certified%20Architect%20%E2%80%93%20Foundations.html#task-statement-5-1-manage-conversation-context-to-preserve-critical-information-across-long-interactions">[Claude context notes]</a>. The long-context paper <a href="https://arxiv.org/abs/2307.03172">Lost in the Middle</a> found that model performance can degrade when relevant information appears in the middle of long inputs.</p>
+      <p>Keep the compact version open: <a href="../reference/context-escalation-provenance.html">Context, Escalation, and Provenance Reference</a>.</p>
+    </section>
+
+    <section class="callout">
+      <h2 id="minimum-rule">Minimum Rule</h2>
+      <p>Store exact case facts outside the conversation summary, propagate structured errors instead of vague failures, escalate on explicit criteria, and preserve claim-source mappings through every synthesis step.</p>
+    </section>
+
+    <section>
+      <h2 id="four-durable-artifacts">Four Durable Artifacts</h2>
+      <div class="grid">
+        <article class="card">
+          <span class="tag">Facts</span>
+          <h3 id="case-facts">Case facts</h3>
+          <p>Persist IDs, amounts, dates, statuses, user requests, policy results, and unresolved assumptions in a compact block.</p>
+        </article>
+        <article class="card">
+          <span class="tag">Errors</span>
+          <h3 id="error-packets">Error packets</h3>
+          <p>Pass failure type, attempted action, retryability, partial results, and alternatives to the coordinator.</p>
+        </article>
+        <article class="card">
+          <span class="tag">Escalate</span>
+          <h3 id="escalation-rules">Escalation rules</h3>
+          <p>Escalate on human request, policy gap, authority limit, contradiction, safety issue, or no meaningful progress.</p>
+        </article>
+        <article class="card">
+          <span class="tag">Sources</span>
+          <h3 id="claim-source-map">Claim-source map</h3>
+          <p>Attach each important claim to source ID, excerpt or location, publication date, and confidence or conflict status.</p>
+        </article>
+      </div>
+    </section>
+
+    <section>
+      <h2 id="context-is-not-memory">Context Is Not Memory</h2>
+      <p>Conversation history is useful for flow, but it is a weak home for facts that must survive compression. Put durable facts in a controller-owned case file, trim verbose tool outputs before they accumulate, and place the current case summary near the beginning of the prompt so the model does not have to recover critical facts from the middle of a long transcript <a href="../Claude%20Certified%20Architect%20%E2%80%93%20Foundations.html#task-statement-5-1-manage-conversation-context-to-preserve-critical-information-across-long-interactions">[context preservation notes]</a>.</p>
+    </section>
+
+    <section>
+      <h2 id="choose-the-preservation-move">Choose The Preservation Move</h2>
+      <p>Pick the move that keeps control information usable after the workflow gets long.</p>
+
+      <course-quiz>
+        <script type="application/json">
+          {
+            "questions": [
+              {
+                "prompt": "An order lookup returns 40 fields, but the refund decision needs order ID, amount, date, status, and return eligibility.",
+                "answer": 0,
+                "choices": [
+                  {
+                    "label": "Trim fields",
+                    "feedback": "Keep the decision-relevant fields and avoid filling context with irrelevant output."
+                  },
+                  {
+                    "label": "Keep output",
+                    "feedback": "Verbose tool output consumes context and can hide the useful facts."
+                  },
+                  {
+                    "label": "Summarize loosely",
+                    "feedback": "Loose summaries risk losing exact amounts, dates, and statuses."
+                  },
+                  {
+                    "label": "Delete result",
+                    "feedback": "Removing the evidence breaks downstream audit and recovery."
+                  }
+                ]
+              },
+              {
+                "prompt": "A customer explicitly asks to talk to a human agent before any investigation starts.",
+                "answer": 1,
+                "choices": [
+                  {
+                    "label": "Score sentiment",
+                    "feedback": "Sentiment is a weak proxy when the user has already made an explicit request."
+                  },
+                  {
+                    "label": "Escalate now",
+                    "feedback": "Explicit human requests are direct escalation triggers."
+                  },
+                  {
+                    "label": "Investigate first",
+                    "feedback": "Do not override an explicit human-request boundary with autonomous work."
+                  },
+                  {
+                    "label": "Delay handoff",
+                    "feedback": "Delaying the handoff ignores the stated preference."
+                  }
+                ]
+              },
+              {
+                "prompt": "A search subagent times out after retry but has two partial findings and suggested alternate queries.",
+                "answer": 2,
+                "choices": [
+                  {
+                    "label": "Hide timeout",
+                    "feedback": "Suppressing failure makes the coordinator overtrust incomplete coverage."
+                  },
+                  {
+                    "label": "Claim complete",
+                    "feedback": "The timed-out source path must be represented as a coverage gap."
+                  },
+                  {
+                    "label": "Return packet",
+                    "feedback": "Structured error context lets the coordinator retry differently, proceed partially, or escalate."
+                  },
+                  {
+                    "label": "Stop system",
+                    "feedback": "A single failed branch should not always terminate the whole workflow."
+                  }
+                ]
+              },
+              {
+                "prompt": "Two credible reports give different market-size numbers, and one was collected in 2024 while the other was collected in 2026.",
+                "answer": 3,
+                "choices": [
+                  {
+                    "label": "Average values",
+                    "feedback": "Averaging hides source methodology and temporal differences."
+                  },
+                  {
+                    "label": "Pick latest",
+                    "feedback": "The latest value may not use the same scope or method."
+                  },
+                  {
+                    "label": "Drop conflict",
+                    "feedback": "Removing the conflict loses important uncertainty."
+                  },
+                  {
+                    "label": "Preserve dates",
+                    "feedback": "Keep both claims with source attribution, collection dates, and conflict notes."
+                  }
+                ]
+              }
+            ]
+          }
+        </script>
+      </course-quiz>
+    </section>
+
+    <section class="exercise">
+      <h2 id="recall-check">Recall Check</h2>
+      <p>From memory: name the four durable artifacts for long agent workflows.</p>
+      <textarea aria-label="Recall four durable context artifacts" placeholder="1.&#10;2.&#10;3.&#10;4."></textarea>
+      <p><button type="button" class="secondary" data-reveal="#recall-answer">Show example</button></p>
+      <div class="answer" id="recall-answer">
+        <p>Case facts, error packets, escalation rules, and claim-source maps.</p>
+      </div>
+    </section>
+
+    <section class="exercise">
+      <h2 id="design-drill-case-facts">Design Drill: Billing Dispute Case Facts</h2>
+      <p>A support agent handles a billing dispute across several turns. Draft the persistent case facts block that should survive summarization.</p>
+      <textarea aria-label="Design billing dispute case facts" placeholder="Customer request:&#10;Identifiers:&#10;Amounts and dates:&#10;Policy status:&#10;Evidence sources:&#10;Open questions:&#10;Escalation status:"></textarea>
+      <p><button type="button" class="secondary" data-reveal="#example-answer">Show example</button></p>
+      <div class="answer" id="example-answer">
+        <pre><code>{
+  "customerRequest": "dispute duplicate charge and wants refund",
+  "identifiers": { "customerId": "cust_1842", "invoiceId": "inv_771" },
+  "amountsAndDates": [
+    { "amount": "49.00", "currency": "USD", "date": "2026-06-14", "source": "billing_api" }
+  ],
+  "policyStatus": "refund allowed if duplicate charge verified",
+  "evidenceSources": ["billing_api:charge_1", "crm:case_928"],
+  "openQuestions": ["second charge ID not yet confirmed"],
+  "escalationStatus": "not escalated; escalate if duplicate cannot be verified"
+}</code></pre>
+      </div>
+    </section>
+
+    <section class="exercise">
+      <h2 id="design-drill-handoff">Design Drill: Human Handoff Packet</h2>
+      <p>Write a handoff packet for a price-match request blocked by an ambiguous policy gap.</p>
+      <textarea aria-label="Write human handoff packet" placeholder="Escalation trigger:&#10;Case facts:&#10;What was attempted:&#10;Partial evidence:&#10;Decision needed:&#10;Customer-facing status:"></textarea>
+      <p><button type="button" class="secondary" data-reveal="#example-answer-2">Show example</button></p>
+      <div class="answer" id="example-answer-2">
+        <p><strong>Escalation trigger:</strong> policy gap for competitor price match after shipment. <strong>Case facts:</strong> order ord_123 shipped on 2026-06-18, customer requests $22 adjustment, customer provided competitor listing. <strong>What was attempted:</strong> checked order, checked standard price-adjustment policy, verified listing URL was reachable. <strong>Partial evidence:</strong> policy covers own-site price drops but not competitor listings. <strong>Decision needed:</strong> whether to approve exception or deny with explanation. <strong>Customer-facing status:</strong> "I need a specialist to review this policy exception."</p>
+      </div>
+    </section>
+
+    <section class="exercise">
+      <h2 id="design-drill-claim-source-map">Design Drill: Claim-Source Map</h2>
+      <p>Convert this loose synthesis note into a structured claim-source record: "Refunds increased after the policy change, but the support team says the exact effect is unclear."</p>
+      <textarea aria-label="Write claim source map" placeholder="Claim:&#10;Sources:&#10;Date:&#10;Excerpt or location:&#10;Uncertainty:&#10;Conflict status:"></textarea>
+      <p><button type="button" class="secondary" data-reveal="#example-answer-3">Show example</button></p>
+      <div class="answer" id="example-answer-3">
+        <pre><code>{
+  "claim": "Refund volume increased after the policy change, but causal effect is unclear.",
+  "sources": [
+    {
+      "sourceId": "dashboard:refunds_weekly",
+      "dateRange": "2026-05-01/2026-06-15",
+      "locationOrExcerpt": "weekly refund count rose from 420 to 515"
+    },
+    {
+      "sourceId": "interview:support_lead",
+      "date": "2026-06-16",
+      "locationOrExcerpt": "support lead said seasonality may explain part of the rise"
+    }
+  ],
+  "uncertainty": "correlation observed; causality not established",
+  "conflictStatus": "not contradictory; needs method check"
+}</code></pre>
+      </div>
+    </section>
+
+    <section>
+      <h2 id="architecture-check">Architecture Check</h2>
+      <ul>
+        <li>Which exact values must never be compressed into vague prose?</li>
+        <li>Which tool outputs should be trimmed before entering model context?</li>
+        <li>Which errors need structured packets instead of generic status text?</li>
+        <li>Which escalation triggers are explicit and testable?</li>
+        <li>Which claims require source IDs, dates, excerpts, or conflict notes?</li>
+        <li>Where will the controller store the case file between turns and agents?</li>
+      </ul>
+    </section>
+
+    <section class="callout">
+      <h2 id="primary-source">Primary Source</h2>
+      <p>Read the Claude architecture notes for <a href="../Claude%20Certified%20Architect%20%E2%80%93%20Foundations.html#task-statement-5-1-manage-conversation-context-to-preserve-critical-information-across-long-interactions">context preservation</a>, <a href="../Claude%20Certified%20Architect%20%E2%80%93%20Foundations.html#task-statement-5-2-design-effective-escalation-and-ambiguity-resolution-patterns">escalation patterns</a>, and <a href="../Claude%20Certified%20Architect%20%E2%80%93%20Foundations.html#task-statement-5-6-preserve-information-provenance-and-handle-uncertainty-in-multi-source-synthesis">provenance preservation</a>. For the research basis behind position sensitivity in long prompts, read <a href="https://arxiv.org/abs/2307.03172">Lost in the Middle</a>.</p>
+    </section>
+
+    <p class="footer-note">Previous lesson: <a href="./0009-structured-output-reliable-extraction.html">0009 - Structured Output and Reliable Extraction</a>. Ask the agent follow-up questions by giving it one long-running workflow and asking it to design the case facts block, error packet, escalation criteria, and claim-source map.</p>
+  </main>
+</body>
+</html>

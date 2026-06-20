@@ -1,0 +1,114 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Context, Escalation, and Provenance Reference</title>
+  <link rel="stylesheet" href="../assets/course.css">
+</head>
+<body>
+  <main>
+    <header>
+      <p class="kicker">Reference 0010</p>
+      <h1 id="context-escalation-and-provenance">Context, Escalation, and Provenance</h1>
+      <p class="summary">Use this sheet to keep exact facts, recovery context, escalation decisions, and source attribution intact across long agent workflows.</p>
+    </header>
+
+    <section>
+      <h2 id="the-decision">The Decision</h2>
+      <p class="compact">A long-running agent needs a controller-owned case file: structured state that survives summarization, subagent handoff, context compaction, and final synthesis.</p>
+    </section>
+
+    <section>
+      <h2 id="four-artifacts">Four Artifacts</h2>
+      <ul>
+        <li><strong>Case facts:</strong> exact IDs, amounts, dates, statuses, user requests, policy results, and assumptions.</li>
+        <li><strong>Error packets:</strong> failure type, attempted action, retryability, partial results, alternatives, and recovery hint.</li>
+        <li><strong>Escalation rules:</strong> human request, policy gap, authority limit, contradiction, safety issue, or no progress.</li>
+        <li><strong>Claim-source map:</strong> claim, source ID, excerpt or location, publication or collection date, and uncertainty status.</li>
+      </ul>
+    </section>
+
+    <section>
+      <h2 id="context-rules">Context Rules</h2>
+      <div class="grid">
+        <article class="card">
+          <span class="tag">Persist</span>
+          <h3 id="exact-values">Exact values</h3>
+          <p>Never summarize away amounts, dates, IDs, policy decisions, customer commitments, or source dates.</p>
+        </article>
+        <article class="card">
+          <span class="tag">Trim</span>
+          <h3 id="verbose-tools">Verbose tools</h3>
+          <p>Keep only fields needed for the current decision, audit trail, or future recovery.</p>
+        </article>
+        <article class="card">
+          <span class="tag">Place</span>
+          <h3 id="important-first">Important first</h3>
+          <p>Put the current case facts near the beginning of the prompt, with detailed evidence in labeled sections.</p>
+        </article>
+        <article class="card">
+          <span class="tag">Separate</span>
+          <h3 id="facts-from-chat">Facts from chat</h3>
+          <p>Use conversation history for flow; use structured state for facts that must remain stable.</p>
+        </article>
+      </div>
+    </section>
+
+    <section>
+      <h2 id="minimum-case-file">Minimum Case File</h2>
+      <pre><code>{
+  "caseFacts": {
+    "userRequest": "",
+    "identifiers": {},
+    "amountsDatesStatuses": [],
+    "policyResults": [],
+    "openQuestions": [],
+    "sourceIds": []
+  },
+  "errors": [
+    {
+      "failureType": "",
+      "attemptedAction": "",
+      "isRetryable": false,
+      "partialResults": [],
+      "recoveryHint": ""
+    }
+  ],
+  "escalation": {
+    "required": false,
+    "trigger": "",
+    "decisionNeeded": ""
+  },
+  "claims": [
+    {
+      "claim": "",
+      "sourceId": "",
+      "date": "",
+      "locationOrExcerpt": "",
+      "uncertainty": ""
+    }
+  ]
+}</code></pre>
+    </section>
+
+    <section>
+      <h2 id="escalation-test">Escalation Test</h2>
+      <ul>
+        <li>Escalate immediately when the user explicitly asks for a human.</li>
+        <li>Escalate when policy is silent, contradictory, or outside the agent's authority.</li>
+        <li>Ask for clarification when multiple records match; do not choose heuristically.</li>
+        <li>Do not use sentiment or self-reported confidence as the only escalation signal.</li>
+        <li>Include what was tried, what evidence exists, what is missing, and what decision is needed.</li>
+      </ul>
+    </section>
+
+    <section class="callout">
+      <h2 id="review-question">Review Question</h2>
+      <p class="compact">Before summarizing or handing off, ask: what exact fact, error, source, date, or user instruction would be dangerous to blur?</p>
+    </section>
+
+    <p class="footer-note">Related lesson: <a href="../lessons/0010-context-escalation-provenance.html">0010 - Context, Escalation, and Provenance</a>.</p>
+  </main>
+</body>
+</html>
