@@ -93,6 +93,58 @@ for message in runner:
     </section>
 
     <section>
+      <h2>Claude SDK: Manual Stop Condition</h2>
+      <p>The tool runner hides the loop. When your application owns orchestration you write the loop yourself, and the stop condition is explicit: keep going while <code>stop_reason == "tool_use"</code>, otherwise return the final answer. This is the SDK equivalent of LangGraph's <code>should_continue</code>.</p>
+      <pre><code class="language-python">import json
+from anthropic import Anthropic
+
+client = Anthropic()
+
+tools = [
+    {
+        "name": "lookup_refund_policy",
+        "description": "Look up refund policy for an order total.",
+        "input_schema": {
+            "type": "object",
+            "properties": {"order_total": {"type": "integer"}},
+            "required": ["order_total"],
+        },
+    }
+]
+
+def run_tool(name, args):
+    if name == "lookup_refund_policy":
+        return json.dumps({"auto_refund_limit": 100, "order_total": args["order_total"]})
+    raise ValueError(f"unknown tool: {name}")
+
+messages = [{"role": "user", "content": "Can this $80 refund be handled automatically?"}]
+
+while True:
+    message = client.messages.create(
+        model="claude-opus-4-8",
+        max_tokens=500,
+        tools=tools,
+        messages=messages,
+    )
+
+    # Stop condition: the model is done unless it asked to use a tool.
+    if message.stop_reason != "tool_use":
+        print(message.content[0].text)
+        break
+
+    messages.append({"role": "assistant", "content": message.content})
+    tool_results = []
+    for block in message.content:
+        if block.type == "tool_use":
+            result = run_tool(block.name, block.input)  # validate + cap here
+            tool_results.append(
+                {"type": "tool_result", "tool_use_id": block.id, "content": result}
+            )
+    messages.append({"role": "user", "content": tool_results})</code></pre>
+      <p class="compact">The <code>while True</code> never spins forever: every turn either resolves tool calls and loops, or hits a non-<code>tool_use</code> stop reason and breaks. Other stop reasons (<code>end_turn</code>, <code>max_tokens</code>, <code>stop_sequence</code>, <code>refusal</code>) all exit the loop here.</p>
+    </section>
+
+    <section>
       <h2>LangGraph: Explicit Agent Loop</h2>
       <p>In LangGraph, the loop is visible in the graph: model node, tool node, conditional edge, and return edge. That makes it easier to reason about state, stop conditions, retries, and observability.</p>
       <pre><code class="language-python">import operator
