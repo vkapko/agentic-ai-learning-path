@@ -1,0 +1,224 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Lesson 0006: Tool Interface Contracts</title>
+  <link rel="stylesheet" href="../assets/course.css">
+  <script src="../assets/quiz.js" defer></script>
+  <script src="../assets/reveal.js" defer></script>
+</head>
+<body>
+  <main>
+    <header>
+      <p class="kicker">Lesson 0006</p>
+      <h1 id="design-tools-as-control-boundaries">Design Tools As Control Boundaries</h1>
+      <p class="summary">Tangible win: turn a vague agent capability into a tool contract with purpose, schema, permissions, side effects, error states, and observability.</p>
+    </header>
+
+    <section>
+      <h2 id="the-one-idea">The One Idea</h2>
+      <p>A tool is not just an API wrapper. In an agentic system, it is a control boundary between model intent and real-world effect. The local architecture notes say to separate agent logic from tool execution, policy enforcement, and human approval, and to treat tools as permissioned interfaces with schemas and side effects <a href="../agentic-ai-architecture-foundations-designing-autonomous-ai-systems.html#agentic-ai-system">[local architecture notes]</a> <a href="../agentic-ai-architecture-foundations-designing-autonomous-ai-systems.html#practical-design-checklist">[design checklist]</a>.</p>
+      <p>Keep the compact version open: <a href="../reference/tool-interface-contracts.html">Tool Interface Contracts Reference</a>.</p>
+    </section>
+
+    <section class="callout">
+      <h2 id="minimum-contract">Minimum Contract</h2>
+      <p>Every production-facing tool should say what it does, when to use it, when not to use it, what arguments it accepts, what it returns, what it can change, who may call it, how expensive or slow it is, and how failures are reported.</p>
+    </section>
+
+    <section>
+      <h2 id="six-fields">Six Fields</h2>
+      <div class="grid">
+        <article class="card">
+          <span class="tag">Purpose</span>
+          <h3 id="job-and-boundary">Job and boundary</h3>
+          <p>Describe the capability, matching examples, and nearby tools it should not replace.</p>
+        </article>
+        <article class="card">
+          <span class="tag">Schema</span>
+          <h3 id="typed-input-output">Typed input, output</h3>
+          <p>Define required fields, optional fields, enums, nullable fields, and normalized result shape.</p>
+        </article>
+        <article class="card">
+          <span class="tag">Authority</span>
+          <h3 id="permission-scope">Permission scope</h3>
+          <p>Name who or what may call it, under which task state, and which approvals are required.</p>
+        </article>
+        <article class="card">
+          <span class="tag">Effects</span>
+          <h3 id="side-effects">Side effects</h3>
+          <p>Mark read-only, reversible, externally visible, expensive, irreversible, or safety-sensitive actions.</p>
+        </article>
+        <article class="card">
+          <span class="tag">Failures</span>
+          <h3 id="structured-errors">Structured errors</h3>
+          <p>Return category, retryability, attempted inputs, partial result, and recovery hints.</p>
+        </article>
+        <article class="card">
+          <span class="tag">Telemetry</span>
+          <h3 id="observable-use">Observable use</h3>
+          <p>Log caller, arguments after validation, result summary, latency, cost, errors, approvals, and correlation IDs.</p>
+        </article>
+      </div>
+    </section>
+
+    <section>
+      <h2 id="tool-descriptions-drive-selection">Tool Descriptions Drive Selection</h2>
+      <p>The local solution-pattern notes say tool descriptions should include capability, schema, permissions, side effects, cost, latency, and failure modes, and that the controller should validate tool choice and arguments before execution <a href="../agentic-ai-solution-design-patterns.html#tool-discovery-and-use">[tool discovery notes]</a>. This matters most when two tools sound similar.</p>
+      <p>Claude's architecture reference makes the same point with a support example: minimal descriptions like "retrieves customer information" and "retrieves order details" cause selection mistakes, while richer descriptions with input formats, example queries, edge cases, and boundaries improve reliability <a href="../Claude%20Certified%20Architect%20%E2%80%93%20Foundations.html#domain-2-tool-design-and-mcp-integration">[Claude architecture reference]</a>.</p>
+    </section>
+
+    <section>
+      <h2 id="choose-the-contract-fix">Choose The Contract Fix</h2>
+      <p>Pick the smallest contract change that addresses the described failure.</p>
+
+      <course-quiz>
+        <script type="application/json">
+          {
+            "questions": [
+              {
+                "prompt": "The agent calls get_customer for order-number questions because get_customer and lookup_order have vague descriptions.",
+                "answer": 0,
+                "choices": [
+                  {
+                    "label": "Clarify descriptions",
+                    "feedback": "The root problem is ambiguous tool purpose and boundary."
+                  },
+                  {
+                    "label": "Add reflection",
+                    "feedback": "A critique pass does not fix unclear tool affordances."
+                  },
+                  {
+                    "label": "Increase retries",
+                    "feedback": "Retrying repeats the same selection confusion."
+                  },
+                  {
+                    "label": "Store memory",
+                    "feedback": "Memory is not the first fix for a tool contract defect."
+                  }
+                ]
+              },
+              {
+                "prompt": "A refund tool can issue money. The model should recommend, but amounts over $100 require human approval.",
+                "answer": 1,
+                "choices": [
+                  {
+                    "label": "Verbose prompt",
+                    "feedback": "A prompt reminder is weaker than an enforced authority boundary."
+                  },
+                  {
+                    "label": "Permission gate",
+                    "feedback": "The controller should block or route calls that exceed authority."
+                  },
+                  {
+                    "label": "Bigger model",
+                    "feedback": "Model quality does not replace a hard approval rule."
+                  },
+                  {
+                    "label": "More examples",
+                    "feedback": "Examples help selection, not financial authorization."
+                  }
+                ]
+              },
+              {
+                "prompt": "A search tool times out and returns an empty list, so the final report claims there were no sources.",
+                "answer": 2,
+                "choices": [
+                  {
+                    "label": "Hide timeout",
+                    "feedback": "That preserves the failure as a false empty result."
+                  },
+                  {
+                    "label": "Repeat forever",
+                    "feedback": "Retries need limits and error context."
+                  },
+                  {
+                    "label": "Return error state",
+                    "feedback": "The coordinator needs failure type, attempted query, partial results, and recovery options."
+                  },
+                  {
+                    "label": "Drop source notes",
+                    "feedback": "That makes provenance and coverage worse."
+                  }
+                ]
+              },
+              {
+                "prompt": "A lookup tool returns 40 fields, but the model only needs return eligibility and delivery status.",
+                "answer": 3,
+                "choices": [
+                  {
+                    "label": "Expose all data",
+                    "feedback": "Unfiltered output wastes context and may leak irrelevant data."
+                  },
+                  {
+                    "label": "Ask user again",
+                    "feedback": "The issue is output shape, not missing user intent."
+                  },
+                  {
+                    "label": "Use no schema",
+                    "feedback": "A looser result shape makes the problem harder."
+                  },
+                  {
+                    "label": "Trim result shape",
+                    "feedback": "Return only task-relevant fields and preserve the raw lookup outside model context if needed."
+                  }
+                ]
+              }
+            ]
+          }
+        </script>
+      </course-quiz>
+    </section>
+
+    <section class="exercise">
+      <h2 id="recall-check">Recall Check</h2>
+      <p>From memory: list the six parts of a useful tool contract.</p>
+      <textarea aria-label="Recall six parts of a tool contract" placeholder="1.&#10;2.&#10;3.&#10;4.&#10;5.&#10;6."></textarea>
+      <p><button type="button" class="secondary" data-reveal="#recall-answer">Show example</button></p>
+      <div class="answer" id="recall-answer">
+        <p>Purpose and boundaries; input and output schema; authority and permissions; side effects; structured failure states; telemetry and audit fields.</p>
+      </div>
+    </section>
+
+    <section class="exercise">
+      <h2 id="design-drill-refund-tool">Design Drill: Refund Tool</h2>
+      <p>You are designing <code>process_refund</code>. It can issue money to a customer, so it is externally visible and financially sensitive. Draft the contract boundary.</p>
+      <textarea aria-label="Design refund tool contract" placeholder="Purpose:&#10;Arguments:&#10;Allowed when:&#10;Blocked when:&#10;Returns:&#10;Errors:"></textarea>
+      <p><button type="button" class="secondary" data-reveal="#example-answer">Show example</button></p>
+      <div class="answer" id="example-answer">
+        <p><strong>Purpose:</strong> issue an approved refund for a specific order; not for eligibility checks. <strong>Arguments:</strong> order ID, customer ID, amount, currency, reason code, approval ID. <strong>Allowed when:</strong> policy check passed, amount is within role limit, identity is verified, and approval ID exists when required. <strong>Blocked when:</strong> amount exceeds authority, order is missing, policy conflicts, duplicate refund risk exists, or identity is unverified. <strong>Returns:</strong> refund ID, status, amount, timestamp, and audit correlation ID. <strong>Errors:</strong> validation, permission, business-rule, duplicate, transient, and provider failure, each with retryability and recovery hint.</p>
+      </div>
+    </section>
+
+    <section class="exercise">
+      <h2 id="design-drill-similar-tools">Design Drill: Similar Tools</h2>
+      <p>Write one sentence each that separates these two tools: <code>get_customer</code> and <code>lookup_order</code>.</p>
+      <textarea aria-label="Differentiate customer and order tools" placeholder="get_customer:&#10;lookup_order:"></textarea>
+      <p><button type="button" class="secondary" data-reveal="#example-answer-2">Show example</button></p>
+      <div class="answer" id="example-answer-2">
+        <p><strong>get_customer:</strong> use for account identity, contact details, account status, and customer-level history from a customer ID or verified email. <strong>lookup_order:</strong> use for order status, delivery events, line items, return eligibility, and payment/refund state from an order ID or customer/order pair.</p>
+      </div>
+    </section>
+
+    <section>
+      <h2 id="architecture-check">Architecture Check</h2>
+      <ul>
+        <li>Is the tool read-only, reversible, externally visible, expensive, irreversible, or safety-sensitive?</li>
+        <li>What makes this tool different from nearby tools?</li>
+        <li>Which arguments are required, optional, nullable, or enum-constrained?</li>
+        <li>Which policy checks happen before execution, outside the model?</li>
+        <li>What error categories can callers distinguish?</li>
+        <li>What result fields should enter model context, and what should stay in logs or storage?</li>
+      </ul>
+    </section>
+
+    <section class="callout">
+      <h2 id="primary-source">Primary Source</h2>
+      <p>Read the local <a href="../agentic-ai-solution-design-patterns.html#tool-discovery-and-use">Tool Discovery and Use</a> section first. Then read the Claude architecture notes on <a href="../Claude%20Certified%20Architect%20%E2%80%93%20Foundations.html#domain-2-tool-design-and-mcp-integration">Tool Design and MCP Integration</a> and <a href="../Claude%20Certified%20Architect%20%E2%80%93%20Foundations.html#task-statement-5-3-implement-error-propagation-strategies-across-multi-agent-systems">structured error propagation</a>.</p>
+    </section>
+
+    <p class="footer-note">Previous lesson: <a href="./0005-reasoning-behavior-patterns.html">0005 - Reasoning Behavior Patterns</a>. Ask the agent follow-up questions about a real tool in your system, especially where permissions, side effects, or error states are underspecified.</p>
+  </main>
+</body>
+</html>

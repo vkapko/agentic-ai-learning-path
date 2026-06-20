@@ -1,0 +1,81 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Tool Interface Contracts Reference</title>
+  <link rel="stylesheet" href="../assets/course.css">
+</head>
+<body>
+  <main>
+    <header>
+      <p class="kicker">Reference 0005</p>
+      <h1 id="tool-interface-contracts">Tool Interface Contracts</h1>
+      <p class="summary">Use this sheet to make agent tools selectable, permissioned, validated, observable, and recoverable.</p>
+    </header>
+
+    <section>
+      <h2 id="the-decision">The Decision</h2>
+      <p class="compact">A tool contract is the boundary between model intent and system effect. The model may request a tool, but the controller validates the request, enforces policy, executes the action, trims the result, logs the event, and decides whether the observation returns to model context.</p>
+    </section>
+
+    <section>
+      <h2 id="contract-template">Contract Template</h2>
+      <ul>
+        <li><strong>Name:</strong> short verb-noun name that matches the real capability.</li>
+        <li><strong>Purpose:</strong> when to use it, when not to use it, and how it differs from similar tools.</li>
+        <li><strong>Input schema:</strong> required fields, optional fields, nullable fields, enums, formats, and validation rules.</li>
+        <li><strong>Output schema:</strong> task-relevant result fields, confidence or provenance fields, and omitted raw data location if needed.</li>
+        <li><strong>Authority:</strong> allowed callers, required task state, permission checks, approval gates, and rate limits.</li>
+        <li><strong>Side effects:</strong> read-only, reversible, externally visible, expensive, irreversible, or safety-sensitive.</li>
+        <li><strong>Failure schema:</strong> category, retryability, attempted input, partial result, user-safe message, and recovery hint.</li>
+        <li><strong>Telemetry:</strong> caller, validated arguments, result summary, latency, cost, retries, errors, approvals, and correlation ID.</li>
+      </ul>
+    </section>
+
+    <section>
+      <h2 id="error-categories">Error Categories</h2>
+      <div class="grid">
+        <article class="card">
+          <span class="tag">Validation</span>
+          <h3 id="bad-request">Bad request</h3>
+          <p>Argument is missing, malformed, contradictory, or outside schema. Usually ask for correction or route to clarification.</p>
+        </article>
+        <article class="card">
+          <span class="tag">Permission</span>
+          <h3 id="not-authorized">Not authorized</h3>
+          <p>Caller lacks access, approval, scope, or task state. Escalate or request approval; do not retry blindly.</p>
+        </article>
+        <article class="card">
+          <span class="tag">Business</span>
+          <h3 id="rule-blocked">Rule blocked</h3>
+          <p>The request is valid but violates domain policy, such as a refund window or account status rule.</p>
+        </article>
+        <article class="card">
+          <span class="tag">Transient</span>
+          <h3 id="try-later">Try later</h3>
+          <p>Timeout, rate limit, or temporary dependency issue. Retry with limits and preserve partial results.</p>
+        </article>
+      </div>
+    </section>
+
+    <section class="callout">
+      <h2 id="anti-patterns">Anti-Patterns</h2>
+      <ul>
+        <li>Returning an empty successful result for a timeout or access failure.</li>
+        <li>Letting the model enforce financial, privacy, or safety approvals by prompt only.</li>
+        <li>Exposing broad write tools when a read-only or narrow tool would fit.</li>
+        <li>Using similar tool names and descriptions without examples or boundaries.</li>
+        <li>Sending verbose raw tool output into context when a narrow result shape is enough.</li>
+      </ul>
+    </section>
+
+    <section>
+      <h2 id="review-question">Review Question</h2>
+      <p class="compact">If this tool is misused, what is the worst credible outcome: wrong answer, wasted cost, privacy leak, external action, financial loss, safety issue, or silent coverage gap? Design the contract around that risk.</p>
+    </section>
+
+    <p class="footer-note">Related lesson: <a href="../lessons/0006-tool-interface-contracts.html">0006 - Tool Interface Contracts</a>.</p>
+  </main>
+</body>
+</html>
