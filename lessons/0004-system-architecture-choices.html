@@ -69,89 +69,101 @@
             "questions": [
               {
                 "prompt": "A refund assistant checks policy and recommends approve or deny. A human still issues money.",
-                "answer": 0,
                 "choices": [
                   {
                     "label": "Single agent",
-                    "feedback": "One narrow workflow and one decision owner are enough."
+                    "feedback": "One narrow workflow and one decision owner are enough.",
+                    "correct": 1
                   },
                   {
                     "label": "Central team",
-                    "feedback": "Coordination adds little because the task is not split."
+                    "feedback": "Coordination adds little because the task is not split.",
+                    "correct": 0
                   },
                   {
                     "label": "Local team",
-                    "feedback": "There is no distributed local action pressure."
+                    "feedback": "There is no distributed local action pressure.",
+                    "correct": 0
                   },
                   {
                     "label": "Hybrid team",
-                    "feedback": "No bounded local autonomy is described."
+                    "feedback": "No bounded local autonomy is described.",
+                    "correct": 0
                   }
                 ]
               },
               {
                 "prompt": "A research system searches the web, analyzes PDFs, verifies claims, and synthesizes a cited report in parallel.",
-                "answer": 1,
                 "choices": [
                   {
                     "label": "Single agent",
-                    "feedback": "Parallel specialized roles are a real coordination pressure."
+                    "feedback": "Parallel specialized roles are a real coordination pressure.",
+                    "correct": 0
                   },
                   {
                     "label": "Central team",
-                    "feedback": "A coordinator can partition work, collect findings, preserve provenance, and route gaps."
+                    "feedback": "A coordinator can partition work, collect findings, preserve provenance, and route gaps.",
+                    "correct": 1
                   },
                   {
                     "label": "Local team",
-                    "feedback": "There is no need for independent local authority."
+                    "feedback": "There is no need for independent local authority.",
+                    "correct": 0
                   },
                   {
                     "label": "Hybrid team",
-                    "feedback": "Useful later, but central routing is the first clean fit."
+                    "feedback": "Useful later, but central routing is the first clean fit.",
+                    "correct": 0
                   }
                 ]
               },
               {
                 "prompt": "Warehouse robots must make fast local path decisions when network connectivity is intermittent.",
-                "answer": 2,
                 "choices": [
                   {
                     "label": "Single agent",
-                    "feedback": "One remote decision owner would be fragile under intermittent connectivity."
+                    "feedback": "One remote decision owner would be fragile under intermittent connectivity.",
+                    "correct": 0
                   },
                   {
                     "label": "Central team",
-                    "feedback": "Central control may be too slow or unavailable for local path decisions."
+                    "feedback": "Central control may be too slow or unavailable for local path decisions.",
+                    "correct": 0
                   },
                   {
                     "label": "Local team",
-                    "feedback": "Decentralized local autonomy fits distributed fast action."
+                    "feedback": "Decentralized local autonomy fits distributed fast action.",
+                    "correct": 1
                   },
                   {
                     "label": "Hybrid team",
-                    "feedback": "A central policy layer may exist, but the stated pressure is local autonomy."
+                    "feedback": "A central policy layer may exist, but the stated pressure is local autonomy.",
+                    "correct": 0
                   }
                 ]
               },
               {
                 "prompt": "A support platform centrally enforces refund policy, while regional agents resolve low-risk cases within local limits.",
-                "answer": 3,
                 "choices": [
                   {
                     "label": "Single agent",
-                    "feedback": "There are central and regional responsibilities."
+                    "feedback": "There are central and regional responsibilities.",
+                    "correct": 0
                   },
                   {
                     "label": "Central team",
-                    "feedback": "Pure central control ignores the local bounded decisions."
+                    "feedback": "Pure central control ignores the local bounded decisions.",
+                    "correct": 0
                   },
                   {
                     "label": "Local team",
-                    "feedback": "Pure decentralization loses the central policy boundary."
+                    "feedback": "Pure decentralization loses the central policy boundary.",
+                    "correct": 0
                   },
                   {
                     "label": "Hybrid team",
-                    "feedback": "Central policy plus bounded local autonomy is the hybrid pattern."
+                    "feedback": "Central policy plus bounded local autonomy is the hybrid pattern.",
+                    "correct": 1
                   }
                 ]
               }

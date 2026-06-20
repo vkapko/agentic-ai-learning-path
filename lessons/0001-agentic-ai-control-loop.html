@@ -63,109 +63,121 @@
             "questions": [
               {
                 "prompt": "A model scores incoming support tickets by churn risk.",
-                "answer": 0,
                 "choices": [
                   {
                     "label": "Predictive",
-                    "feedback": "It maps ticket data to a risk estimate."
+                    "feedback": "It maps ticket data to a risk estimate.",
+                    "correct": 1
                   },
                   {
                     "label": "Generative",
-                    "feedback": "Nothing here produces a new artifact."
+                    "feedback": "Nothing here produces a new artifact.",
+                    "correct": 0
                   },
                   {
                     "label": "Agentic",
-                    "feedback": "No controlled action loop is described."
+                    "feedback": "No controlled action loop is described.",
+                    "correct": 0
                   }
                 ]
               },
               {
                 "prompt": "A model drafts three reply options for an account manager.",
-                "answer": 1,
                 "choices": [
                   {
                     "label": "Predictive",
-                    "feedback": "The output is content, not a score."
+                    "feedback": "The output is content, not a score.",
+                    "correct": 0
                   },
                   {
                     "label": "Generative",
-                    "feedback": "It creates candidate reply text."
+                    "feedback": "It creates candidate reply text.",
+                    "correct": 1
                   },
                   {
                     "label": "Agentic",
-                    "feedback": "Drafting alone does not act in the environment."
+                    "feedback": "Drafting alone does not act in the environment.",
+                    "correct": 0
                   }
                 ]
               },
               {
                 "prompt": "A system reads a ticket, checks policy, updates priority, watches SLA status, and escalates if unresolved.",
-                "answer": 2,
                 "choices": [
                   {
                     "label": "Predictive",
-                    "feedback": "There is more than a one-time estimate."
+                    "feedback": "There is more than a one-time estimate.",
+                    "correct": 0
                   },
                   {
                     "label": "Generative",
-                    "feedback": "Generated text is not the core pattern."
+                    "feedback": "Generated text is not the core pattern.",
+                    "correct": 0
                   },
                   {
                     "label": "Agentic",
-                    "feedback": "It observes, acts, receives feedback, and continues."
+                    "feedback": "It observes, acts, receives feedback, and continues.",
+                    "correct": 1
                   }
                 ]
               },
               {
                 "prompt": "A chatbot calls a weather API once, summarizes the forecast, and ends the turn.",
-                "answer": 1,
                 "choices": [
                   {
                     "label": "Predictive",
-                    "feedback": "The forecast comes from a tool; the chatbot's output is not a score."
+                    "feedback": "The forecast comes from a tool; the chatbot's output is not a score.",
+                    "correct": 0
                   },
                   {
                     "label": "Generative",
-                    "feedback": "One tool call with no loop or stop condition is not a control loop."
+                    "feedback": "One tool call with no loop or stop condition is not a control loop.",
+                    "correct": 1
                   },
                   {
                     "label": "Agentic",
-                    "feedback": "A single tool call is not closed-loop action; there is no observe-and-continue."
+                    "feedback": "A single tool call is not closed-loop action; there is no observe-and-continue.",
+                    "correct": 0
                   }
                 ]
               },
               {
                 "prompt": "A thermostat reads room temperature, compares it to a target, and switches the heater until matched.",
-                "answer": 2,
                 "choices": [
                   {
                     "label": "Predictive",
-                    "feedback": "It does not estimate; it acts on a measured gap."
+                    "feedback": "It does not estimate; it acts on a measured gap.",
+                    "correct": 0
                   },
                   {
                     "label": "Generative",
-                    "feedback": "It produces no artifact; it changes the environment."
+                    "feedback": "It produces no artifact; it changes the environment.",
+                    "correct": 0
                   },
                   {
                     "label": "Agentic",
-                    "feedback": "A reflex agent: perceive, compare to goal, act, observe, repeat. No LLM required."
+                    "feedback": "A reflex agent: perceive, compare to goal, act, observe, repeat. No LLM required.",
+                    "correct": 1
                   }
                 ]
               },
               {
                 "prompt": "A retrieval chatbot remembers the conversation and cites documents, but takes no action beyond replying.",
-                "answer": 1,
                 "choices": [
                   {
                     "label": "Predictive",
-                    "feedback": "Retrieval plus reply is content, not a scored estimate."
+                    "feedback": "Retrieval plus reply is content, not a scored estimate.",
+                    "correct": 0
                   },
                   {
                     "label": "Generative",
-                    "feedback": "Memory and citations still produce only an artifact; nothing changes the environment."
+                    "feedback": "Memory and citations still produce only an artifact; nothing changes the environment.",
+                    "correct": 1
                   },
                   {
                     "label": "Agentic",
-                    "feedback": "Memory alone is not agency without environment-changing action and feedback."
+                    "feedback": "Memory alone is not agency without environment-changing action and feedback.",
+                    "correct": 0
                   }
                 ]
               }

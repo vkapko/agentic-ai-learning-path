@@ -74,105 +74,121 @@
             "questions": [
               {
                 "prompt": "A product page needs a concise rewrite. No tools, no policy action, no hidden state.",
-                "answer": 0,
                 "choices": [
                   {
                     "label": "One-shot answer",
-                    "feedback": "A bounded low-risk generation task does not need an action loop."
+                    "feedback": "A bounded low-risk generation task does not need an action loop.",
+                    "correct": 1
                   },
                   {
                     "label": "Structured plan",
-                    "feedback": "Decomposition would add little because no multi-step dependency is described."
+                    "feedback": "Decomposition would add little because no multi-step dependency is described.",
+                    "correct": 0
                   },
                   {
                     "label": "ReAct loop",
-                    "feedback": "There is no live observation that changes the next action."
+                    "feedback": "There is no live observation that changes the next action.",
+                    "correct": 0
                   },
                   {
                     "label": "Reflection pass",
-                    "feedback": "A review pass may help polish, but it is not required by the pressure."
+                    "feedback": "A review pass may help polish, but it is not required by the pressure.",
+                    "correct": 0
                   },
                   {
                     "label": "Episode memory",
-                    "feedback": "No repeated feedback pattern is described."
+                    "feedback": "No repeated feedback pattern is described.",
+                    "correct": 0
                   }
                 ]
               },
               {
                 "prompt": "A support agent must inspect order history, check policy, then decide whether to escalate.",
-                "answer": 2,
                 "choices": [
                   {
                     "label": "One-shot answer",
-                    "feedback": "The model needs observations from tools before deciding."
+                    "feedback": "The model needs observations from tools before deciding.",
+                    "correct": 0
                   },
                   {
                     "label": "Structured plan",
-                    "feedback": "A plan helps, but tool observations drive the next decision."
+                    "feedback": "A plan helps, but tool observations drive the next decision.",
+                    "correct": 0
                   },
                   {
                     "label": "ReAct loop",
-                    "feedback": "Tool results and policy observations determine whether the workflow continues or escalates."
+                    "feedback": "Tool results and policy observations determine whether the workflow continues or escalates.",
+                    "correct": 1
                   },
                   {
                     "label": "Reflection pass",
-                    "feedback": "Review may be useful later, but observation-driven action is the main pressure."
+                    "feedback": "Review may be useful later, but observation-driven action is the main pressure.",
+                    "correct": 0
                   },
                   {
                     "label": "Episode memory",
-                    "feedback": "No future-use feedback store is required by the scenario."
+                    "feedback": "No future-use feedback store is required by the scenario.",
+                    "correct": 0
                   }
                 ]
               },
               {
                 "prompt": "A legal summary must be reviewed for missing caveats before it is shown to a user.",
-                "answer": 3,
                 "choices": [
                   {
                     "label": "One-shot answer",
-                    "feedback": "The scenario explicitly asks for a second pass before release."
+                    "feedback": "The scenario explicitly asks for a second pass before release.",
+                    "correct": 0
                   },
                   {
                     "label": "Structured plan",
-                    "feedback": "Planning alone does not create the requested review boundary."
+                    "feedback": "Planning alone does not create the requested review boundary.",
+                    "correct": 0
                   },
                   {
                     "label": "ReAct loop",
-                    "feedback": "No changing environment or tool observation is central here."
+                    "feedback": "No changing environment or tool observation is central here.",
+                    "correct": 0
                   },
                   {
                     "label": "Reflection pass",
-                    "feedback": "A critique-and-revise step fits the quality review pressure."
+                    "feedback": "A critique-and-revise step fits the quality review pressure.",
+                    "correct": 1
                   },
                   {
                     "label": "Episode memory",
-                    "feedback": "Stored feedback may help later, but this asks for pre-release review."
+                    "feedback": "Stored feedback may help later, but this asks for pre-release review.",
+                    "correct": 0
                   }
                 ]
               },
               {
                 "prompt": "A coding assistant keeps making the same migration mistake after human corrections.",
-                "answer": 4,
                 "choices": [
                   {
                     "label": "One-shot answer",
-                    "feedback": "The issue is repeated behavior across attempts, not one response."
+                    "feedback": "The issue is repeated behavior across attempts, not one response.",
+                    "correct": 0
                   },
                   {
                     "label": "Structured plan",
-                    "feedback": "A plan may help one task, but it will not preserve corrections."
+                    "feedback": "A plan may help one task, but it will not preserve corrections.",
+                    "correct": 0
                   },
                   {
                     "label": "ReAct loop",
-                    "feedback": "Tool observations are not the central missing capability."
+                    "feedback": "Tool observations are not the central missing capability.",
+                    "correct": 0
                   },
                   {
                     "label": "Reflection pass",
-                    "feedback": "A review pass can catch one error, but the pattern asks to reuse feedback later."
+                    "feedback": "A review pass can catch one error, but the pattern asks to reuse feedback later.",
+                    "correct": 0
                   },
                   {
                     "label": "Episode memory",
-                    "feedback": "Store human corrections with scope, provenance, confidence, and expiry so future attempts can use them."
+                    "feedback": "Store human corrections with scope, provenance, confidence, and expiry so future attempts can use them.",
+                    "correct": 1
                   }
                 ]
               }

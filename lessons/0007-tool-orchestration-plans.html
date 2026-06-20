@@ -74,89 +74,101 @@
             "questions": [
               {
                 "prompt": "The workflow must read account status before deciding which policy document to fetch.",
-                "answer": 0,
                 "choices": [
                   {
                     "label": "Run serially",
-                    "feedback": "The second call depends on the first result."
+                    "feedback": "The second call depends on the first result.",
+                    "correct": 1
                   },
                   {
                     "label": "Run parallel",
-                    "feedback": "Parallel calls need independence, and this one has a dependency."
+                    "feedback": "Parallel calls need independence, and this one has a dependency.",
+                    "correct": 0
                   },
                   {
                     "label": "Gate action",
-                    "feedback": "No sensitive action is described yet."
+                    "feedback": "No sensitive action is described yet.",
+                    "correct": 0
                   },
                   {
                     "label": "Skip tools",
-                    "feedback": "The answer depends on external account state."
+                    "feedback": "The answer depends on external account state.",
+                    "correct": 0
                   }
                 ]
               },
               {
                 "prompt": "The workflow needs order history, shipping status, and refund policy. None require outputs from the others.",
-                "answer": 1,
                 "choices": [
                   {
                     "label": "Run serially",
-                    "feedback": "Serial execution works but wastes latency when calls are independent."
+                    "feedback": "Serial execution works but wastes latency when calls are independent.",
+                    "correct": 0
                   },
                   {
                     "label": "Run parallel",
-                    "feedback": "Independent reads can be fetched together, then synthesized."
+                    "feedback": "Independent reads can be fetched together, then synthesized.",
+                    "correct": 1
                   },
                   {
                     "label": "Gate action",
-                    "feedback": "These are read calls, not sensitive write actions."
+                    "feedback": "These are read calls, not sensitive write actions.",
+                    "correct": 0
                   },
                   {
                     "label": "Skip tools",
-                    "feedback": "The workflow asks for external facts."
+                    "feedback": "The workflow asks for external facts.",
+                    "correct": 0
                   }
                 ]
               },
               {
                 "prompt": "The workflow can issue a refund after checking eligibility, but the amount is above the automatic limit.",
-                "answer": 2,
                 "choices": [
                   {
                     "label": "Run serially",
-                    "feedback": "Sequencing alone does not enforce the approval boundary."
+                    "feedback": "Sequencing alone does not enforce the approval boundary.",
+                    "correct": 0
                   },
                   {
                     "label": "Run parallel",
-                    "feedback": "Parallelization does not solve authorization."
+                    "feedback": "Parallelization does not solve authorization.",
+                    "correct": 0
                   },
                   {
                     "label": "Gate action",
-                    "feedback": "The controller should require approval before the sensitive effect."
+                    "feedback": "The controller should require approval before the sensitive effect.",
+                    "correct": 1
                   },
                   {
                     "label": "Skip tools",
-                    "feedback": "Eligibility and refund execution still require tool handling."
+                    "feedback": "Eligibility and refund execution still require tool handling.",
+                    "correct": 0
                   }
                 ]
               },
               {
                 "prompt": "The user asks for a quick tone rewrite. No external facts, permissions, or actions are needed.",
-                "answer": 3,
                 "choices": [
                   {
                     "label": "Run serially",
-                    "feedback": "There are no tool calls to sequence."
+                    "feedback": "There are no tool calls to sequence.",
+                    "correct": 0
                   },
                   {
                     "label": "Run parallel",
-                    "feedback": "There are no independent calls to parallelize."
+                    "feedback": "There are no independent calls to parallelize.",
+                    "correct": 0
                   },
                   {
                     "label": "Gate action",
-                    "feedback": "No sensitive action is being taken."
+                    "feedback": "No sensitive action is being taken.",
+                    "correct": 0
                   },
                   {
                     "label": "Skip tools",
-                    "feedback": "A bounded generation task can stay as a model response."
+                    "feedback": "A bounded generation task can stay as a model response.",
+                    "correct": 1
                   }
                 ]
               }

@@ -63,89 +63,101 @@
             "questions": [
               {
                 "prompt": "Five independent source lookups must run in parallel, each with a narrow tool, under one progress tracker.",
-                "answer": 0,
                 "choices": [
                   {
                     "label": "Fan workers",
-                    "feedback": "Orchestrator-worker fits parallelizable subtasks with narrow-tool workers and centralized tracking."
+                    "feedback": "Orchestrator-worker fits parallelizable subtasks with narrow-tool workers and centralized tracking.",
+                    "correct": 1
                   },
                   {
                     "label": "Stack layers",
-                    "feedback": "A hierarchy adds coordination overhead the task does not yet need."
+                    "feedback": "A hierarchy adds coordination overhead the task does not yet need.",
+                    "correct": 0
                   },
                   {
                     "label": "Open debate",
-                    "feedback": "Debate suits domain disagreement, not independent parallel lookups."
+                    "feedback": "Debate suits domain disagreement, not independent parallel lookups.",
+                    "correct": 0
                   },
                   {
                     "label": "Solo agent",
-                    "feedback": "One agent serializes work that could safely run in parallel."
+                    "feedback": "One agent serializes work that could safely run in parallel.",
+                    "correct": 0
                   }
                 ]
               },
               {
                 "prompt": "A single compliance decision needs legal, security, and finance reasoning, each likely to catch what the others miss.",
-                "answer": 1,
                 "choices": [
                   {
                     "label": "Fan workers",
-                    "feedback": "Independent fan-out misses the cross-domain reasoning the decision requires."
+                    "feedback": "Independent fan-out misses the cross-domain reasoning the decision requires.",
+                    "correct": 0
                   },
                   {
                     "label": "Expert team",
-                    "feedback": "A specialized expert team collaborates when one subtask needs multiple domains of reasoning."
+                    "feedback": "A specialized expert team collaborates when one subtask needs multiple domains of reasoning.",
+                    "correct": 1
                   },
                   {
                     "label": "Stack layers",
-                    "feedback": "A hierarchy organizes scale, not multi-domain reasoning on one decision."
+                    "feedback": "A hierarchy organizes scale, not multi-domain reasoning on one decision.",
+                    "correct": 0
                   },
                   {
                     "label": "Solo agent",
-                    "feedback": "One general agent is likely to miss domain-specific constraints."
+                    "feedback": "One general agent is likely to miss domain-specific constraints.",
+                    "correct": 0
                   }
                 ]
               },
               {
                 "prompt": "A workflow grew so large that one orchestrator can no longer track all its subtasks efficiently.",
-                "answer": 2,
                 "choices": [
                   {
                     "label": "Add tools",
-                    "feedback": "More tools do not relieve a single orchestrator's coordination load."
+                    "feedback": "More tools do not relieve a single orchestrator's coordination load.",
+                    "correct": 0
                   },
                   {
                     "label": "Open debate",
-                    "feedback": "Debate addresses disagreement, not tracking scale."
+                    "feedback": "Debate addresses disagreement, not tracking scale.",
+                    "correct": 0
                   },
                   {
                     "label": "Stack layers",
-                    "feedback": "A hierarchy of sub-orchestrators distributes tracking when one cannot scale."
+                    "feedback": "A hierarchy of sub-orchestrators distributes tracking when one cannot scale.",
+                    "correct": 1
                   },
                   {
                     "label": "Drop steps",
-                    "feedback": "Cutting steps changes the task instead of coordinating it."
+                    "feedback": "Cutting steps changes the task instead of coordinating it.",
+                    "correct": 0
                   }
                 ]
               },
               {
                 "prompt": "Two workers wrote conflicting order-status values to shared memory within the same task.",
-                "answer": 3,
                 "choices": [
                   {
                     "label": "Pick newer",
-                    "feedback": "Recency alone can override a more authoritative or correct write."
+                    "feedback": "Recency alone can override a more authoritative or correct write.",
+                    "correct": 0
                   },
                   {
                     "label": "Keep both",
-                    "feedback": "Silently keeping both leaves downstream agents reading contradictory truth."
+                    "feedback": "Silently keeping both leaves downstream agents reading contradictory truth.",
+                    "correct": 0
                   },
                   {
                     "label": "Drop value",
-                    "feedback": "Deleting the field loses state other agents depend on."
+                    "feedback": "Deleting the field loses state other agents depend on.",
+                    "correct": 0
                   },
                   {
                     "label": "Run rules",
-                    "feedback": "Apply explicit conflict resolution using ownership, provenance, and versioning."
+                    "feedback": "Apply explicit conflict resolution using ownership, provenance, and versioning.",
+                    "correct": 1
                   }
                 ]
               }

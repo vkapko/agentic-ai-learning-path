@@ -68,89 +68,101 @@
             "questions": [
               {
                 "prompt": "An order lookup returns 40 fields, but the refund decision needs order ID, amount, date, status, and return eligibility.",
-                "answer": 0,
                 "choices": [
                   {
                     "label": "Trim fields",
-                    "feedback": "Keep the decision-relevant fields and avoid filling context with irrelevant output."
+                    "feedback": "Keep the decision-relevant fields and avoid filling context with irrelevant output.",
+                    "correct": 1
                   },
                   {
                     "label": "Keep output",
-                    "feedback": "Verbose tool output consumes context and can hide the useful facts."
+                    "feedback": "Verbose tool output consumes context and can hide the useful facts.",
+                    "correct": 0
                   },
                   {
                     "label": "Summarize loosely",
-                    "feedback": "Loose summaries risk losing exact amounts, dates, and statuses."
+                    "feedback": "Loose summaries risk losing exact amounts, dates, and statuses.",
+                    "correct": 0
                   },
                   {
                     "label": "Delete result",
-                    "feedback": "Removing the evidence breaks downstream audit and recovery."
+                    "feedback": "Removing the evidence breaks downstream audit and recovery.",
+                    "correct": 0
                   }
                 ]
               },
               {
                 "prompt": "A customer explicitly asks to talk to a human agent before any investigation starts.",
-                "answer": 1,
                 "choices": [
                   {
                     "label": "Score sentiment",
-                    "feedback": "Sentiment is a weak proxy when the user has already made an explicit request."
+                    "feedback": "Sentiment is a weak proxy when the user has already made an explicit request.",
+                    "correct": 0
                   },
                   {
                     "label": "Escalate now",
-                    "feedback": "Explicit human requests are direct escalation triggers."
+                    "feedback": "Explicit human requests are direct escalation triggers.",
+                    "correct": 1
                   },
                   {
                     "label": "Investigate first",
-                    "feedback": "Do not override an explicit human-request boundary with autonomous work."
+                    "feedback": "Do not override an explicit human-request boundary with autonomous work.",
+                    "correct": 0
                   },
                   {
                     "label": "Delay handoff",
-                    "feedback": "Delaying the handoff ignores the stated preference."
+                    "feedback": "Delaying the handoff ignores the stated preference.",
+                    "correct": 0
                   }
                 ]
               },
               {
                 "prompt": "A search subagent times out after retry but has two partial findings and suggested alternate queries.",
-                "answer": 2,
                 "choices": [
                   {
                     "label": "Hide timeout",
-                    "feedback": "Suppressing failure makes the coordinator overtrust incomplete coverage."
+                    "feedback": "Suppressing failure makes the coordinator overtrust incomplete coverage.",
+                    "correct": 0
                   },
                   {
                     "label": "Claim complete",
-                    "feedback": "The timed-out source path must be represented as a coverage gap."
+                    "feedback": "The timed-out source path must be represented as a coverage gap.",
+                    "correct": 0
                   },
                   {
                     "label": "Return packet",
-                    "feedback": "Structured error context lets the coordinator retry differently, proceed partially, or escalate."
+                    "feedback": "Structured error context lets the coordinator retry differently, proceed partially, or escalate.",
+                    "correct": 1
                   },
                   {
                     "label": "Stop system",
-                    "feedback": "A single failed branch should not always terminate the whole workflow."
+                    "feedback": "A single failed branch should not always terminate the whole workflow.",
+                    "correct": 0
                   }
                 ]
               },
               {
                 "prompt": "Two credible reports give different market-size numbers, and one was collected in 2024 while the other was collected in 2026.",
-                "answer": 3,
                 "choices": [
                   {
                     "label": "Average values",
-                    "feedback": "Averaging hides source methodology and temporal differences."
+                    "feedback": "Averaging hides source methodology and temporal differences.",
+                    "correct": 0
                   },
                   {
                     "label": "Pick latest",
-                    "feedback": "The latest value may not use the same scope or method."
+                    "feedback": "The latest value may not use the same scope or method.",
+                    "correct": 0
                   },
                   {
                     "label": "Drop conflict",
-                    "feedback": "Removing the conflict loses important uncertainty."
+                    "feedback": "Removing the conflict loses important uncertainty.",
+                    "correct": 0
                   },
                   {
                     "label": "Preserve dates",
-                    "feedback": "Keep both claims with source attribution, collection dates, and conflict notes."
+                    "feedback": "Keep both claims with source attribution, collection dates, and conflict notes.",
+                    "correct": 1
                   }
                 ]
               }

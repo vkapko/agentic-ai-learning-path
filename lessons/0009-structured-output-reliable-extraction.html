@@ -68,89 +68,101 @@
             "questions": [
               {
                 "prompt": "A source document may omit the vendor tax ID, but downstream storage has a tax_id field.",
-                "answer": 0,
                 "choices": [
                   {
                     "label": "Allow null",
-                    "feedback": "Nullable fields let the model represent absence instead of inventing a tax ID."
+                    "feedback": "Nullable fields let the model represent absence instead of inventing a tax ID.",
+                    "correct": 1
                   },
                   {
                     "label": "Require text",
-                    "feedback": "A required value can pressure the model to fabricate when the source is silent."
+                    "feedback": "A required value can pressure the model to fabricate when the source is silent.",
+                    "correct": 0
                   },
                   {
                     "label": "Infer value",
-                    "feedback": "Inference is not extraction unless the architecture explicitly allows it."
+                    "feedback": "Inference is not extraction unless the architecture explicitly allows it.",
+                    "correct": 0
                   },
                   {
                     "label": "Drop field",
-                    "feedback": "Dropping the field loses a useful absence signal for downstream handling."
+                    "feedback": "Dropping the field loses a useful absence signal for downstream handling.",
+                    "correct": 0
                   }
                 ]
               },
               {
                 "prompt": "The JSON shape is valid, but invoice line items add to $94 while the stated total is $109.",
-                "answer": 1,
                 "choices": [
                   {
                     "label": "Accept shape",
-                    "feedback": "Schema compliance does not prove the extracted values are semantically correct."
+                    "feedback": "Schema compliance does not prove the extracted values are semantically correct.",
+                    "correct": 0
                   },
                   {
                     "label": "Flag mismatch",
-                    "feedback": "This is a semantic validation failure that should be surfaced or repaired."
+                    "feedback": "This is a semantic validation failure that should be surfaced or repaired.",
+                    "correct": 1
                   },
                   {
                     "label": "Hide total",
-                    "feedback": "Removing evidence makes the downstream result less auditable."
+                    "feedback": "Removing evidence makes the downstream result less auditable.",
+                    "correct": 0
                   },
                   {
                     "label": "Skip source",
-                    "feedback": "The source is needed to decide whether the extraction or document is inconsistent."
+                    "feedback": "The source is needed to decide whether the extraction or document is inconsistent.",
+                    "correct": 0
                   }
                 ]
               },
               {
                 "prompt": "The model put a date into the wrong field, and the source clearly contains both dates.",
-                "answer": 2,
                 "choices": [
                   {
                     "label": "Stop now",
-                    "feedback": "This looks repairable because the needed evidence exists in the source."
+                    "feedback": "This looks repairable because the needed evidence exists in the source.",
+                    "correct": 0
                   },
                   {
                     "label": "Trust model",
-                    "feedback": "The validation error identified a concrete field placement problem."
+                    "feedback": "The validation error identified a concrete field placement problem.",
+                    "correct": 0
                   },
                   {
                     "label": "Retry scoped",
-                    "feedback": "Retry with the source, failed extraction, and exact validation error."
+                    "feedback": "Retry with the source, failed extraction, and exact validation error.",
+                    "correct": 1
                   },
                   {
                     "label": "Invent rule",
-                    "feedback": "A new rule is unnecessary when the current validator already found the issue."
+                    "feedback": "A new rule is unnecessary when the current validator already found the issue.",
+                    "correct": 0
                   }
                 ]
               },
               {
                 "prompt": "A required contract expiration date is not present anywhere in the source.",
-                "answer": 3,
                 "choices": [
                   {
                     "label": "Retry loop",
-                    "feedback": "Repeated retries cannot extract evidence that is not in the document."
+                    "feedback": "Repeated retries cannot extract evidence that is not in the document.",
+                    "correct": 0
                   },
                   {
                     "label": "Guess date",
-                    "feedback": "Guessing turns absence into fabricated certainty."
+                    "feedback": "Guessing turns absence into fabricated certainty.",
+                    "correct": 0
                   },
                   {
                     "label": "Use today",
-                    "feedback": "The current date is not evidence of contract expiration."
+                    "feedback": "The current date is not evidence of contract expiration.",
+                    "correct": 0
                   },
                   {
                     "label": "Return null",
-                    "feedback": "Null with an absence note is the honest extraction result."
+                    "feedback": "Null with an absence note is the honest extraction result.",
+                    "correct": 1
                   }
                 ]
               }

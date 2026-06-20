@@ -75,89 +75,101 @@
             "questions": [
               {
                 "prompt": "An agent learns that a given user always wants invoices sent as PDF, not as a link.",
-                "answer": 0,
                 "choices": [
                   {
                     "label": "Episodic memory",
-                    "feedback": "A user preference from a past interaction is episodic — scoped to that user, retrieved when acting on their behalf."
+                    "feedback": "A user preference from a past interaction is episodic — scoped to that user, retrieved when acting on their behalf.",
+                    "correct": 1
                   },
                   {
                     "label": "Procedural memory",
-                    "feedback": "Procedural memory records which tool sequence worked, not a per-user preference."
+                    "feedback": "Procedural memory records which tool sequence worked, not a per-user preference.",
+                    "correct": 0
                   },
                   {
                     "label": "Policy update rule",
-                    "feedback": "One user's preference is not a system-wide rule; storing it as policy would over-apply it."
+                    "feedback": "One user's preference is not a system-wide rule; storing it as policy would over-apply it.",
+                    "correct": 0
                   },
                   {
                     "label": "Model-weight change",
-                    "feedback": "A preference never needs retraining; a memory write captures it instantly and reversibly."
+                    "feedback": "A preference never needs retraining; a memory write captures it instantly and reversibly.",
+                    "correct": 0
                   }
                 ]
               },
               {
                 "prompt": "Across many runs, the search tool reliably needs three retries before it returns, while the booking tool succeeds first try.",
-                "answer": 1,
                 "choices": [
                   {
                     "label": "Episodic memory",
-                    "feedback": "This is about tool behavior over time, not a specific user interaction."
+                    "feedback": "This is about tool behavior over time, not a specific user interaction.",
+                    "correct": 0
                   },
                   {
                     "label": "Procedural memory",
-                    "feedback": "Tool outcomes, latency, and success rates are procedural — reusable knowledge about how to act well."
+                    "feedback": "Tool outcomes, latency, and success rates are procedural — reusable knowledge about how to act well.",
+                    "correct": 1
                   },
                   {
                     "label": "Scratchpad only",
-                    "feedback": "A pattern that holds across runs belongs in durable memory, not the discarded scratchpad."
+                    "feedback": "A pattern that holds across runs belongs in durable memory, not the discarded scratchpad.",
+                    "correct": 0
                   },
                   {
                     "label": "Model-weight change",
-                    "feedback": "Tool reliability is operational data; retraining the model would not capture it."
+                    "feedback": "Tool reliability is operational data; retraining the model would not capture it.",
+                    "correct": 0
                   }
                 ]
               },
               {
                 "prompt": "The team decides every refund above five hundred dollars must now get human approval.",
-                "answer": 2,
                 "choices": [
                   {
                     "label": "Episodic memory",
-                    "feedback": "A rule that binds every run is not a per-interaction record; storing it as episodic lets one record drift."
+                    "feedback": "A rule that binds every run is not a per-interaction record; storing it as episodic lets one record drift.",
+                    "correct": 0
                   },
                   {
                     "label": "Procedural memory",
-                    "feedback": "This is a constraint on what is allowed, not a record of what worked before."
+                    "feedback": "This is a constraint on what is allowed, not a record of what worked before.",
+                    "correct": 0
                   },
                   {
                     "label": "Policy update rule",
-                    "feedback": "A system-wide constraint is a policy/threshold change that needs review and applies to all runs."
+                    "feedback": "A system-wide constraint is a policy/threshold change that needs review and applies to all runs.",
+                    "correct": 1
                   },
                   {
                     "label": "Model-weight change",
-                    "feedback": "An approval threshold is a rule to enforce, not behavior to retrain into the model."
+                    "feedback": "An approval threshold is a rule to enforce, not behavior to retrain into the model.",
+                    "correct": 0
                   }
                 ]
               },
               {
                 "prompt": "Two stored memories about the same account disagree. Which one should retrieval prefer?",
-                "answer": 1,
                 "choices": [
                   {
                     "label": "Most similar text",
-                    "feedback": "Picking by similarity alone is exactly the failure mode — it ignores which record is authoritative or current."
+                    "feedback": "Picking by similarity alone is exactly the failure mode — it ignores which record is authoritative or current.",
+                    "correct": 0
                   },
                   {
                     "label": "Higher authority, recent",
-                    "feedback": "Rank by authority and recency: a current, higher-trust record should beat a stale or lower-confidence one."
+                    "feedback": "Rank by authority and recency: a current, higher-trust record should beat a stale or lower-confidence one.",
+                    "correct": 1
                   },
                   {
                     "label": "Longer record text",
-                    "feedback": "Length is not evidence of correctness or currency."
+                    "feedback": "Length is not evidence of correctness or currency.",
+                    "correct": 0
                   },
                   {
                     "label": "Whichever loads fast",
-                    "feedback": "Retrieval speed says nothing about which record is true."
+                    "feedback": "Retrieval speed says nothing about which record is true.",
+                    "correct": 0
                   }
                 ]
               }

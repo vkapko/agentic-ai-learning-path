@@ -79,89 +79,101 @@
             "questions": [
               {
                 "prompt": "The agent calls get_customer for order-number questions because get_customer and lookup_order have vague descriptions.",
-                "answer": 0,
                 "choices": [
                   {
                     "label": "Clarify descriptions",
-                    "feedback": "The root problem is ambiguous tool purpose and boundary."
+                    "feedback": "The root problem is ambiguous tool purpose and boundary.",
+                    "correct": 1
                   },
                   {
                     "label": "Add reflection",
-                    "feedback": "A critique pass does not fix unclear tool affordances."
+                    "feedback": "A critique pass does not fix unclear tool affordances.",
+                    "correct": 0
                   },
                   {
                     "label": "Increase retries",
-                    "feedback": "Retrying repeats the same selection confusion."
+                    "feedback": "Retrying repeats the same selection confusion.",
+                    "correct": 0
                   },
                   {
                     "label": "Store memory",
-                    "feedback": "Memory is not the first fix for a tool contract defect."
+                    "feedback": "Memory is not the first fix for a tool contract defect.",
+                    "correct": 0
                   }
                 ]
               },
               {
                 "prompt": "A refund tool can issue money. The model should recommend, but amounts over $100 require human approval.",
-                "answer": 1,
                 "choices": [
                   {
                     "label": "Verbose prompt",
-                    "feedback": "A prompt reminder is weaker than an enforced authority boundary."
+                    "feedback": "A prompt reminder is weaker than an enforced authority boundary.",
+                    "correct": 0
                   },
                   {
                     "label": "Permission gate",
-                    "feedback": "The controller should block or route calls that exceed authority."
+                    "feedback": "The controller should block or route calls that exceed authority.",
+                    "correct": 1
                   },
                   {
                     "label": "Bigger model",
-                    "feedback": "Model quality does not replace a hard approval rule."
+                    "feedback": "Model quality does not replace a hard approval rule.",
+                    "correct": 0
                   },
                   {
                     "label": "More examples",
-                    "feedback": "Examples help selection, not financial authorization."
+                    "feedback": "Examples help selection, not financial authorization.",
+                    "correct": 0
                   }
                 ]
               },
               {
                 "prompt": "A search tool times out and returns an empty list, so the final report claims there were no sources.",
-                "answer": 2,
                 "choices": [
                   {
                     "label": "Hide timeout",
-                    "feedback": "That preserves the failure as a false empty result."
+                    "feedback": "That preserves the failure as a false empty result.",
+                    "correct": 0
                   },
                   {
                     "label": "Repeat forever",
-                    "feedback": "Retries need limits and error context."
+                    "feedback": "Retries need limits and error context.",
+                    "correct": 0
                   },
                   {
                     "label": "Return error state",
-                    "feedback": "The coordinator needs failure type, attempted query, partial results, and recovery options."
+                    "feedback": "The coordinator needs failure type, attempted query, partial results, and recovery options.",
+                    "correct": 1
                   },
                   {
                     "label": "Drop source notes",
-                    "feedback": "That makes provenance and coverage worse."
+                    "feedback": "That makes provenance and coverage worse.",
+                    "correct": 0
                   }
                 ]
               },
               {
                 "prompt": "A lookup tool returns 40 fields, but the model only needs return eligibility and delivery status.",
-                "answer": 3,
                 "choices": [
                   {
                     "label": "Expose all data",
-                    "feedback": "Unfiltered output wastes context and may leak irrelevant data."
+                    "feedback": "Unfiltered output wastes context and may leak irrelevant data.",
+                    "correct": 0
                   },
                   {
                     "label": "Ask user again",
-                    "feedback": "The issue is output shape, not missing user intent."
+                    "feedback": "The issue is output shape, not missing user intent.",
+                    "correct": 0
                   },
                   {
                     "label": "Use no schema",
-                    "feedback": "A looser result shape makes the problem harder."
+                    "feedback": "A looser result shape makes the problem harder.",
+                    "correct": 0
                   },
                   {
                     "label": "Trim result shape",
-                    "feedback": "Return only task-relevant fields and preserve the raw lookup outside model context if needed."
+                    "feedback": "Return only task-relevant fields and preserve the raw lookup outside model context if needed.",
+                    "correct": 1
                   }
                 ]
               }

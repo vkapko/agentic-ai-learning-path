@@ -63,89 +63,101 @@
             "questions": [
               {
                 "prompt": "An irreversible trade-routing decision needs several candidate action paths weighed and scored before one is committed.",
-                "answer": 0,
                 "choices": [
                   {
                     "label": "Search paths",
-                    "feedback": "LATS explores and scores multiple action paths before committing, which fits costly-to-reverse decisions."
+                    "feedback": "LATS explores and scores multiple action paths before committing, which fits costly-to-reverse decisions.",
+                    "correct": 1
                   },
                   {
                     "label": "Compose method",
-                    "feedback": "Self-Discover front-loads a strategy; it does not weigh multiple action paths mid-task."
+                    "feedback": "Self-Discover front-loads a strategy; it does not weigh multiple action paths mid-task.",
+                    "correct": 0
                   },
                   {
                     "label": "Add verifier",
-                    "feedback": "A verifier checks one output; it does not explore alternative paths before choosing."
+                    "feedback": "A verifier checks one output; it does not explore alternative paths before choosing.",
+                    "correct": 0
                   },
                   {
                     "label": "Single shot",
-                    "feedback": "A single pass commits without exploring the alternatives the stakes demand."
+                    "feedback": "A single pass commits without exploring the alternatives the stakes demand.",
+                    "correct": 0
                   }
                 ]
               },
               {
                 "prompt": "A zero-day vulnerability triage has no standard procedure, so the agent must invent a reasoning structure before solving it.",
-                "answer": 1,
                 "choices": [
                   {
                     "label": "Search paths",
-                    "feedback": "Path search explores actions but does not compose a new reasoning structure for a novel task."
+                    "feedback": "Path search explores actions but does not compose a new reasoning structure for a novel task.",
+                    "correct": 0
                   },
                   {
                     "label": "Compose method",
-                    "feedback": "Self-Discover composes a task-specific reasoning structure first, which fits novel problems with no fixed shape."
+                    "feedback": "Self-Discover composes a task-specific reasoning structure first, which fits novel problems with no fixed shape.",
+                    "correct": 1
                   },
                   {
                     "label": "Add verifier",
-                    "feedback": "A verifier audits an answer; it does not supply the missing solution strategy."
+                    "feedback": "A verifier audits an answer; it does not supply the missing solution strategy.",
+                    "correct": 0
                   },
                   {
                     "label": "Single shot",
-                    "feedback": "A single generic pass is likely to miss structure a novel problem needs."
+                    "feedback": "A single generic pass is likely to miss structure a novel problem needs.",
+                    "correct": 0
                   }
                 ]
               },
               {
                 "prompt": "A booking agent's itinerary must be validated against live availability before any reservation is actually placed.",
-                "answer": 2,
                 "choices": [
                   {
                     "label": "Search paths",
-                    "feedback": "Exploring paths does not confirm the chosen plan against external ground truth."
+                    "feedback": "Exploring paths does not confirm the chosen plan against external ground truth.",
+                    "correct": 0
                   },
                   {
                     "label": "Compose method",
-                    "feedback": "A reasoning strategy does not check the output against live availability."
+                    "feedback": "A reasoning strategy does not check the output against live availability.",
+                    "correct": 0
                   },
                   {
                     "label": "Add verifier",
-                    "feedback": "A second-pass verifier with an availability cross-check audits the plan before the action runs."
+                    "feedback": "A second-pass verifier with an availability cross-check audits the plan before the action runs.",
+                    "correct": 1
                   },
                   {
                     "label": "Single shot",
-                    "feedback": "Acting on an unchecked plan is exactly what high-stakes booking should avoid."
+                    "feedback": "Acting on an unchecked plan is exactly what high-stakes booking should avoid.",
+                    "correct": 0
                   }
                 ]
               },
               {
                 "prompt": "A high-stakes plan must be reviewed before execution. Which review most reduces shared blind spots?",
-                "answer": 1,
                 "choices": [
                   {
                     "label": "Same context",
-                    "feedback": "The same instance re-reading the same context inherits the generator's blind spots and tends to rationalize."
+                    "feedback": "The same instance re-reading the same context inherits the generator's blind spots and tends to rationalize.",
+                    "correct": 0
                   },
                   {
                     "label": "Independent check",
-                    "feedback": "A separate instance, model, rule system, or tool with its own evidence can catch what the generator could not."
+                    "feedback": "A separate instance, model, rule system, or tool with its own evidence can catch what the generator could not.",
+                    "correct": 1
                   },
                   {
                     "label": "Longer prompt",
-                    "feedback": "More instructions do not give the reviewer evidence the generator lacked."
+                    "feedback": "More instructions do not give the reviewer evidence the generator lacked.",
+                    "correct": 0
                   },
                   {
                     "label": "Higher budget",
-                    "feedback": "More tokens to the same reviewer add cost, not independence."
+                    "feedback": "More tokens to the same reviewer add cost, not independence.",
+                    "correct": 0
                   }
                 ]
               }

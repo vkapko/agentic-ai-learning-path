@@ -58,133 +58,151 @@
             "questions": [
               {
                 "prompt": "When an order is placed, the system immediately sends a confirmation email. Nothing else is tracked.",
-                "answer": 0,
                 "choices": [
                   {
                     "label": "Simple reflex",
-                    "feedback": "One condition maps directly to one action with no stored state."
+                    "feedback": "One condition maps directly to one action with no stored state.",
+                    "correct": 1
                   },
                   {
                     "label": "Model-based reflex",
-                    "feedback": "No internal state is consulted; the latest event is enough."
+                    "feedback": "No internal state is consulted; the latest event is enough.",
+                    "correct": 0
                   },
                   {
                     "label": "Goal-based",
-                    "feedback": "There is no desired end state to plan toward."
+                    "feedback": "There is no desired end state to plan toward.",
+                    "correct": 0
                   },
                   {
                     "label": "Utility-based",
-                    "feedback": "Nothing is being scored or compared."
+                    "feedback": "Nothing is being scored or compared.",
+                    "correct": 0
                   }
                 ]
               },
               {
                 "prompt": "A restocker checks current demand and supplier lead-time state before deciding whether a low-inventory reading should trigger an order.",
-                "answer": 1,
                 "choices": [
                   {
                     "label": "Simple reflex",
-                    "feedback": "The latest reading alone is not enough; it consults stored state."
+                    "feedback": "The latest reading alone is not enough; it consults stored state.",
+                    "correct": 0
                   },
                   {
                     "label": "Model-based reflex",
-                    "feedback": "Rules fire against an internal model of demand and lead time, not just the percept."
+                    "feedback": "Rules fire against an internal model of demand and lead time, not just the percept.",
+                    "correct": 1
                   },
                   {
                     "label": "Goal-based",
-                    "feedback": "It applies rules to state rather than planning a sequence toward a goal."
+                    "feedback": "It applies rules to state rather than planning a sequence toward a goal.",
+                    "correct": 0
                   },
                   {
                     "label": "Utility-based",
-                    "feedback": "It is not weighing multiple successful outcomes against each other."
+                    "feedback": "It is not weighing multiple successful outcomes against each other.",
+                    "correct": 0
                   }
                 ]
               },
               {
                 "prompt": "Given an order, the system plans the steps to reserve inventory, package, arrange shipping, and notify the customer.",
-                "answer": 2,
                 "choices": [
                   {
                     "label": "Simple reflex",
-                    "feedback": "This is a multi-step sequence, not a single condition-action rule."
+                    "feedback": "This is a multi-step sequence, not a single condition-action rule.",
+                    "correct": 0
                   },
                   {
                     "label": "Model-based reflex",
-                    "feedback": "State awareness is not the point; reaching a completion state is."
+                    "feedback": "State awareness is not the point; reaching a completion state is.",
+                    "correct": 0
                   },
                   {
                     "label": "Goal-based",
-                    "feedback": "It plans an action sequence toward an explicit desired state."
+                    "feedback": "It plans an action sequence toward an explicit desired state.",
+                    "correct": 1
                   },
                   {
                     "label": "Utility-based",
-                    "feedback": "Only one acceptable plan is described; nothing is being scored."
+                    "feedback": "Only one acceptable plan is described; nothing is being scored.",
+                    "correct": 0
                   }
                 ]
               },
               {
                 "prompt": "For fulfillment, the system compares shipping options and picks the one that best balances delivery speed, cost, reliability, and inventory risk.",
-                "answer": 3,
                 "choices": [
                   {
                     "label": "Simple reflex",
-                    "feedback": "Trade-off scoring is far beyond a condition-action rule."
+                    "feedback": "Trade-off scoring is far beyond a condition-action rule.",
+                    "correct": 0
                   },
                   {
                     "label": "Model-based reflex",
-                    "feedback": "It does more than consult state; it ranks outcomes."
+                    "feedback": "It does more than consult state; it ranks outcomes.",
+                    "correct": 0
                   },
                   {
                     "label": "Goal-based",
-                    "feedback": "Many options reach the goal; the work is choosing the most desirable one."
+                    "feedback": "Many options reach the goal; the work is choosing the most desirable one.",
+                    "correct": 0
                   },
                   {
                     "label": "Utility-based",
-                    "feedback": "It scores competing successful outcomes against weighted criteria."
+                    "feedback": "It scores competing successful outcomes against weighted criteria.",
+                    "correct": 1
                   }
                 ]
               },
               {
                 "prompt": "A thermostat reads the current temperature and switches the heater on or off against a fixed target.",
-                "answer": 0,
                 "choices": [
                   {
                     "label": "Simple reflex",
-                    "feedback": "Current percept compared to a rule, then act. The canonical reflex agent."
+                    "feedback": "Current percept compared to a rule, then act. The canonical reflex agent.",
+                    "correct": 1
                   },
                   {
                     "label": "Model-based reflex",
-                    "feedback": "No internal state beyond the latest reading is needed."
+                    "feedback": "No internal state beyond the latest reading is needed.",
+                    "correct": 0
                   },
                   {
                     "label": "Goal-based",
-                    "feedback": "Holding a setpoint is a rule, not a planned action sequence."
+                    "feedback": "Holding a setpoint is a rule, not a planned action sequence.",
+                    "correct": 0
                   },
                   {
                     "label": "Utility-based",
-                    "feedback": "It does not weigh competing outcomes."
+                    "feedback": "It does not weigh competing outcomes.",
+                    "correct": 0
                   }
                 ]
               },
               {
                 "prompt": "A navigation agent tracks your position from intermittent GPS, fills gaps with dead reckoning, and reroutes to reach a destination while preferring lower total travel time over distance.",
-                "answer": 3,
                 "choices": [
                   {
                     "label": "Simple reflex",
-                    "feedback": "It clearly maintains state and plans, well past reflex."
+                    "feedback": "It clearly maintains state and plans, well past reflex.",
+                    "correct": 0
                   },
                   {
                     "label": "Model-based reflex",
-                    "feedback": "It keeps state, but it also plans routes and ranks them &mdash; that is more than reflex on state."
+                    "feedback": "It keeps state, but it also plans routes and ranks them &mdash; that is more than reflex on state.",
+                    "correct": 0
                   },
                   {
                     "label": "Goal-based",
-                    "feedback": "Close: it plans to a destination, but preferring lower travel time means it scores between valid routes."
+                    "feedback": "Close: it plans to a destination, but preferring lower travel time means it scores between valid routes.",
+                    "correct": 0
                   },
                   {
                     "label": "Utility-based",
-                    "feedback": "It maintains state, plans to a goal, and ranks valid routes by a preference. The highest rung in use wins."
+                    "feedback": "It maintains state, plans to a goal, and ranks valid routes by a preference. The highest rung in use wins.",
+                    "correct": 1
                   }
                 ]
               }

@@ -74,89 +74,101 @@
             "questions": [
               {
                 "prompt": "A read-only shipping lookup times out once, and the tool marks the error as transient and retryable.",
-                "answer": 0,
                 "choices": [
                   {
                     "label": "Retry once",
-                    "feedback": "A bounded retry is appropriate for a retryable transient read failure."
+                    "feedback": "A bounded retry is appropriate for a retryable transient read failure.",
+                    "correct": 1
                   },
                   {
                     "label": "Issue refund",
-                    "feedback": "Missing shipping evidence should not trigger a sensitive action."
+                    "feedback": "Missing shipping evidence should not trigger a sensitive action.",
+                    "correct": 0
                   },
                   {
                     "label": "Hide error",
-                    "feedback": "Suppressing the timeout creates false confidence."
+                    "feedback": "Suppressing the timeout creates false confidence.",
+                    "correct": 0
                   },
                   {
                     "label": "Store memory",
-                    "feedback": "Memory does not repair the current missing observation."
+                    "feedback": "Memory does not repair the current missing observation.",
+                    "correct": 0
                   }
                 ]
               },
               {
                 "prompt": "A policy check says the requested action is outside the agent's authority.",
-                "answer": 1,
                 "choices": [
                   {
                     "label": "Retry once",
-                    "feedback": "Repeating a policy denial does not change authority."
+                    "feedback": "Repeating a policy denial does not change authority.",
+                    "correct": 0
                   },
                   {
                     "label": "Escalate now",
-                    "feedback": "A human or higher-authority workflow is the right path."
+                    "feedback": "A human or higher-authority workflow is the right path.",
+                    "correct": 1
                   },
                   {
                     "label": "Ignore gate",
-                    "feedback": "The gate exists to enforce control outside the model."
+                    "feedback": "The gate exists to enforce control outside the model.",
+                    "correct": 0
                   },
                   {
                     "label": "Shorten answer",
-                    "feedback": "Response length does not resolve authorization."
+                    "feedback": "Response length does not resolve authorization.",
+                    "correct": 0
                   }
                 ]
               },
               {
                 "prompt": "Three parallel evidence calls finish, but one source corpus is unavailable after retry.",
-                "answer": 2,
                 "choices": [
                   {
                     "label": "Claim complete",
-                    "feedback": "That hides a coverage gap from the user."
+                    "feedback": "That hides a coverage gap from the user.",
+                    "correct": 0
                   },
                   {
                     "label": "Retry forever",
-                    "feedback": "Unbounded retries waste budget and delay recovery."
+                    "feedback": "Unbounded retries waste budget and delay recovery.",
+                    "correct": 0
                   },
                   {
                     "label": "Answer partially",
-                    "feedback": "Use available evidence, disclose the missing corpus, and mark confidence or coverage limits."
+                    "feedback": "Use available evidence, disclose the missing corpus, and mark confidence or coverage limits.",
+                    "correct": 1
                   },
                   {
                     "label": "Delete traces",
-                    "feedback": "Trace data is needed for audit and diagnosis."
+                    "feedback": "Trace data is needed for audit and diagnosis.",
+                    "correct": 0
                   }
                 ]
               },
               {
                 "prompt": "The agent completed the task, but logs show repeated wrong tool selection before success.",
-                "answer": 3,
                 "choices": [
                   {
                     "label": "Do nothing",
-                    "feedback": "The run succeeded, but the trace shows a recurring design defect."
+                    "feedback": "The run succeeded, but the trace shows a recurring design defect.",
+                    "correct": 0
                   },
                   {
                     "label": "Block user",
-                    "feedback": "The issue is system behavior, not the user."
+                    "feedback": "The issue is system behavior, not the user.",
+                    "correct": 0
                   },
                   {
                     "label": "Remove tools",
-                    "feedback": "The likely fix is narrower than removing capability."
+                    "feedback": "The likely fix is narrower than removing capability.",
+                    "correct": 0
                   },
                   {
                     "label": "Improve contract",
-                    "feedback": "Wrong selection usually points to descriptions, schemas, examples, or controller validation."
+                    "feedback": "Wrong selection usually points to descriptions, schemas, examples, or controller validation.",
+                    "correct": 1
                   }
                 ]
               }

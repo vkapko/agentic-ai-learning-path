@@ -33,7 +33,7 @@ class CourseQuiz extends HTMLElement {
     button.setAttribute("aria-pressed", "true");
 
     const selected = question.choices[choiceIndex];
-    const correct = choiceIndex === question.answer;
+    const correct = selected.correct === 1;
     feedback.className = `feedback ${correct ? "good" : "bad"}`;
     feedback.textContent = `${correct ? "Correct." : "Try again."} ${selected.feedback}`;
   }
