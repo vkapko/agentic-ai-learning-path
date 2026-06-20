@@ -5,6 +5,7 @@ This plan is based on:
 - `agentic-ai-architecture-foundations-designing-autonomous-ai-systems.md`
 - `agentic-ai-solution-design-patterns.md`
 - `agentic-ai-planning-and-reasoning-design.md`
+- `Claude Certified Architect – Foundations.md` — applied, Claude-specific reference (Agent SDK, MCP, Claude Code, Claude API) used to ground the conceptual patterns in a concrete implementation and, optionally, to prepare for the certification exam.
 
 ## Provisional mission
 
@@ -22,6 +23,7 @@ By the end, you should be able to:
 - Decide when a system should be single-agent, multi-agent, centralized, decentralized, or hybrid.
 - Select planning and reasoning patterns such as ReAct, plan-and-execute, ReWOO, verifier agents, planner-critic-refiner, LATS, Self-Discover, and adaptive tool orchestration.
 - Identify risks around stale state, prompt injection, tool loops, bad memory, weak verification, hidden authority, and irreversible side effects.
+- Map the conceptual patterns onto a concrete Claude implementation: agentic loops driven by `stop_reason`, coordinator-subagent orchestration, MCP tool and structured-error design, Claude Code configuration, structured output via tool use, and context-management/escalation tradeoffs.
 - Produce a concise architecture sketch and risk checklist for a real agentic AI use case.
 
 ## Course shape
@@ -88,6 +90,7 @@ Checkpoint:
 ### 4. System architecture choices
 
 Primary file: `agentic-ai-architecture-foundations-designing-autonomous-ai-systems.md`
+Secondary file: `Claude Certified Architect – Foundations.md` (Domain 1, Task Statements 1.2–1.3: hub-and-spoke coordinator-subagent orchestration, isolated subagent context, explicit context passing).
 
 Learn:
 
@@ -107,6 +110,7 @@ Checkpoint:
 ### 5. Foundational reasoning and behavior patterns
 
 Primary file: `agentic-ai-solution-design-patterns.md`
+Secondary file: `Claude Certified Architect – Foundations.md` (Domain 1, Task Statement 1.1: implementing the agentic loop as control flow on `stop_reason`, and the anti-pattern of parsing natural-language signals to decide termination).
 
 Learn:
 
@@ -126,6 +130,7 @@ Checkpoint:
 ### 6. Tools, knowledge, humans, and memory
 
 Primary file: `agentic-ai-solution-design-patterns.md`
+Secondary file: `Claude Certified Architect – Foundations.md` (Domain 2, Task Statements 2.1–2.3: tool descriptions as the selection mechanism, structured `isError` responses with retryable metadata, and scoped tool distribution across agents).
 
 Learn:
 
@@ -146,6 +151,7 @@ Checkpoint:
 ### 7. Planning and execution patterns
 
 Primary file: `agentic-ai-planning-and-reasoning-design.md`
+Secondary file: `Claude Certified Architect – Foundations.md` (Domain 1, Task Statement 1.6: fixed sequential pipelines / prompt chaining vs. dynamic adaptive decomposition, and parallel subagent execution).
 
 Learn:
 
@@ -167,6 +173,7 @@ Checkpoint:
 ### 8. Search, verification, and self-correction
 
 Primary file: `agentic-ai-planning-and-reasoning-design.md`
+Secondary file: `Claude Certified Architect – Foundations.md` (Domain 4, Task Statement 4.6: why a generator reviewing its own output in-session is weaker than an independent review instance; multi-pass review).
 
 Learn:
 
@@ -184,9 +191,67 @@ Checkpoint:
 
 - You can explain when extra reasoning passes improve reliability and when they only add cost.
 
-### 9. Capstone: design an agentic AI system
+### 9. Applied: structured output and reliable extraction
 
-Use all three files.
+Primary file: `Claude Certified Architect – Foundations.md` (Domain 4: prompt engineering and structured output).
+
+Learn:
+
+- Tool use with JSON schemas as the reliable path to schema-compliant output, and the `tool_choice` options (`auto`, `any`, forced).
+- Why strict schemas remove syntax errors but not semantic ones, and why nullable/optional fields prevent fabrication.
+- Few-shot prompting, explicit criteria over vague instructions, and validation-retry loops (and their limits when information is simply absent).
+
+Practice:
+
+- Design an extraction schema with required, optional/nullable, and enum + "other" fields for one document type.
+- Sketch a validation-retry loop and mark which failure classes a retry can and cannot fix.
+
+Checkpoint:
+
+- You can explain why forcing structured output via tool use is more reliable than asking for JSON in prose.
+
+### 10. Applied: context management, escalation, and provenance
+
+Primary file: `Claude Certified Architect – Foundations.md` (Domain 5: context management and reliability).
+
+Learn:
+
+- Progressive-summarization risk, the "lost in the middle" effect, and trimming verbose tool outputs before they accumulate.
+- Structured error propagation across agents: access failures vs. valid empty results, partial results, and local recovery before escalation.
+- Escalation triggers (explicit human requests, policy gaps, no meaningful progress) and why sentiment and self-reported confidence are weak proxies.
+- Preserving claim-source mappings and temporal data through synthesis.
+
+Practice:
+
+- Define a persistent "case facts" block for a multi-turn workflow and decide what stays outside summarized history.
+- Write escalation criteria with two or three worked examples that separate "escalate now" from "resolve autonomously."
+
+Checkpoint:
+
+- You can distinguish a reliability problem that prompt criteria can fix from one that needs programmatic enforcement (a hook or prerequisite gate).
+
+### 11. Applied: Claude Code configuration and CI/CD workflows
+
+Primary file: `Claude Certified Architect – Foundations.md` (Domain 3: Claude Code configuration and workflows).
+
+Learn:
+
+- The CLAUDE.md hierarchy (user/project/directory), `@import`, and `.claude/rules/` with glob-pattern path scoping.
+- Project- vs. user-scoped commands and skills, `context: fork`, and `allowed-tools` restrictions.
+- Plan mode vs. direct execution, and running Claude Code non-interactively in CI (`-p`, `--output-format json`, `--json-schema`).
+
+Practice:
+
+- Decide where a given convention belongs: root CLAUDE.md, a directory CLAUDE.md, or a path-scoped rule.
+- Choose plan mode vs. direct execution for three tasks of differing scope and justify each.
+
+Checkpoint:
+
+- You can place a configuration so it loads exactly when relevant and is shared with (or isolated from) teammates as intended.
+
+### 12. Capstone: design an agentic AI system
+
+Use all four files.
 
 Practice:
 
@@ -195,6 +260,7 @@ Practice:
 - Pick an agent type and system architecture.
 - Pick planning and reasoning patterns.
 - Add monitoring, logging, verification, and rollback paths.
+- Sketch the concrete Claude implementation: agentic loop, subagent boundaries, MCP tool and error schemas, structured output, and where enforcement is programmatic vs. prompt-based.
 - Write the top ten failure modes and mitigations.
 
 Checkpoint:
@@ -210,8 +276,9 @@ Use retrieval before rereading.
 - Day 4: Recall the core modules and their risks, then complete Session 4.
 - Day 7: Complete Sessions 5-6.
 - Day 10: Complete Sessions 7-8.
-- Day 14: Capstone.
-- Day 21: Redesign the capstone from scratch and compare it to the original.
+- Day 12: Complete applied Sessions 9-11.
+- Day 16: Capstone (Session 12).
+- Day 23: Redesign the capstone from scratch and compare it to the original.
 
 ## Practice prompts
 
@@ -225,6 +292,9 @@ Use retrieval before rereading.
 - What memory is useful, and what memory is risky?
 - What evidence would make a verifier independent?
 - What monitoring would catch a tool loop, state drift, or unsafe escalation?
+- Should this rule be enforced programmatically (hook or prerequisite gate) or is prompt guidance enough?
+- Do two similar tools have descriptions distinct enough for the model to route correctly?
+- Where would this configuration live so it loads exactly when relevant and is shared or isolated as intended?
 
 ## First lesson recommendation
 
